@@ -1,0 +1,19 @@
+{
+  "name": "@farmhith/ui",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.tsx",
+  "types": "./src/index.tsx",
+  "exports": {
+    ".": "./src/index.tsx"
+  },
+  "dependencies": {
+    "@farmhith/types": "workspace:*",
+    "@farmhith/utils": "workspace:*",
+    "lucide-react": "^0.468.0"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

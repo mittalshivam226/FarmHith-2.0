@@ -1,0 +1,81 @@
+'use client';
+import React from 'react';
+import Link from 'next/link';
+import { Card, StatusBadge, SectionHeader, Badge } from '@farmhith/ui';
+import { formatCurrency, formatDate } from '@farmhith/utils';
+import { DataTable, type Column } from '@farmhith/ui';
+import type { CropListing } from '@farmhith/types';
+import { mockListings } from '../../../lib/mock-data';
+import { MapPin, Weight } from 'lucide-react';
+
+const residueTypes = ['All', 'Paddy Straw', 'Wheat Straw', 'Sugarcane Bagasse'];
+
+export default function BiopelletListingsPage() {
+  const [filter, setFilter] = React.useState('All');
+
+  const filtered = filter === 'All' ? mockListings : mockListings.filter(l => l.residueType === filter);
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <SectionHeader
+        title="Browse Listings"
+        description="Find crop residue listings matching your plant's requirements"
+      />
+
+      {/* Filter chips */}
+      <div className="flex gap-2 flex-wrap">
+        {residueTypes.map(type => (
+          <button
+            key={type}
+            onClick={() => setFilter(type)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+              filter === type
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {type}
+          </button>
+        ))}
+      </div>
+
+      {/* Listings grid */}
+      <div className="grid sm:grid-cols-2 gap-4">
+        {filtered.map(listing => (
+          <Link key={listing.id} href={`/dashboard/listings/${listing.id}`}>
+            <Card hover>
+              <div className="flex items-start justify-between mb-3">
+                <Badge variant="success">{listing.residueType}</Badge>
+                <StatusBadge status={listing.status} size="sm" />
+              </div>
+              <p className="font-semibold text-gray-900">{listing.farmerName}</p>
+              <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                <MapPin size={11} />{listing.location}
+              </div>
+              <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-1 text-sm text-gray-700">
+                  <Weight size={14} className="text-gray-400" />
+                  <span className="font-semibold">{listing.quantityTons}</span> tons
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">Price/ton</p>
+                  <p className="font-bold text-green-700">{formatCurrency(listing.farmhithPricePerTon)}</p>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+                <span>Available {formatDate(listing.availableFrom)}</span>
+                <span className="text-green-600 font-medium">Express Interest →</span>
+              </div>
+            </Card>
+          </Link>
+        ))}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="text-center py-12 text-gray-400">
+          <p>No listings found for {filter}.</p>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,26 @@
+{
+  "name": "farmhith",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "dev:farmer": "pnpm --filter farmer dev",
+    "dev:lab": "pnpm --filter lab dev",
+    "dev:biopellet": "pnpm --filter biopellet dev",
+    "dev:soilmitra": "pnpm --filter soilmitra dev",
+    "dev:admin": "pnpm --filter admin dev"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.4",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
