@@ -1,0 +1,15 @@
+{
+  "name": "@farmhith/firebase",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "firebase": "^10.11.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
