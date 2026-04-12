@@ -9,6 +9,7 @@ import { listingsRouter } from './listings';
 import { ordersRouter } from './orders';
 import { notificationsRouter } from './notifications';
 import { adminRouter } from './admin';
+import { paymentsRouter } from './payments';
 
 export const router = Router();
 
@@ -21,4 +22,5 @@ router.use('/sessions', sessionsRouter);
 router.use('/listings', listingsRouter);
 router.use('/orders', ordersRouter);
 router.use('/notifications', notificationsRouter);
+router.use('/payments', paymentsRouter);
 router.use('/admin', adminRouter);
