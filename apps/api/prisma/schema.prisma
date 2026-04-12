@@ -1,0 +1,378 @@
+// FarmHith 2.0 — Prisma Schema
+// Run: pnpm --filter @farmhith/api db:generate && db:push
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==============================================================
+// ENUMS
+// ==============================================================
+
+enum Role {
+  FARMER
+  LAB
+  SOILMITRA
+  BIOPELLET
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ListingStatus {
+  ACTIVE
+  MATCHED
+  SOLD
+  EXPIRED
+}
+
+enum OrderStatus {
+  INTERESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum SessionStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  INITIATED
+  CAPTURED
+  SETTLED
+  REFUNDED
+  FAILED
+}
+
+enum ServiceType {
+  SOIL_TEST
+  MITRA_SESSION
+  CROP_PROCUREMENT
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+}
+
+// ==============================================================
+// CORE AUTH
+// ==============================================================
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  email     String?  @unique
+  role      Role
+  isActive  Boolean  @default(true)
+  isVerified Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Role-specific profile (only one will exist)
+  farmerProfile    FarmerProfile?
+  labProfile       LabProfile?
+  soilmitraProfile SoilmitraProfile?
+  biopelletProfile BiopelletProfile?
+
+  // Relations
+  soilTestsAsLab     SoilTestBooking[] @relation("LabBookings")
+  soilTestsAsFarmer  SoilTestBooking[] @relation("FarmerBookings")
+  mitraSessionsAsMitra MitraBooking[]  @relation("MitraBookings")
+  mitraSessionsAsFarmer MitraBooking[] @relation("FarmerSessions")
+  listings           CropListing[]
+  orders             ProcurementOrder[]
+  notifications      Notification[]
+  payerPayments      Payment[]         @relation("Payer")
+  payeePayments      Payment[]         @relation("Payee")
+
+  // OTP / Refresh tokens
+  otpCode       String?
+  otpExpiry     DateTime?
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
+// ==============================================================
+// FARMER PROFILE
+// ==============================================================
+
+model FarmerProfile {
+  id               String  @id @default(cuid())
+  userId           String  @unique
+  user             User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName         String
+  state            String
+  district         String
+  totalLandAcres   Decimal
+  primaryCrop      String
+  preferredLang    String  @default("Hindi")
+  aadhaarVerified  Boolean @default(false)
+
+  @@map("farmer_profiles")
+}
+
+// ==============================================================
+// LAB PROFILE
+// ==============================================================
+
+model LabProfile {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  labName         String
+  address         String
+  state           String
+  district        String
+  perTestPrice    Decimal
+  dailyCapacity   Int
+  // Comma-separated list of supported crops/tests
+  serviceableArea String?
+  certifications  String?
+
+  @@map("lab_profiles")
+}
+
+// ==============================================================
+// SOIL-MITRA PROFILE
+// ==============================================================
+
+model SoilmitraProfile {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName        String
+  bio             String?
+  sessionFee      Decimal
+  rating          Decimal @default(0)
+  totalSessions   Int     @default(0)
+  // Stored as JSON arrays serialized to strings
+  specialisation  String  // JSON array e.g. '["Wheat","Rice"]'
+  languagesSpoken String  // JSON array
+  // Availability stored as JSON: { mon: ["10:00 AM"], tue: [...], ... }
+  availability    String? @default("{}")
+
+  @@map("soilmitra_profiles")
+}
+
+// ==============================================================
+// BIO-PELLET PLANT PROFILE
+// ==============================================================
+
+model BiopelletProfile {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plantName       String
+  address         String
+  state           String
+  district        String
+  // Comma-separated accepted residue types
+  acceptedResidueTypes String
+  procurementRatePerTon Decimal
+
+  @@map("biopellet_profiles")
+}
+
+// ==============================================================
+// SOIL TEST BOOKINGS
+// ==============================================================
+
+model SoilTestBooking {
+  id                String        @id @default(cuid())
+  farmerId          String
+  farmer            User          @relation("FarmerBookings", fields: [farmerId], references: [id])
+  labId             String
+  lab               User          @relation("LabBookings", fields: [labId], references: [id])
+
+  cropType          String
+  landParcelDetails String
+  collectionDate    DateTime
+  status            BookingStatus @default(PENDING)
+  amountPaid        Decimal
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  report            SoilReport?
+  payment           Payment?
+
+  @@map("soil_test_bookings")
+}
+
+model SoilReport {
+  id         String          @id @default(cuid())
+  bookingId  String          @unique
+  booking    SoilTestBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  nitrogen       Decimal
+  phosphorus     Decimal
+  potassium      Decimal
+  ph             Decimal
+  moisture        Decimal?
+  recommendation String
+
+  generatedAt DateTime @default(now())
+
+  @@map("soil_reports")
+}
+
+// ==============================================================
+// MITRA SESSIONS
+// ==============================================================
+
+model MitraBooking {
+  id              String        @id @default(cuid())
+  farmerId        String
+  farmer          User          @relation("FarmerSessions", fields: [farmerId], references: [id])
+  mitraId         String
+  mitra           User          @relation("MitraBookings", fields: [mitraId], references: [id])
+
+  sessionDatetime DateTime
+  durationMinutes Int           @default(30)
+  cropType        String?
+  notes           String?
+  status          SessionStatus @default(PENDING)
+  amountPaid      Decimal
+
+  farmerRating    Decimal?
+  farmerReview    String?
+
+  // Link to soil report if farmer consented to share
+  soilReportId    String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  payment         Payment?
+
+  @@map("mitra_bookings")
+}
+
+// ==============================================================
+// CROP MARKETPLACE
+// ==============================================================
+
+model CropListing {
+  id                   String        @id @default(cuid())
+  farmerId             String
+  farmer               User          @relation(fields: [farmerId], references: [id])
+
+  residueType          String
+  quantityTons         Decimal
+  location             String
+  availableFrom        DateTime
+  status               ListingStatus @default(ACTIVE)
+  farmhithPricePerTon  Decimal
+  marketPricePerTon    Decimal?
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  orders               ProcurementOrder[]
+
+  @@map("crop_listings")
+}
+
+model ProcurementOrder {
+  id                  String      @id @default(cuid())
+  listingId           String
+  listing             CropListing @relation(fields: [listingId], references: [id])
+  plantId             String
+  plant               User        @relation(fields: [plantId], references: [id])
+
+  finalQuantityTons   Decimal
+  totalAmount         Decimal
+  status              OrderStatus @default(INTERESTED)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  payment             Payment?
+
+  @@map("procurement_orders")
+}
+
+// ==============================================================
+// PAYMENTS
+// ==============================================================
+
+model Payment {
+  id                  String        @id @default(cuid())
+  payerId             String
+  payer               User          @relation("Payer", fields: [payerId], references: [id])
+  payeeId             String
+  payee               User          @relation("Payee", fields: [payeeId], references: [id])
+
+  serviceType         ServiceType
+  grossAmount         Decimal
+  platformCommission  Decimal       @default(0)
+  netPayout           Decimal
+  status              PaymentStatus @default(INITIATED)
+
+  // Razorpay / gateway IDs (optional for mock)
+  gatewayOrderId      String?
+  gatewayPaymentId    String?
+
+  // Polymorphic links (only one will be set)
+  soilTestBookingId   String?       @unique
+  soilTestBooking     SoilTestBooking? @relation(fields: [soilTestBookingId], references: [id])
+
+  mitraBookingId      String?       @unique
+  mitraBooking        MitraBooking? @relation(fields: [mitraBookingId], references: [id])
+
+  procurementOrderId  String?       @unique
+  procurementOrder    ProcurementOrder? @relation(fields: [procurementOrderId], references: [id])
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("payments")
+}
+
+// ==============================================================
+// NOTIFICATIONS
+// ==============================================================
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType @default(INFO)
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@map("notifications")
+}
