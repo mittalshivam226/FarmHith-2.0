@@ -6,5 +6,8 @@
     "./tailwind": "./tailwind.config.base.js",
     "./typescript": "./tsconfig.base.json",
     "./postcss": "./postcss.config.js"
+  },
+  "dependencies": {
+    "@farmhith/firebase": "workspace:^"
   }
 }

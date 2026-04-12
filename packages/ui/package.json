@@ -8,6 +8,7 @@
     ".": "./src/index.tsx"
   },
   "dependencies": {
+    "@farmhith/firebase": "workspace:^",
     "@farmhith/types": "workspace:*",
     "@farmhith/utils": "workspace:*",
     "lucide-react": "^0.468.0"

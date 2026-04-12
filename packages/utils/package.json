@@ -8,6 +8,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "@farmhith/firebase": "workspace:^",
     "@farmhith/types": "workspace:*"
   }
 }
