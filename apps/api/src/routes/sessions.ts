@@ -133,7 +133,7 @@ sessionsRouter.post('/:id/rating', requireAuth, requireRole('FARMER'), validate(
       where: { mitraId: session.mitraId, farmerRating: { not: null } },
       select: { farmerRating: true },
     });
-    const avgRating = allRatings.reduce((s, b) => s + Number(b.farmerRating), 0) / allRatings.length;
+    const avgRating = allRatings.reduce((s: number, b: { farmerRating: any }) => s + Number(b.farmerRating), 0) / allRatings.length;
 
     await prisma.soilmitraProfile.updateMany({
       where: { userId: session.mitraId },

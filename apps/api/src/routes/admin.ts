@@ -114,7 +114,7 @@ adminRouter.post('/broadcast', validate(broadcastSchema), async (req, res, next)
     });
 
     await prisma.notification.createMany({
-      data: users.map((u) => ({
+      data: users.map((u: { id: string }) => ({
         userId: u.id,
         type: 'INFO' as const,
         title,
