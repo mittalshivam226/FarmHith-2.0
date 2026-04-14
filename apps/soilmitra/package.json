@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@farmhith/auth": "workspace:*",
+    "@farmhith/firebase": "workspace:*",
+    "@farmhith/hooks": "workspace:*",
     "@farmhith/types": "workspace:*",
     "@farmhith/ui": "workspace:*",
     "@farmhith/utils": "workspace:*",

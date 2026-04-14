@@ -78,6 +78,12 @@ importers:
       '@farmhith/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@farmhith/firebase':
+        specifier: workspace:*
+        version: link:../../packages/firebase
+      '@farmhith/hooks':
+        specifier: workspace:*
+        version: link:../../packages/hooks
       '@farmhith/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -130,6 +136,12 @@ importers:
       '@farmhith/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@farmhith/firebase':
+        specifier: workspace:*
+        version: link:../../packages/firebase
+      '@farmhith/hooks':
+        specifier: workspace:*
+        version: link:../../packages/hooks
       '@farmhith/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -182,6 +194,12 @@ importers:
       '@farmhith/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@farmhith/firebase':
+        specifier: workspace:*
+        version: link:../../packages/firebase
+      '@farmhith/hooks':
+        specifier: workspace:*
+        version: link:../../packages/hooks
       '@farmhith/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -234,6 +252,12 @@ importers:
       '@farmhith/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@farmhith/firebase':
+        specifier: workspace:*
+        version: link:../../packages/firebase
+      '@farmhith/hooks':
+        specifier: workspace:*
+        version: link:../../packages/hooks
       '@farmhith/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -313,6 +337,28 @@ importers:
     devDependencies:
       typescript:
         specifier: ^5.4.5
+        version: 5.9.3
+
+  packages/hooks:
+    dependencies:
+      '@farmhith/firebase':
+        specifier: workspace:*
+        version: link:../firebase
+      '@farmhith/types':
+        specifier: workspace:*
+        version: link:../types
+      firebase:
+        specifier: ^10.0.0
+        version: 10.14.1
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+    devDependencies:
+      '@types/react':
+        specifier: ^18.0.0
+        version: 18.3.28
+      typescript:
+        specifier: ^5.0.0
         version: 5.9.3
 
   packages/types:

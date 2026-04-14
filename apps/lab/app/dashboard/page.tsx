@@ -4,23 +4,29 @@ import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
 import { StatCard, StatusBadge, Card, SectionHeader } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
-import { ClipboardList, CheckCircle, Clock, TrendingUp, Upload, ArrowRight } from 'lucide-react';
-import { mockBookings, mockPayments } from '../../lib/mock-data';
+import { useLabInbox } from '@farmhith/hooks';
+import { ClipboardList, CheckCircle, Clock, TrendingUp, Upload, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function LabDashboard() {
   const { user } = useAuth();
+  const labId = user?.id;
 
-  const pendingCount    = mockBookings.filter(b => b.status === 'PENDING').length;
-  const acceptedCount   = mockBookings.filter(b => b.status === 'ACCEPTED' || b.status === 'IN_PROGRESS').length;
-  const completedCount  = mockBookings.filter(b => b.status === 'COMPLETED').length;
-  const pendingReports  = mockBookings.filter(b => b.status === 'IN_PROGRESS' && !b.report).length;
-  const dailyCapacity   = 15;
-  const totalBooked     = pendingCount + acceptedCount;
-  const capacityPct     = Math.min(100, Math.round((totalBooked / dailyCapacity) * 100));
+  const { data: bookings, loading } = useLabInbox(labId);
 
-  const totalRevenue = mockPayments
-    .filter(p => p.status === 'SETTLED' || p.status === 'CAPTURED')
-    .reduce((s, p) => s + p.grossAmount, 0);
+  const pendingCount   = bookings.filter(b => b.status === 'PENDING').length;
+  const acceptedCount  = bookings.filter(b => b.status === 'ACCEPTED' || b.status === 'IN_PROGRESS').length;
+  const completedCount = bookings.filter(b => b.status === 'COMPLETED').length;
+  const pendingReports = bookings.filter(b => b.status === 'IN_PROGRESS' && !b.report).length;
+
+  const labProfile = user?.profile as any;
+  const dailyCapacity = labProfile?.dailyCapacity || 15;
+  const totalBooked   = pendingCount + acceptedCount;
+  const capacityPct   = Math.min(100, Math.round((totalBooked / dailyCapacity) * 100));
+
+  // Revenue is estimated from completed bookings (real payment tracking comes later)
+  const estimatedRevenue = bookings
+    .filter(b => b.status === 'COMPLETED')
+    .reduce((s, b) => s + b.amountPaid, 0);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -31,10 +37,10 @@ export default function LabDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Pending" value={pendingCount} icon={<Clock size={20} />} accent="amber" />
-        <StatCard label="In Progress" value={acceptedCount} icon={<ClipboardList size={20} />} accent="blue" />
-        <StatCard label="Completed" value={completedCount} icon={<CheckCircle size={20} />} accent="green" />
-        <StatCard label="Revenue" value={formatCurrency(totalRevenue)} icon={<TrendingUp size={20} />} accent="purple" />
+        <StatCard label="Pending" value={loading ? '—' : pendingCount} icon={<Clock size={20} />} accent="amber" />
+        <StatCard label="In Progress" value={loading ? '—' : acceptedCount} icon={<ClipboardList size={20} />} accent="blue" />
+        <StatCard label="Completed" value={loading ? '—' : completedCount} icon={<CheckCircle size={20} />} accent="green" />
+        <StatCard label="Revenue" value={loading ? '—' : formatCurrency(estimatedRevenue)} icon={<TrendingUp size={20} />} accent="purple" />
       </div>
 
       {/* Capacity bar */}
@@ -66,27 +72,35 @@ export default function LabDashboard() {
           }
         />
         <div className="space-y-3">
-          {mockBookings.slice(0, 4).map(booking => (
-            <Link
-              key={booking.id}
-              href={`/dashboard/bookings/${booking.id}`}
-              className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-blue-50 transition-colors"
-            >
-              <div>
-                <p className="text-sm font-medium text-gray-900">{booking.farmerName}</p>
-                <p className="text-xs text-gray-500">{booking.cropType} · {booking.collectionDate}</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-gray-700">{formatCurrency(booking.amountPaid)}</span>
-                <StatusBadge status={booking.status} size="sm" />
-              </div>
-            </Link>
-          ))}
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 size={20} className="animate-spin text-gray-400" />
+            </div>
+          ) : bookings.length === 0 ? (
+            <p className="text-sm text-gray-500 py-8 text-center">No bookings yet. Your inbox will fill up when farmers book your lab.</p>
+          ) : (
+            bookings.slice(0, 4).map(booking => (
+              <Link
+                key={booking.id}
+                href={`/dashboard/bookings/${booking.id}`}
+                className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-blue-50 transition-colors"
+              >
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{booking.farmerName}</p>
+                  <p className="text-xs text-gray-500">{booking.cropType} · {booking.collectionDate}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-gray-700">{formatCurrency(booking.amountPaid)}</span>
+                  <StatusBadge status={booking.status} size="sm" />
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </Card>
 
-      {/* Pending report uploads */}
-      {pendingReports > 0 && (
+      {/* Pending report uploads alert */}
+      {!loading && pendingReports > 0 && (
         <div className="flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-2xl">
           <Upload size={18} className="text-orange-600 shrink-0" />
           <div>
