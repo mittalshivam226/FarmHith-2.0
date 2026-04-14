@@ -21,8 +21,11 @@ import type {
   ProcurementOrder,
   LabProfile,
   SoilmitraProfile,
+  User,
+  Payment,
   Role,
 } from '@farmhith/types';
+
 
 // ─── Generic realtime hook ────────────────────────────────────────────────────
 
@@ -194,5 +197,51 @@ export function useAvailableMitras() {
   );
 }
 
+// ─── Notification (local type — may not be in @farmhith/types) ───────────────
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'success' | 'info' | 'warning' | 'error';
+  read: boolean;
+  createdAt: string;
+  userId: string;
+}
+
+/** Fetch notifications for a user, newest first */
+export function useNotifications(userId: string | undefined) {
+  return useCollection<Notification>(
+    'notifications',
+    [where('userId', '==', userId ?? ''), orderBy('createdAt', 'desc')],
+    !!userId
+  );
+}
+
+// ─── Admin Hooks ─────────────────────────────────────────────────────────────
+
+/** Admin: all registered users */
+export function useAllUsers() {
+  return useCollection<User & { id: string; createdAt: string }>(
+    'users',
+    [orderBy('createdAt', 'desc')]
+  );
+}
+
+/** Admin: all soil test bookings across all labs */
+export function useAllSoilTestBookings() {
+  return useCollection<SoilTestBooking>(
+    'soilTestBookings',
+    [orderBy('createdAt', 'desc')]
+  );
+}
+
+/** Admin: all platform payments */
+export function useAllPayments() {
+  return useCollection<Payment>(
+    'payments',
+    [orderBy('createdAt', 'desc')]
+  );
+}
+
 // ─── Re-exports ────────────────────────────────────────────────────────────────
-export type { SoilTestBooking, MitraBooking, SoilReport, CropListing, ProcurementOrder };
+export type { SoilTestBooking, MitraBooking, SoilReport, CropListing, ProcurementOrder, User, Payment };
