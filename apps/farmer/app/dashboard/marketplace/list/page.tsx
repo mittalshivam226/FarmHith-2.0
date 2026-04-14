@@ -1,47 +1,69 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, Input, Select, Button, useToast, Checkbox } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
-import { ShieldCheck, ArrowLeft } from 'lucide-react';
+import { db } from '@farmhith/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
+
+const PRICING_MODEL: Record<string, number> = {
+  'Paddy Straw': 2500,
+  'Wheat Straw': 2200,
+  'Sugarcane Bagasse': 1800,
+  'Cotton Stalks': 1600,
+  'Maize Stalks': 1400,
+};
 
 export default function CreateListingPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const toast = useToast();
-  const [loading, setLoading] = useState(false);
-
-  // Simplified pricing model for mock purposes
-  const PRICING_MODEL: Record<string, number> = {
-    'Paddy Straw': 2500,
-    'Wheat Straw': 2200,
-    'Sugarcane Bagasse': 1800,
-  };
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
     residueType: '',
     quantityTons: '',
+    location: '',
     availableFrom: '',
     termsAccepted: false,
   });
 
-  const estimatedPrice = form.residueType && form.quantityTons
-    ? PRICING_MODEL[form.residueType] * parseFloat(form.quantityTons)
+  const pricePerTon = form.residueType ? (PRICING_MODEL[form.residueType] ?? 0) : 0;
+  const estimatedPrice = pricePerTon && form.quantityTons
+    ? pricePerTon * parseFloat(form.quantityTons)
     : 0;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    
-    // Simulate creation
-    setTimeout(() => {
-      setLoading(false);
+    if (!user || !form.termsAccepted) return;
+    setSubmitting(true);
+
+    try {
+      await addDoc(collection(db, 'cropListings'), {
+        farmerId: user.id,
+        farmerName: user.name,
+        residueType: form.residueType,
+        quantityTons: parseFloat(form.quantityTons),
+        location: form.location,
+        availableFrom: form.availableFrom,
+        farmhithPricePerTon: pricePerTon,
+        status: 'ACTIVE',
+        createdAt: serverTimestamp(),
+      });
+
       toast.show({
         title: 'Listing Created',
         message: 'Your crop residue is now visible to bio-pellet plants.',
         type: 'success',
       });
       router.push('/dashboard/marketplace');
-    }, 1500);
+    } catch (err) {
+      console.error(err);
+      toast.show({ title: 'Error', message: 'Failed to create listing. Please try again.', type: 'error' });
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -68,6 +90,8 @@ export default function CreateListingPage() {
                 { label: 'Paddy Straw (₹2,500/ton)', value: 'Paddy Straw' },
                 { label: 'Wheat Straw (₹2,200/ton)', value: 'Wheat Straw' },
                 { label: 'Sugarcane Bagasse (₹1,800/ton)', value: 'Sugarcane Bagasse' },
+                { label: 'Cotton Stalks (₹1,600/ton)', value: 'Cotton Stalks' },
+                { label: 'Maize Stalks (₹1,400/ton)', value: 'Maize Stalks' },
               ]}
               required
             />
@@ -89,13 +113,22 @@ export default function CreateListingPage() {
                 required
               />
             </div>
+
+            <Input
+              label="Pickup Location / Village"
+              placeholder="e.g. Ludhiana, Punjab"
+              value={form.location}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+              required
+            />
           </div>
 
+          {/* Price summary */}
           <div className="bg-green-50 border border-green-100 p-4 rounded-xl space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-gray-900">FarmHith Assured Rate</span>
               {form.residueType ? (
-                <span className="text-sm font-medium text-green-700">{formatCurrency(PRICING_MODEL[form.residueType])} / ton</span>
+                <span className="text-sm font-medium text-green-700">{formatCurrency(pricePerTon)} / ton</span>
               ) : (
                 <span className="text-xs text-gray-400">Select residue type</span>
               )}
@@ -106,11 +139,12 @@ export default function CreateListingPage() {
             </div>
           </div>
 
+          {/* Terms */}
           <div className="flex items-start gap-3 p-4 border border-gray-100 rounded-xl bg-gray-50">
             <div className="mt-0.5">
-              <Checkbox 
-                checked={form.termsAccepted} 
-                onChange={(checked) => setForm({ ...form, termsAccepted: checked as boolean })} 
+              <Checkbox
+                checked={form.termsAccepted}
+                onChange={(checked) => setForm({ ...form, termsAccepted: checked as boolean })}
               />
             </div>
             <div className="text-sm text-gray-600">
@@ -126,9 +160,9 @@ export default function CreateListingPage() {
               type="submit"
               variant="primary"
               className="w-full sm:w-auto"
-              disabled={loading || !form.residueType || !form.quantityTons || !form.availableFrom || !form.termsAccepted}
+              disabled={submitting || !form.residueType || !form.quantityTons || !form.availableFrom || !form.location || !form.termsAccepted}
             >
-              {loading ? 'Publishing...' : 'Publish Listing'}
+              {submitting ? <><Loader2 size={14} className="animate-spin mr-2 inline" />Publishing…</> : 'Publish Listing'}
             </Button>
           </div>
         </form>

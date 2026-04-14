@@ -1,17 +1,32 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, Input, Select, Button, useToast, Avatar, Badge } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
-import { mockSoilMitras } from '../../../../../lib/mock-data';
+import { db } from '@farmhith/firebase';
+import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import type { SoilmitraProfile } from '@farmhith/types';
+import { Loader2 } from 'lucide-react';
+
+const DURATION_OPTIONS = [
+  { label: '30 Minutes', value: '30' },
+  { label: '45 Minutes', value: '45' },
+  { label: '60 Minutes', value: '60' },
+];
 
 export default function BookMitraPage() {
   const router = useRouter();
   const params = useParams();
+  const { user } = useAuth();
   const toast = useToast();
   const mitraId = params?.id as string;
 
-  const [loading, setLoading] = useState(false);
+  const [mitra, setMitra] = useState<(SoilmitraProfile & { id: string }) | null>(null);
+  const [fetchLoading, setFetchLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
   const [form, setForm] = useState({
     sessionDate: '',
     sessionTime: '',
@@ -20,9 +35,66 @@ export default function BookMitraPage() {
     durationMinutes: '30',
   });
 
-  const mitra = mockSoilMitras.find(m => m.userId === mitraId);
+  useEffect(() => {
+    if (!mitraId) return;
+    (async () => {
+      const snap = await getDoc(doc(db, 'soilmitraProfiles', mitraId));
+      if (!snap.exists()) {
+        setNotFound(true);
+      } else {
+        setMitra({ id: snap.id, ...snap.data() } as SoilmitraProfile & { id: string });
+      }
+      setFetchLoading(false);
+    })();
+  }, [mitraId]);
 
-  if (!mitra) {
+  const calculatedFee = mitra ? mitra.sessionFee * (parseInt(form.durationMinutes) / 30) : 0;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !mitra) return;
+    setSubmitting(true);
+
+    try {
+      const sessionDatetime = `${form.sessionDate}T${form.sessionTime}:00`;
+
+      await addDoc(collection(db, 'mitraBookings'), {
+        farmerId: user.id,
+        farmerName: user.name,
+        mitraId: mitra.userId,
+        mitraName: mitra.fullName,
+        sessionDatetime,
+        durationMinutes: parseInt(form.durationMinutes),
+        cropType: form.cropType,
+        problemDescription: form.problemDescription,
+        status: 'PENDING',
+        amountPaid: calculatedFee,
+        farmerRating: null,
+        createdAt: serverTimestamp(),
+      });
+
+      toast.show({
+        title: 'Session Booked',
+        message: `Your consultation with ${mitra.fullName} has been scheduled.`,
+        type: 'success',
+      });
+      router.push('/dashboard/mitra');
+    } catch (err) {
+      console.error(err);
+      toast.show({ title: 'Error', message: 'Failed to book session. Please try again.', type: 'error' });
+      setSubmitting(false);
+    }
+  };
+
+  if (fetchLoading) {
+    return (
+      <div className="flex justify-center py-24">
+        <Loader2 size={28} className="animate-spin text-gray-400" />
+      </div>
+    );
+  }
+
+  if (notFound || !mitra) {
     return (
       <div className="max-w-2xl mx-auto py-12 text-center text-gray-500">
         Soil-Mitra not found.
@@ -32,30 +104,6 @@ export default function BookMitraPage() {
       </div>
     );
   }
-
-  const durationOptions = [
-    { label: '30 Minutes', value: '30' },
-    { label: '45 Minutes', value: '45' },
-    { label: '60 Minutes', value: '60' },
-  ];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    // Simulate booking
-    setTimeout(() => {
-      setLoading(false);
-      toast.show({
-        title: 'Session Booked',
-        message: `Your consultation with ${mitra.fullName} has been scheduled.`,
-        type: 'success',
-      });
-      router.push('/dashboard/mitra');
-    }, 1500);
-  };
-
-  const calculatedFee = mitra.sessionFee * (parseInt(form.durationMinutes) / 30);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -105,7 +153,7 @@ export default function BookMitraPage() {
             label="Session Duration"
             value={form.durationMinutes}
             onChange={(val) => setForm({ ...form, durationMinutes: val })}
-            options={durationOptions}
+            options={DURATION_OPTIONS}
             required
           />
 
@@ -117,7 +165,6 @@ export default function BookMitraPage() {
             required
           />
 
-          {/* Fallback to Input for textarea to keep dependencies simple and use existing UI package */}
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-gray-700">Problem Description</label>
             <textarea
@@ -135,20 +182,15 @@ export default function BookMitraPage() {
               <p className="text-lg font-bold text-green-700">{formatCurrency(calculatedFee)}</p>
             </div>
             <div className="flex justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.back()}
-                disabled={loading}
-              >
+              <Button type="button" variant="outline" onClick={() => router.back()} disabled={submitting}>
                 Cancel
               </Button>
               <Button
                 type="submit"
                 variant="primary"
-                disabled={loading || !form.sessionDate || !form.sessionTime || !form.cropType}
+                disabled={submitting || !form.sessionDate || !form.sessionTime || !form.cropType}
               >
-                {loading ? 'Booking...' : 'Pay & Book'}
+                {submitting ? <><Loader2 size={14} className="animate-spin mr-2 inline" />Booking…</> : 'Pay & Book'}
               </Button>
             </div>
           </div>
