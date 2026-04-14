@@ -1,18 +1,25 @@
 'use client';
-
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, Select } from '@farmhith/ui';
-import { Upload, FileCheck, MapPin } from 'lucide-react';
-import Link from 'next/link';
+import { FlaskConical, Eye, EyeOff, Upload } from 'lucide-react';
+import { Card, Input, Select, Button } from '@farmhith/ui';
+import { useAuth } from '@farmhith/auth';
+import { auth, db } from '@farmhith/firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import type { AuthUser } from '@farmhith/types';
 
-export default function LabRegistration() {
+export default function LabRegisterPage() {
   const router = useRouter();
-  const [step, setStep] = useState(1);
+  const { firebaseUser, user, isLoading } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
 
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     labName: '',
+    email: '',
+    password: '',
     address: '',
     state: '',
     district: '',
@@ -20,157 +27,199 @@ export default function LabRegistration() {
     dailyCapacity: '',
   });
 
-  const handleNext = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStep(2);
-  };
+  useEffect(() => {
+    if (!isLoading && firebaseUser && user?.role === 'LAB') {
+      router.push('/dashboard');
+    }
+  }, [firebaseUser, user, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.labName || !form.email || !form.password || !form.state) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+    if (form.password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    setError('');
     setLoading(true);
-    // Simulate API call to register lab profile
-    setTimeout(() => {
+
+    try {
+      const result = await createUserWithEmailAndPassword(auth, form.email, form.password);
+      const uid = result.user.uid;
+
+      const labProfile = {
+        id: uid,
+        userId: uid,
+        labName: form.labName,
+        address: form.address,
+        state: form.state,
+        district: form.district,
+        perTestPrice: parseFloat(form.perTestPrice) || 0,
+        dailyCapacity: parseInt(form.dailyCapacity) || 0,
+        isVerified: false, // Requires admin verification
+      };
+
+      const newUser: AuthUser = {
+        id: uid,
+        email: form.email,
+        phone: '',
+        role: 'LAB',
+        name: form.labName,
+        isVerified: false,
+        profile: labProfile,
+      };
+
+      await Promise.all([
+        setDoc(doc(db, 'users', uid), newUser),
+        setDoc(doc(db, 'labProfiles', uid), labProfile),
+      ]);
+
+      router.push('/dashboard');
+    } catch (err: any) {
+      console.error(err);
+      if (err.code === 'auth/email-already-in-use') {
+        setError('An account with this email already exists. Please log in.');
+      } else {
+        setError(err.message || 'Registration failed. Please try again.');
+      }
+    } finally {
       setLoading(false);
-      router.push('/dashboard/bookings');
-    }, 1500);
+    }
   };
 
+  if (isLoading) return null;
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
-          Setup Your Lab Profile
-        </h2>
-        <p className="mt-2 text-center text-sm text-slate-600">
-          Step {step} of 2
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-slate-100">
-          {step === 1 ? (
-            <form onSubmit={handleNext} className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="labName">Lab Name / Organization</Label>
-                  <Input
-                    id="labName"
-                    required
-                    value={formData.labName}
-                    onChange={(e) => setFormData({ ...formData, labName: e.target.value })}
-                    placeholder="e.g. AgriTest Punjab Labs"
-                    className="mt-1"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="state">State</Label>
-                    <Select
-                      id="state"
-                      required
-                      value={formData.state}
-                      onValueChange={(val) => setFormData({ ...formData, state: val })}
-                      className="mt-1"
-                      options={[
-                        { label: 'Punjab', value: 'Punjab' },
-                        { label: 'Haryana', value: 'Haryana' },
-                      ]}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="district">District</Label>
-                    <Input
-                      id="district"
-                      required
-                      value={formData.district}
-                      onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                      placeholder="e.g. Ludhiana"
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="address">Full Address</Label>
-                  <Input
-                    id="address"
-                    required
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Street, Plot No, etc."
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-4 flex items-center justify-between">
-                <Link href="/login" className="text-sm font-medium text-emerald-600 hover:text-emerald-500">
-                  Cancel
-                </Link>
-                <Button type="submit">
-                  Continue Form
-                </Button>
-              </div>
-            </form>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-6">
-                <div>
-                  <Label>Accreditation / Certification Upload</Label>
-                  <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-md hover:border-emerald-500 transition-colors cursor-pointer bg-slate-50">
-                    <div className="space-y-1 text-center">
-                      <Upload className="mx-auto h-12 w-12 text-slate-400" />
-                      <div className="flex text-sm text-slate-600 justify-center">
-                        <span className="relative rounded-md font-medium text-emerald-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-emerald-500">
-                          Upload NABL/Govt Certificate
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500">PNG, JPG, PDF up to 5MB</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="perTestPrice">Price per Standard Test (₹)</Label>
-                    <Input
-                      id="perTestPrice"
-                      type="number"
-                      required
-                      value={formData.perTestPrice}
-                      onChange={(e) => setFormData({ ...formData, perTestPrice: e.target.value })}
-                      placeholder="e.g. 299"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="dailyCapacity">Daily Test Capacity</Label>
-                    <Input
-                      id="dailyCapacity"
-                      type="number"
-                      required
-                      value={formData.dailyCapacity}
-                      onChange={(e) => setFormData({ ...formData, dailyCapacity: e.target.value })}
-                      placeholder="e.g. 50"
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 flex items-center justify-between">
-                <Button type="button" variant="outline" onClick={() => setStep(1)}>
-                  Back
-                </Button>
-                <Button type="submit" isLoading={loading} className="gap-2">
-                  <FileCheck className="w-4 h-4" />
-                  Complete Registration
-                </Button>
-              </div>
-            </form>
-          )}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg space-y-6">
+        <div className="text-center">
+          <div className="mx-auto bg-blue-600 h-14 w-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-blue-600/30">
+            <FlaskConical size={30} className="text-white" />
+          </div>
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Register Your Lab</h1>
+          <p className="text-sm text-gray-500 mt-2">Soil Testing Lab Portal — Setup Profile</p>
         </div>
+
+        <Card padding="lg" className="shadow-xl">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Lab / Organization Name *"
+              placeholder="e.g. AgriTest Punjab Labs"
+              value={form.labName}
+              onChange={(e) => setForm({ ...form, labName: e.target.value })}
+              required
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Email Address *"
+                type="email"
+                placeholder="info@yourlab.in"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                required
+              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Password *</label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    placeholder="Min. 6 characters"
+                    className="w-full pr-10 pl-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Select
+                label="State *"
+                value={form.state}
+                onChange={(val) => setForm({ ...form, state: val })}
+                required
+                options={[
+                  { label: 'Select State...', value: '' },
+                  { label: 'Punjab', value: 'Punjab' },
+                  { label: 'Haryana', value: 'Haryana' },
+                  { label: 'Uttar Pradesh', value: 'Uttar Pradesh' },
+                  { label: 'Maharashtra', value: 'Maharashtra' },
+                ]}
+              />
+              <Input
+                label="District"
+                placeholder="e.g. Ludhiana"
+                value={form.district}
+                onChange={(e) => setForm({ ...form, district: e.target.value })}
+              />
+            </div>
+
+            <Input
+              label="Full Lab Address"
+              placeholder="Street, Plot No, Area, City"
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+            />
+
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+              <Input
+                label="Price Per Test (₹)"
+                type="number"
+                placeholder="e.g. 299"
+                value={form.perTestPrice}
+                onChange={(e) => setForm({ ...form, perTestPrice: e.target.value })}
+              />
+              <Input
+                label="Daily Test Capacity"
+                type="number"
+                placeholder="e.g. 50"
+                value={form.dailyCapacity}
+                onChange={(e) => setForm({ ...form, dailyCapacity: e.target.value })}
+              />
+            </div>
+
+            <div className="flex items-center gap-2 bg-blue-50 rounded-xl px-4 py-3 text-xs text-blue-700 border border-blue-100">
+              <Upload size={14} />
+              <span>NABL / Government accreditation certificate can be uploaded after registration from your profile.</span>
+            </div>
+
+            {error && (
+              <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+            )}
+
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full mt-2 bg-blue-600 hover:bg-blue-700"
+              disabled={loading || !form.labName || !form.email || !form.password || !form.state}
+            >
+              {loading ? 'Creating Account…' : 'Register Lab Account'}
+            </Button>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => router.push('/login')}
+                className="text-xs font-semibold text-blue-700 hover:text-blue-800 transition-colors"
+              >
+                Already registered? Login here
+              </button>
+            </div>
+          </form>
+        </Card>
       </div>
     </div>
   );
