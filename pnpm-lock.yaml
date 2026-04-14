@@ -23,6 +23,12 @@ importers:
       '@farmhith/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@farmhith/firebase':
+        specifier: workspace:*
+        version: link:../../packages/firebase
+      '@farmhith/hooks':
+        specifier: workspace:*
+        version: link:../../packages/hooks
       '@farmhith/types':
         specifier: workspace:*
         version: link:../../packages/types
