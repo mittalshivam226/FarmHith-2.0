@@ -2,6 +2,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
+import { useNotifications } from '@farmhith/hooks';
 import { PageShell, PortalSidebar, PageLoader } from '@farmhith/ui';
 import {
   LayoutDashboard,
@@ -13,21 +14,22 @@ import {
   User,
   Sprout,
 } from 'lucide-react';
-import { mockNotifications } from '../../lib/mock-data';
-
-const navItems = [
-  { label: 'Dashboard',    href: '/dashboard',            icon: <LayoutDashboard size={18} /> },
-  { label: 'Soil Tests',   href: '/dashboard/soil-test',  icon: <FlaskConical size={18} /> },
-  { label: 'Soil-Mitra',   href: '/dashboard/mitra',      icon: <Users size={18} /> },
-  { label: 'Marketplace',  href: '/dashboard/marketplace', icon: <ShoppingBasket size={18} /> },
-  { label: 'History',      href: '/dashboard/history',    icon: <History size={18} /> },
-  { label: 'Notifications',href: '/dashboard/notifications', icon: <Bell size={18} />, badge: mockNotifications.filter(n => !n.read).length },
-  { label: 'Profile',      href: '/dashboard/profile',    icon: <User size={18} /> },
-];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
+  const { data: notifications } = useNotifications(user?.id);
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const navItems = [
+    { label: 'Dashboard',     href: '/dashboard',              icon: <LayoutDashboard size={18} /> },
+    { label: 'Soil Tests',    href: '/dashboard/soil-test',    icon: <FlaskConical size={18} /> },
+    { label: 'Soil-Mitra',    href: '/dashboard/mitra',        icon: <Users size={18} /> },
+    { label: 'Marketplace',   href: '/dashboard/marketplace',  icon: <ShoppingBasket size={18} /> },
+    { label: 'History',       href: '/dashboard/history',      icon: <History size={18} /> },
+    { label: 'Notifications', href: '/dashboard/notifications', icon: <Bell size={18} />, badge: unreadCount || undefined },
+    { label: 'Profile',       href: '/dashboard/profile',      icon: <User size={18} /> },
+  ];
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
