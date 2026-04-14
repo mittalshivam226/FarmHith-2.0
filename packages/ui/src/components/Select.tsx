@@ -7,7 +7,7 @@ export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectE
   hint?: string;
   options: { value: string; label: string }[];
   placeholder?: string;
-  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange?: (valueOrEvent: any) => void;
   onValueChange?: (value: string) => void;
 }
 
@@ -25,7 +25,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={selectId}
           onChange={(e) => {
-            if (onChange) onChange(e);
+            if (onChange) onChange(e.target.value);
             if (onValueChange) onValueChange(e.target.value);
           }}
           className={[

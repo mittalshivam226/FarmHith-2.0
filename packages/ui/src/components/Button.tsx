@@ -2,12 +2,14 @@
 import React from 'react';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline' | 'destructive';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
+  isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   fullWidth?: boolean;
+  asChild?: boolean;
 }
 
 const variants = {
@@ -18,6 +20,8 @@ const variants = {
   ghost:
     'bg-transparent text-slate-600 hover:bg-slate-100 focus-visible:ring-slate-400',
   danger:
+    'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm focus-visible:ring-red-500',
+  destructive:
     'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm focus-visible:ring-red-500',
   outline:
     'bg-transparent text-primary-700 border border-primary-300 hover:bg-primary-50 focus-visible:ring-primary-500',
@@ -35,20 +39,23 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant = 'primary',
       size = 'md',
       loading = false,
+      isLoading = false,
       leftIcon,
       rightIcon,
       fullWidth = false,
       children,
       className = '',
       disabled,
+      asChild: _asChild,
       ...props
     },
     ref,
   ) => {
+    const isActivelyLoading = loading || isLoading;
     return (
       <button
         ref={ref}
-        disabled={disabled || loading}
+        disabled={disabled || isActivelyLoading}
         className={[
           'inline-flex items-center justify-center font-medium transition-all duration-150',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
@@ -62,7 +69,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           .join(' ')}
         {...props}
       >
-        {loading && (
+        {isActivelyLoading && (
           <svg
             className="animate-spin h-4 w-4 shrink-0"
             fill="none"
@@ -83,9 +90,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             />
           </svg>
         )}
-        {!loading && leftIcon && <span className="shrink-0">{leftIcon}</span>}
+        {!isActivelyLoading && leftIcon && <span className="shrink-0">{leftIcon}</span>}
         {children}
-        {!loading && rightIcon && <span className="shrink-0">{rightIcon}</span>}
+        {!isActivelyLoading && rightIcon && <span className="shrink-0">{rightIcon}</span>}
       </button>
     );
   },
