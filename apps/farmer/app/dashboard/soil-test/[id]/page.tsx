@@ -1,19 +1,45 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, StatusBadge, Button } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
-import { mockSoilTestBookings } from '../../../../lib/mock-data';
-import { MapPin, FlaskConical, Calendar, Info, FileText } from 'lucide-react';
+import { db } from '@farmhith/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { FlaskConical, Calendar, Info, FileText, Loader2 } from 'lucide-react';
+import type { SoilTestBooking } from '@farmhith/types';
 
 export default function SoilTestDetailPage() {
   const router = useRouter();
   const params = useParams();
   const bookingId = params?.id as string;
 
-  const booking = mockSoilTestBookings.find(b => b.id === bookingId);
+  const [booking, setBooking] = useState<SoilTestBooking | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  if (!booking) {
+  useEffect(() => {
+    if (!bookingId) return;
+    (async () => {
+      const snap = await getDoc(doc(db, 'soilTestBookings', bookingId));
+      if (!snap.exists()) {
+        setNotFound(true);
+      } else {
+        setBooking({ id: snap.id, ...snap.data() } as SoilTestBooking);
+      }
+      setLoading(false);
+    })();
+  }, [bookingId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-24">
+        <Loader2 size={28} className="animate-spin text-gray-400" />
+      </div>
+    );
+  }
+
+  if (notFound || !booking) {
     return (
       <div className="max-w-3xl mx-auto py-12 text-center text-gray-500">
         Booking not found.
@@ -27,7 +53,7 @@ export default function SoilTestDetailPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <SectionHeader
-        title={`Booking #${booking.id}`}
+        title={`Booking #${booking.id.slice(0, 8)}`}
         description="Soil test details and reports"
         action={
           <Button variant="outline" onClick={() => router.back()}>
@@ -134,8 +160,8 @@ export default function SoilTestDetailPage() {
             <FileText size={32} className="mx-auto text-gray-300 mb-3" />
             <p className="font-medium text-gray-900">Report Pending</p>
             <p className="text-sm text-gray-500 mt-1">
-              {booking.status === 'PENDING' ? 'Lab has not accepted this booking yet.' : 
-               booking.status === 'IN_PROGRESS' ? 'Lab is currently analyzing the sample.' : 
+              {booking.status === 'PENDING' ? 'Lab has not accepted this booking yet.' :
+               booking.status === 'IN_PROGRESS' ? 'Lab is currently analyzing the sample.' :
                'Report will be available here when completed.'}
             </p>
           </div>
