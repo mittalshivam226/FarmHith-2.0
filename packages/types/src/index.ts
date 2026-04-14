@@ -44,7 +44,7 @@ export interface User {
   email: string;
   phone: string;
   role: Role;
-  preferredLang: Lang;
+  preferredLang?: Lang;   // optional — not required during registration
   createdAt: string;
   farmerProfile?: FarmerProfile;
   labProfile?: LabProfile;
@@ -122,7 +122,9 @@ export interface SoilReport {
   reportUrl?: string;
   testParameters: SoilParameters;
   technicianNotes?: string;
-  uploadedAt: string;
+  recommendation?: string;   // agronomist recommendation text
+  generatedAt: string;       // ISO timestamp
+  uploadedAt?: string;       // alias / PDF upload timestamp
 }
 
 export interface SoilParameters {
@@ -130,7 +132,7 @@ export interface SoilParameters {
   nitrogen: number;    // mg/kg
   phosphorus: number;  // mg/kg
   potassium: number;   // mg/kg
-  moisture: number;    // %
+  moisture?: number;   // % - optional, not all labs measure
   organicCarbon?: number;
   ec?: number;         // electrical conductivity dS/m
 }

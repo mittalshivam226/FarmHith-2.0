@@ -5,7 +5,7 @@ import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, Input, Select, Button, useToast, Avatar, Badge } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
 import { db } from '@farmhith/firebase';
-import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
 import type { SoilmitraProfile } from '@farmhith/types';
 import { Loader2 } from 'lucide-react';
 
@@ -69,8 +69,10 @@ export default function BookMitraPage() {
         problemDescription: form.problemDescription,
         status: 'PENDING',
         amountPaid: calculatedFee,
+        farmerConsentedReport: false, // required by MitraBooking type
         farmerRating: null,
-        createdAt: serverTimestamp(),
+        mitraNotes: null,
+        createdAt: new Date().toISOString(),
       });
 
       toast.show({
@@ -133,37 +135,13 @@ export default function BookMitraPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Input
-              type="date"
-              label="Preferred Date"
-              value={form.sessionDate}
-              onChange={(e) => setForm({ ...form, sessionDate: e.target.value })}
-              required
-            />
-            <Input
-              type="time"
-              label="Preferred Time"
-              value={form.sessionTime}
-              onChange={(e) => setForm({ ...form, sessionTime: e.target.value })}
-              required
-            />
+            <Input type="date" label="Preferred Date" value={form.sessionDate} onChange={(e) => setForm({ ...form, sessionDate: e.target.value })} required />
+            <Input type="time" label="Preferred Time" value={form.sessionTime} onChange={(e) => setForm({ ...form, sessionTime: e.target.value })} required />
           </div>
 
-          <Select
-            label="Session Duration"
-            value={form.durationMinutes}
-            onChange={(val) => setForm({ ...form, durationMinutes: val })}
-            options={DURATION_OPTIONS}
-            required
-          />
+          <Select label="Session Duration" value={form.durationMinutes} onChange={(val) => setForm({ ...form, durationMinutes: val })} options={DURATION_OPTIONS} required />
 
-          <Input
-            label="Crop Type"
-            placeholder="What crop are you growing?"
-            value={form.cropType}
-            onChange={(e) => setForm({ ...form, cropType: e.target.value })}
-            required
-          />
+          <Input label="Crop Type" placeholder="What crop are you growing?" value={form.cropType} onChange={(e) => setForm({ ...form, cropType: e.target.value })} required />
 
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-gray-700">Problem Description</label>
@@ -182,14 +160,8 @@ export default function BookMitraPage() {
               <p className="text-lg font-bold text-green-700">{formatCurrency(calculatedFee)}</p>
             </div>
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => router.back()} disabled={submitting}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={submitting || !form.sessionDate || !form.sessionTime || !form.cropType}
-              >
+              <Button type="button" variant="outline" onClick={() => router.back()} disabled={submitting}>Cancel</Button>
+              <Button type="submit" variant="primary" disabled={submitting || !form.sessionDate || !form.sessionTime || !form.cropType}>
                 {submitting ? <><Loader2 size={14} className="animate-spin mr-2 inline" />Booking…</> : 'Pay & Book'}
               </Button>
             </div>

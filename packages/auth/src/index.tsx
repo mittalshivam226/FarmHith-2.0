@@ -88,7 +88,7 @@ export function AuthProvider({
         user,
         firebaseUser,
         isLoading,
-        isAuthenticated: !!firebaseUser,
+        isAuthenticated: !!user,
         logout,
         updateUser,
       }}

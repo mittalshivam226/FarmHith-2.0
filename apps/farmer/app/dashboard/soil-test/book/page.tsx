@@ -43,8 +43,9 @@ export default function BookSoilTestPage() {
         collectionDate: form.collectionDate,
         status: 'PENDING',
         amountPaid: selectedLab.perTestPrice,
+        reportConsentToMitra: false,   // required by SoilTestBooking type
         report: null,
-        createdAt: serverTimestamp(),
+        createdAt: new Date().toISOString(),
       });
 
       toast.show({
