@@ -1,16 +1,18 @@
 'use client';
 import React from 'react';
 
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
   label?: string;
   error?: string;
   hint?: string;
   options: { value: string; label: string }[];
   placeholder?: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onValueChange?: (value: string) => void;
 }
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, hint, options, placeholder, className = '', id, ...props }, ref) => {
+  ({ label, error, hint, options, placeholder, className = '', id, onValueChange, onChange, ...props }, ref) => {
     const selectId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
     return (
       <div className="w-full">
@@ -22,6 +24,10 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         <select
           ref={ref}
           id={selectId}
+          onChange={(e) => {
+            if (onChange) onChange(e);
+            if (onValueChange) onValueChange(e.target.value);
+          }}
           className={[
             'w-full rounded-xl border bg-white px-3 py-2.5 text-sm text-slate-900',
             'transition-colors duration-150 appearance-none cursor-pointer',

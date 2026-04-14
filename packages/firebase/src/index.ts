@@ -6,13 +6,13 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDhES4H51a5E6ZCP3eBlwUpweX1Qi2qIR8",
-  authDomain: "farmhith-893f4.firebaseapp.com",
-  projectId: "farmhith-893f4",
-  storageBucket: "farmhith-893f4.firebasestorage.app",
-  messagingSenderId: "560879991571",
-  appId: "1:560879991571:web:17a9202e23b72ef62cb8e6",
-  measurementId: "G-D8LP47R14W"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase securely (avoiding double initialization in Next.js hot reloads)

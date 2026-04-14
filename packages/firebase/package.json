@@ -7,10 +7,10 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@farmhith/firebase": "workspace:^",
     "firebase": "^10.11.0"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "typescript": "^5.4.5"
   }
 }

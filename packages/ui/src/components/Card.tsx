@@ -32,3 +32,15 @@ export function Card({ children, className = '', padding = 'md', hover = false, 
     </div>
   );
 }
+
+export function CardHeader({ children, className = '' }: { children: React.ReactNode, className?: string }) {
+  return <div className={`flex flex-col space-y-1.5 p-6 pb-0 ${className}`}>{children}</div>;
+}
+
+export function CardTitle({ children, className = '' }: { children: React.ReactNode, className?: string }) {
+  return <h3 className={`font-semibold leading-none tracking-tight ${className}`}>{children}</h3>;
+}
+
+export function CardContent({ children, className = '' }: { children: React.ReactNode, className?: string }) {
+  return <div className={`p-6 pt-0 ${className}`}>{children}</div>;
+}

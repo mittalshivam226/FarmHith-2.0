@@ -54,26 +54,39 @@ function Toast({ toast, onDismiss }: { toast: ToastMessage; onDismiss: (id: stri
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────
-type AddToastFn = (opts: Omit<ToastMessage, 'id'>) => void;
+export interface ToastOptions {
+  variant?: ToastVariant;
+  type?: ToastVariant;
+  title: string;
+  description?: string;
+  message?: string;
+  duration?: number;
+}
+
+type AddToastFn = (opts: ToastOptions) => void;
 const ToastCtx = createContext<AddToastFn>(() => {});
 
-export function useToast(): AddToastFn {
-  return useContext(ToastCtx);
+export function useToast() {
+  const addToast = useContext(ToastCtx);
+  return { show: addToast };
 }
 
 // ─── ToastContainer — wrap your layout with this ─────────────────────────────
 export function ToastContainer({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const addToast = useCallback((opts: Omit<ToastMessage, 'id'>) => {
+  const addToast = useCallback((opts: ToastOptions) => {
     const id = Math.random().toString(36).slice(2);
     const duration = opts.duration ?? 4000;
-    setToasts((t) => [...t, { ...opts, id }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), duration);
+    const variant = opts.variant ?? opts.type ?? 'info';
+    const description = opts.description ?? opts.message;
+    setToasts((t: ToastMessage[]) => [...t, { title: opts.title, duration, variant, description, id }]);
+    setTimeout(() => setToasts((t: ToastMessage[]) => t.filter((x: ToastMessage) => x.id !== id)), duration);
   }, []);
 
+
   const dismiss = useCallback((id: string) => {
-    setToasts((t) => t.filter((x) => x.id !== id));
+    setToasts((t: ToastMessage[]) => t.filter((x: ToastMessage) => x.id !== id));
   }, []);
 
   return (
@@ -81,7 +94,7 @@ export function ToastContainer({ children }: { children: React.ReactNode }) {
       {children}
       {/* Portal-like fixed container */}
       <div className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 items-end">
-        {toasts.map((t) => (
+        {toasts.map((t: ToastMessage) => (
           <Toast key={t.id} toast={t} onDismiss={dismiss} />
         ))}
       </div>

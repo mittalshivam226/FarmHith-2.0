@@ -1,12 +1,13 @@
 'use client';
 import React from 'react';
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   label?: string;
   error?: string;
   hint?: string;
   leftElement?: React.ReactNode;
   rightElement?: React.ReactNode;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
