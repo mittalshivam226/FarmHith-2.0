@@ -1,10 +1,12 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
+import { useAuth } from '@farmhith/auth';
 import { DataTable, type Column, StatusBadge, SectionHeader } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import type { SoilTestBooking } from '@farmhith/types';
-import { mockBookings } from '../../../lib/mock-data';
+import { useLabInbox } from '@farmhith/hooks';
+import { Loader2 } from 'lucide-react';
 
 const columns: Column<SoilTestBooking>[] = [
   {
@@ -39,11 +41,13 @@ const columns: Column<SoilTestBooking>[] = [
 const STATUS_TABS = ['ALL', 'PENDING', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] as const;
 
 export default function LabBookingsPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = React.useState<typeof STATUS_TABS[number]>('ALL');
+  const { data: bookings, loading } = useLabInbox(user?.id);
 
   const filtered = activeTab === 'ALL'
-    ? mockBookings
-    : mockBookings.filter(b => b.status === activeTab);
+    ? bookings
+    : bookings.filter(b => b.status === activeTab);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -64,18 +68,24 @@ export default function LabBookingsPage() {
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            {tab === 'ALL' ? `All (${mockBookings.length})` : tab.replace('_', ' ')}
+            {tab === 'ALL' ? `All (${bookings.length})` : tab.replace('_', ' ')}
           </button>
         ))}
       </div>
 
-      <DataTable
-        columns={columns}
-        data={filtered}
-        keyExtractor={(b) => b.id}
-        emptyTitle="No bookings"
-        emptyDescription={`No ${activeTab.toLowerCase()} bookings found.`}
-      />
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <Loader2 size={24} className="animate-spin text-gray-400" />
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={filtered}
+          keyExtractor={(b) => b.id}
+          emptyTitle="No bookings"
+          emptyDescription={`No ${activeTab.toLowerCase()} bookings found.`}
+        />
+      )}
     </div>
   );
 }

@@ -1,11 +1,12 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { StatusBadge, Card, SectionHeader } from '@farmhith/ui';
+import { useAuth } from '@farmhith/auth';
+import { StatusBadge, SectionHeader, DataTable, type Column } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
-import { DataTable, type Column } from '@farmhith/ui';
 import type { MitraBooking } from '@farmhith/types';
-import { mockSessions } from '../../../lib/mock-data';
+import { useMitraSchedule } from '@farmhith/hooks';
+import { Loader2 } from 'lucide-react';
 
 const columns: Column<MitraBooking>[] = [
   {
@@ -41,9 +42,11 @@ const columns: Column<MitraBooking>[] = [
 const TABS = ['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'] as const;
 
 export default function SoilmitraSessionsPage() {
+  const { user } = useAuth();
   const [tab, setTab] = React.useState<typeof TABS[number]>('ALL');
+  const { data: sessions, loading } = useMitraSchedule(user?.id);
 
-  const filtered = tab === 'ALL' ? mockSessions : mockSessions.filter(s => s.status === tab);
+  const filtered = tab === 'ALL' ? sessions : sessions.filter(s => s.status === tab);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -61,18 +64,24 @@ export default function SoilmitraSessionsPage() {
               tab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            {t === 'ALL' ? `All (${mockSessions.length})` : t}
+            {t === 'ALL' ? `All (${sessions.length})` : t}
           </button>
         ))}
       </div>
 
-      <DataTable
-        columns={columns}
-        data={filtered}
-        keyExtractor={(s) => s.id}
-        emptyTitle="No sessions"
-        emptyDescription="No sessions found for this filter."
-      />
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <Loader2 size={24} className="animate-spin text-gray-400" />
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={filtered}
+          keyExtractor={(s) => s.id}
+          emptyTitle="No sessions"
+          emptyDescription="No sessions found for this filter."
+        />
+      )}
     </div>
   );
 }
