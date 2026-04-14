@@ -1,0 +1,161 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isRole(role) {
+      return isSignedIn() && getUserData().role == role;
+    }
+
+    function isAdmin() {
+      return isRole('ADMIN');
+    }
+
+    // ─── User Profile Collections ─────────────────────────────────────────────
+
+    // Core user doc — owner can read/write; admin can read
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid);
+    }
+
+    match /farmerProfiles/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid);
+    }
+
+    match /labProfiles/{uid} {
+      // Labs must be readable by farmers (for booking) and admin
+      allow read: if isSignedIn();
+      allow write: if isOwner(uid) || isAdmin();
+    }
+
+    match /soilmitraProfiles/{uid} {
+      // Mitras must be readable by farmers (for booking) and admin
+      allow read: if isSignedIn();
+      allow write: if isOwner(uid) || isAdmin();
+    }
+
+    match /biopelletProfiles/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid) || isAdmin();
+    }
+
+    // ─── Soil Test Bookings ───────────────────────────────────────────────────
+
+    match /soilTestBookings/{bookingId} {
+      // Farmer can create & read their own; Lab can read + update bookings assigned to them; Admin full access
+      allow create: if isRole('FARMER') && request.resource.data.farmerId == request.auth.uid;
+      allow read:   if isSignedIn() && (
+                      resource.data.farmerId == request.auth.uid ||
+                      resource.data.labId == request.auth.uid ||
+                      isAdmin()
+                    );
+      allow update: if isSignedIn() && (
+                      resource.data.labId == request.auth.uid ||   // Lab updates status/report
+                      isAdmin()
+                    );
+      allow delete: if isAdmin();
+    }
+
+    // ─── Soil Analysis Reports ────────────────────────────────────────────────
+
+    match /soilReports/{bookingId} {
+      // Lab writes; farmer & mitra (if consent) can read; admin full access
+      allow create, update: if isRole('LAB');
+      allow read:           if isSignedIn() && (
+                              // Farmer who owns the booking
+                              get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.farmerId == request.auth.uid ||
+                              // Lab that processed it
+                              get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.labId == request.auth.uid ||
+                              isAdmin()
+                            );
+      allow delete: if isAdmin();
+    }
+
+    // ─── Mitra (Soil Expert) Bookings ─────────────────────────────────────────
+
+    match /mitraBookings/{bookingId} {
+      allow create: if isRole('FARMER') && request.resource.data.farmerId == request.auth.uid;
+      allow read:   if isSignedIn() && (
+                      resource.data.farmerId == request.auth.uid ||
+                      resource.data.mitraId == request.auth.uid ||
+                      isAdmin()
+                    );
+      allow update: if isSignedIn() && (
+                      resource.data.mitraId == request.auth.uid ||   // Mitra updates status/notes
+                      resource.data.farmerId == request.auth.uid ||  // Farmer adds rating
+                      isAdmin()
+                    );
+      allow delete: if isAdmin();
+    }
+
+    // ─── Crop Residue Marketplace ─────────────────────────────────────────────
+
+    match /cropListings/{listingId} {
+      // Farmer creates; all signed-in users can read (for biopellet browsing); farmer/admin can update
+      allow create: if isRole('FARMER') && request.resource.data.farmerId == request.auth.uid;
+      allow read:   if isSignedIn();
+      allow update: if isSignedIn() && (
+                      resource.data.farmerId == request.auth.uid ||
+                      isAdmin()
+                    );
+      allow delete: if isOwner(resource.data.farmerId) || isAdmin();
+    }
+
+    // ─── Procurement Orders ───────────────────────────────────────────────────
+
+    match /procurementOrders/{orderId} {
+      // Biopellet plant creates; farmer (seller) and plant (buyer) can read & update; admin full access
+      allow create: if isRole('BIOPELLET') && request.resource.data.plantId == request.auth.uid;
+      allow read:   if isSignedIn() && (
+                      resource.data.plantId == request.auth.uid ||
+                      resource.data.farmerId == request.auth.uid ||
+                      isAdmin()
+                    );
+      allow update: if isSignedIn() && (
+                      resource.data.farmerId == request.auth.uid ||   // Farmer confirms/declines
+                      resource.data.plantId == request.auth.uid ||    // Plant updates
+                      isAdmin()
+                    );
+      allow delete: if isAdmin();
+    }
+
+    // ─── Payments ─────────────────────────────────────────────────────────────
+
+    match /payments/{paymentId} {
+      // Payments are created server-side (or by admin); users can read their own
+      allow create: if isAdmin();
+      allow read:   if isSignedIn() && (
+                      resource.data.payerUserId == request.auth.uid ||
+                      resource.data.payeeUserId == request.auth.uid ||
+                      isAdmin()
+                    );
+      allow update, delete: if isAdmin();
+    }
+
+    // ─── Notifications ────────────────────────────────────────────────────────
+
+    match /notifications/{notifId} {
+      // Notifications are written server-side; user can read their own and mark as read
+      allow read:   if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
