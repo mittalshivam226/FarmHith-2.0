@@ -36,6 +36,7 @@ export function AuthProvider({
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (decodedUser) => {
+      setIsLoading(true);
       setFirebaseUser(decodedUser);
       
       if (!decodedUser) {

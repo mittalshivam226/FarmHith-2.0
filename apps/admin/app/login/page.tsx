@@ -16,6 +16,8 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    console.log("API KEY CHECK:", process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? "EXISTS" : "MISSING");
+    console.log('Auth config:', auth.app.options);
     if (!isLoading && firebaseUser) {
       if (user?.role === 'ADMIN') {
         router.push('/dashboard');
@@ -37,7 +39,7 @@ export default function AdminLoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
       console.error(err);
-      setError('Invalid admin credentials. Please try again.');
+      setError(`Auth Failed: ${err.code || err.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
