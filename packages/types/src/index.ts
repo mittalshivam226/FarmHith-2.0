@@ -246,3 +246,20 @@ export interface AdminStats {
   activeListings: number;
   completionRate: number;
 }
+
+// ─── FIRESTORE-NATIVE TYPES ────────────────────────────────────────────────────
+// These use Timestamp from firebase/firestore for every date field.
+// Import as: import type { FSUser, FSFarmerProfile, … } from '@farmhith/types';
+export type {
+  FSUser,
+  FSFarmerProfile,
+  FSLabProfile,
+  FSSoilMitraProfile,
+  FSBiopelletProfile,
+  FSSoilTestBooking,
+  FSSoilReport,
+  FSMitraBooking,
+  FSCropListing,
+  FSProcurementOrder,
+  FSPayment,
+} from './firestore';

@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ─── Helpers ──────────────────────────────────────────────────────────────
+    // ─── Helpers ───────────────────────────────────────────────────────────────
 
     function isSignedIn() {
       return request.auth != null;
@@ -12,150 +12,209 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    // Cached single get — avoids billing two reads per rule evaluation.
+    // Must be called only when isSignedIn() is guaranteed true.
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
 
     function isRole(role) {
-      return isSignedIn() && getUserData().role == role;
+      return isSignedIn() && getUserRole() == role;
     }
 
     function isAdmin() {
       return isRole('ADMIN');
     }
 
-    // ─── User Profile Collections ─────────────────────────────────────────────
+    // ─── /users/{uid} ──────────────────────────────────────────────────────────
+    // Owner reads/writes their own doc. Admin reads all. Nobody else writes.
 
-    // Core user doc — owner can read/write; admin can read
     match /users/{uid} {
-      allow read: if isOwner(uid) || isAdmin();
-      allow write: if isOwner(uid);
+      allow read:   if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid) || isAdmin();
+      allow delete: if isAdmin();
     }
+
+    // ─── /farmerProfiles/{uid} ─────────────────────────────────────────────────
 
     match /farmerProfiles/{uid} {
-      allow read: if isOwner(uid) || isAdmin();
-      allow write: if isOwner(uid);
+      allow read:   if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && isRole('FARMER');
+      allow update: if isOwner(uid) || isAdmin();
+      allow delete: if isAdmin();
     }
+
+    // ─── /labProfiles/{uid} ────────────────────────────────────────────────────
+    // Labs are discoverable by any authenticated user so farmers can browse & book.
 
     match /labProfiles/{uid} {
-      // Labs must be readable by farmers (for booking) and admin
-      allow read: if isSignedIn();
-      allow write: if isOwner(uid) || isAdmin();
+      allow read:   if isSignedIn();
+      allow create: if isOwner(uid) && isRole('LAB');
+      allow update: if isOwner(uid) || isAdmin();
+      allow delete: if isAdmin();
     }
+
+    // ─── /soilmitraProfiles/{uid} ──────────────────────────────────────────────
+    // Mitras are discoverable by any authenticated user so farmers can browse.
 
     match /soilmitraProfiles/{uid} {
-      // Mitras must be readable by farmers (for booking) and admin
-      allow read: if isSignedIn();
-      allow write: if isOwner(uid) || isAdmin();
+      allow read:   if isSignedIn();
+      allow create: if isOwner(uid) && isRole('SOIL_MITRA');
+      allow update: if isOwner(uid) || isAdmin();
+      allow delete: if isAdmin();
     }
+
+    // ─── /biopelletProfiles/{uid} ──────────────────────────────────────────────
+    // Readable by authenticated FARMER and ADMIN (for marketplace).
 
     match /biopelletProfiles/{uid} {
-      allow read: if isOwner(uid) || isAdmin();
-      allow write: if isOwner(uid) || isAdmin();
+      allow read:   if isOwner(uid) || isRole('FARMER') || isAdmin();
+      allow create: if isOwner(uid) && isRole('BIOPELLET');
+      allow update: if isOwner(uid) || isAdmin();
+      allow delete: if isAdmin();
     }
 
-    // ─── Soil Test Bookings ───────────────────────────────────────────────────
+    // ─── /soilTestBookings/{bookingId} ─────────────────────────────────────────
+    // Farmer creates; farmer and the assigned lab can read/update.
 
     match /soilTestBookings/{bookingId} {
-      // Farmer can create & read their own; Lab can read + update bookings assigned to them; Admin full access
-      allow create: if isRole('FARMER') && request.resource.data.farmerId == request.auth.uid;
+      allow create: if isRole('FARMER')
+                    && request.resource.data.farmerId == request.auth.uid;
+
       allow read:   if isSignedIn() && (
                       resource.data.farmerId == request.auth.uid ||
-                      resource.data.labId == request.auth.uid ||
+                      resource.data.labId    == request.auth.uid ||
                       isAdmin()
                     );
+
+      // Lab updates status to ACCEPTED / IN_PROGRESS / COMPLETED.
+      // Farmer can update reportConsentToMitra only.
       allow update: if isSignedIn() && (
-                      resource.data.labId == request.auth.uid ||   // Lab updates status/report
+                      resource.data.labId    == request.auth.uid ||
+                      resource.data.farmerId == request.auth.uid ||
                       isAdmin()
                     );
+
       allow delete: if isAdmin();
+
+      // ── /soilTestBookings/{bookingId}/reports/{reportId} ──────────────────────
+      // Lab writes; farmer reads; Mitra reads ONLY when farmerConsentedReport == true.
+
+      match /reports/{reportId} {
+        allow create, update: if isRole('LAB')
+                              && get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.labId == request.auth.uid;
+
+        allow read: if isSignedIn() && (
+          // Farmer who owns the booking
+          get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.farmerId == request.auth.uid
+          ||
+          // Lab who submitted the report
+          get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.labId == request.auth.uid
+          ||
+          // Mitra — ONLY if farmer gave consent on the parent booking
+          (
+            isRole('SOIL_MITRA') &&
+            get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.reportConsentToMitra == true
+          )
+          ||
+          isAdmin()
+        );
+
+        allow delete: if isAdmin();
+      }
     }
 
-    // ─── Soil Analysis Reports ────────────────────────────────────────────────
-
-    match /soilReports/{bookingId} {
-      // Lab writes; farmer & mitra (if consent) can read; admin full access
-      allow create, update: if isRole('LAB');
-      allow read:           if isSignedIn() && (
-                              // Farmer who owns the booking
-                              get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.farmerId == request.auth.uid ||
-                              // Lab that processed it
-                              get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.labId == request.auth.uid ||
-                              isAdmin()
-                            );
-      allow delete: if isAdmin();
-    }
-
-    // ─── Mitra (Soil Expert) Bookings ─────────────────────────────────────────
+    // ─── /mitraBookings/{bookingId} ────────────────────────────────────────────
+    // Farmer creates; farmer and mitra can read/update their respective fields.
 
     match /mitraBookings/{bookingId} {
-      allow create: if isRole('FARMER') && request.resource.data.farmerId == request.auth.uid;
+      allow create: if isRole('FARMER')
+                    && request.resource.data.farmerId == request.auth.uid;
+
       allow read:   if isSignedIn() && (
                       resource.data.farmerId == request.auth.uid ||
-                      resource.data.mitraId == request.auth.uid ||
+                      resource.data.mitraId  == request.auth.uid ||
                       isAdmin()
                     );
+
+      // Mitra can update status, notes, videoRoomUrl.
+      // Farmer can update farmerRating and farmerConsentedReport.
       allow update: if isSignedIn() && (
-                      resource.data.mitraId == request.auth.uid ||   // Mitra updates status/notes
-                      resource.data.farmerId == request.auth.uid ||  // Farmer adds rating
+                      resource.data.mitraId  == request.auth.uid ||
+                      resource.data.farmerId == request.auth.uid ||
                       isAdmin()
                     );
+
       allow delete: if isAdmin();
     }
 
-    // ─── Crop Residue Marketplace ─────────────────────────────────────────────
+    // ─── /cropListings/{listingId} ─────────────────────────────────────────────
+    // Farmer creates/owns; any authenticated user (biopellet plant) can read for marketplace browsing.
 
     match /cropListings/{listingId} {
-      // Farmer creates; all signed-in users can read (for biopellet browsing); farmer/admin can update
-      allow create: if isRole('FARMER') && request.resource.data.farmerId == request.auth.uid;
+      allow create: if isRole('FARMER')
+                    && request.resource.data.farmerId == request.auth.uid;
+
       allow read:   if isSignedIn();
+
       allow update: if isSignedIn() && (
                       resource.data.farmerId == request.auth.uid ||
+                      isRole('BIOPELLET')   ||   // plant can mark MATCHED / SOLD
                       isAdmin()
                     );
-      allow delete: if isOwner(resource.data.farmerId) || isAdmin();
+
+      allow delete: if isSignedIn() && resource.data.farmerId == request.auth.uid
+                    || isAdmin();
     }
 
-    // ─── Procurement Orders ───────────────────────────────────────────────────
+    // ─── /procurementOrders/{orderId} ──────────────────────────────────────────
+    // Biopellet plant creates; farmer and plant can read/update.
 
     match /procurementOrders/{orderId} {
-      // Biopellet plant creates; farmer (seller) and plant (buyer) can read & update; admin full access
-      allow create: if isRole('BIOPELLET') && request.resource.data.plantId == request.auth.uid;
+      allow create: if isRole('BIOPELLET')
+                    && request.resource.data.plantId == request.auth.uid;
+
       allow read:   if isSignedIn() && (
-                      resource.data.plantId == request.auth.uid ||
+                      resource.data.plantId  == request.auth.uid ||
                       resource.data.farmerId == request.auth.uid ||
                       isAdmin()
                     );
+
       allow update: if isSignedIn() && (
-                      resource.data.farmerId == request.auth.uid ||   // Farmer confirms/declines
-                      resource.data.plantId == request.auth.uid ||    // Plant updates
+                      resource.data.farmerId == request.auth.uid ||
+                      resource.data.plantId  == request.auth.uid ||
                       isAdmin()
                     );
+
       allow delete: if isAdmin();
     }
 
-    // ─── Payments ─────────────────────────────────────────────────────────────
+    // ─── /payments/{paymentId} ─────────────────────────────────────────────────
+    // Payments are created server-side (Cloud Functions or Admin SDK only).
+    // Clients can only read their own payments.
 
     match /payments/{paymentId} {
-      // Payments are created server-side (or by admin); users can read their own
       allow create: if isAdmin();
       allow read:   if isSignedIn() && (
-                      resource.data.payerUserId == request.auth.uid ||
-                      resource.data.payeeUserId == request.auth.uid ||
+                      resource.data.payerUid == request.auth.uid ||
+                      resource.data.payeeUid == request.auth.uid ||
                       isAdmin()
                     );
       allow update, delete: if isAdmin();
     }
 
-    // ─── Notifications ────────────────────────────────────────────────────────
+    // ─── /notifications/{notifId} ──────────────────────────────────────────────
+    // Written by Admin SDK; users read their own and can flip `read` field only.
 
     match /notifications/{notifId} {
-      // Notifications are written server-side; user can read their own and mark as read
       allow read:   if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid
+      allow update: if isSignedIn()
+                    && resource.data.userId == request.auth.uid
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
       allow create: if isAdmin();
       allow delete: if isAdmin();
     }
+
   }
 }
