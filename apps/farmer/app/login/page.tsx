@@ -21,8 +21,8 @@ export default function FarmerLoginPage() {
       if (user?.role === 'FARMER') {
         router.push('/dashboard');
       } else if (user === null) {
-        // Authenticated in Firebase but no Firestore profile yet
-        router.push('/register');
+        import('firebase/auth').then(({ signOut }) => signOut(auth));
+        setError('No farmer profile found. Please register or contact admin.');
       }
     }
   }, [firebaseUser, user, isLoading, router]);

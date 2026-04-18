@@ -17,10 +17,11 @@ export default function SoilmitraLoginPage() {
 
   useEffect(() => {
     if (!isLoading && firebaseUser) {
-      if (user?.role === 'SOILMITRA') {
+      if (user?.role === 'SOIL_MITRA') {
         router.push('/dashboard');
       } else if (user === null) {
-        router.push('/register');
+        import('firebase/auth').then(({ signOut }) => signOut(auth));
+        setError('No soil-mitra profile found. Please register or contact admin.');
       }
     }
   }, [firebaseUser, user, isLoading, router]);

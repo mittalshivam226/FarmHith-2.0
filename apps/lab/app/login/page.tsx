@@ -20,7 +20,8 @@ export default function LabLoginPage() {
       if (user?.role === 'LAB') {
         router.push('/dashboard');
       } else if (user === null) {
-        router.push('/register');
+        import('firebase/auth').then(({ signOut }) => signOut(auth));
+        setError('No lab profile found. Please register or contact admin.');
       }
     }
   }, [firebaseUser, user, isLoading, router]);

@@ -20,7 +20,8 @@ export default function BiopelletLoginPage() {
       if (user?.role === 'BIOPELLET') {
         router.push('/dashboard');
       } else if (user === null) {
-        router.push('/register');
+        import('firebase/auth').then(({ signOut }) => signOut(auth));
+        setError('No biopellet profile found. Please register or contact admin.');
       }
     }
   }, [firebaseUser, user, isLoading, router]);
