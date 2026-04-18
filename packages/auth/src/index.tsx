@@ -8,9 +8,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { AuthUser, Role } from '@farmhith/types';
-import { auth, db } from '@farmhith/firebase';
-import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { auth, db, onAuthStateChanged, signOut, type User as FirebaseUser, doc, getDoc } from '@farmhith/firebase';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -55,6 +53,7 @@ export function AuthProvider({
           
           // Enforce role boundaries immediately on client
           if (requiredRole && userData.role !== requiredRole) {
+            if (typeof window !== 'undefined') alert(`ROLE MISMATCH! Required: ${requiredRole}, Found: ${userData.role}`);
             await signOut(auth);
             setUser(null);
           } else {
@@ -64,8 +63,11 @@ export function AuthProvider({
           // User authenticated but no profile doc exists yet. (Registration phase)
           setUser(null); // Or set a partial user depending on architecture
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching user profile:", error);
+        if (typeof window !== 'undefined') {
+          alert("DATABASE ERROR FETCHING PROFILE: " + (error?.message || error));
+        }
         setUser(null);
       } finally {
         setIsLoading(false);
