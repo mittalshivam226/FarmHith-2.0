@@ -68,7 +68,7 @@ async function seed() {
   await upsert('users', 'seed_mitra_uid', {
     uid: 'seed_mitra_uid',
     email: 'priya.mitra@example.in',
-    role: 'SOIL_MITRA',
+    role: 'SOILMITRA',
     preferredLang: 'hi',
     createdAt: NOW,
   });

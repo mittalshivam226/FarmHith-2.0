@@ -60,7 +60,7 @@ service cloud.firestore {
 
     match /soilmitraProfiles/{uid} {
       allow read:   if isSignedIn();
-      allow create: if isOwner(uid) && isRole('SOIL_MITRA');
+      allow create: if isOwner(uid) && isRole('SOILMITRA');
       allow update: if isOwner(uid) || isAdmin();
       allow delete: if isAdmin();
     }
@@ -114,7 +114,7 @@ service cloud.firestore {
           ||
           // Mitra — ONLY if farmer gave consent on the parent booking
           (
-            isRole('SOIL_MITRA') &&
+            isRole('SOILMITRA') &&
             get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.reportConsentToMitra == true
           )
           ||

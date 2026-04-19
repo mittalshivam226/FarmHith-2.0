@@ -10,7 +10,7 @@ import { Timestamp } from 'firebase/firestore';
 
 // ─── SHARED ENUMS ─────────────────────────────────────────────────────────────
 
-export type Role = 'FARMER' | 'LAB' | 'BIOPELLET' | 'SOIL_MITRA' | 'ADMIN';
+export type Role = 'FARMER' | 'LAB' | 'BIOPELLET' | 'SOILMITRA' | 'ADMIN';
 export type Lang = 'en' | 'hi';
 
 export type BookingStatus =
