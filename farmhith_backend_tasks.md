@@ -30,7 +30,7 @@
 ## Phase 2 — Firestore Database Layer
 
 ### 2A — Security Rules
-- [ ] **2.1** Publish final security rules in Firebase Console
+- [x] **2.1** Publish final security rules in Firebase Console
   - Go to Firebase Console → Firestore → Rules tab
   - Replace all existing rules with the role-based ruleset using `getUserRole()` helper
   - Click Publish
@@ -46,7 +46,7 @@
   - All 5 tests must pass before continuing
 
 ### 2B — Composite Indexes
-- [ ] **2.3** Create all 9 composite indexes in Firebase Console
+- [x] **2.3** Create all 9 composite indexes in Firebase Console
   - Go to Firebase Console → Firestore → Indexes → Add index
   - Create each index separately (one Create click per index):
 
@@ -65,7 +65,7 @@
   - Wait for all indexes to show "Enabled" status (not "Building")
 
 ### 2C — Seed Data
-- [ ] **2.4** Run seed script to populate test documents
+- [x] **2.4** Run seed script to populate test documents
   - File: `packages/utils/src/seedFirestore.ts`
   - Run: `npx ts-node packages/utils/src/seedFirestore.ts`
   - Verify in Firebase Console that documents appear in each collection
@@ -84,13 +84,13 @@
 
 ## Phase 3 — Firebase Admin SDK Setup
 
-- [ ] **3.1** Generate Firebase service account key
+- [x] **3.1** Generate Firebase service account key
   - Firebase Console → Project Settings → Service accounts tab
   - Click "Generate new private key" → download JSON file
   - DO NOT commit this file to git
   - Add to `.gitignore`: `**/serviceAccountKey.json`
 
-- [ ] **3.2** Add service account as environment variable
+- [x] **3.2** Add service account as environment variable
   - Open the downloaded JSON file
   - Copy entire contents as a single line
   - Add to each portal's `.env.local`:
@@ -304,7 +304,7 @@
 |---|---|
 | Phase 1 — Fix Build | ✅ Complete |
 | Phase 2 — Firestore Layer | 🚧 User actions pending |
-| Phase 3 — Admin SDK | 🚧 User actions pending |
+| Phase 3 — Admin SDK | ✅ Complete |
 | Phase 4 — API Routes | ✅ Complete |
 | Phase 5 — Payments | 🚧 User actions pending |
 | Phase 6 — E2E Testing | ⬜ Not started |
