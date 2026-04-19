@@ -8,7 +8,9 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { AuthUser, Role } from '@farmhith/types';
-import { auth, db, onAuthStateChanged, signOut, type User as FirebaseUser, doc, getDoc } from '@farmhith/firebase';
+import { auth, db } from '@farmhith/firebase';
+import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: AuthUser | null;

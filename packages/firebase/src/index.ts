@@ -37,6 +37,7 @@ if (typeof window !== "undefined") {
   });
 }
 
-export * from "firebase/auth";
-export * from "firebase/firestore";
+// Export initialized instances only.
+// Consumers should import Firebase types/functions directly from
+// 'firebase/auth' and 'firebase/firestore' in their own files.
 export { app, auth, db, analytics };
