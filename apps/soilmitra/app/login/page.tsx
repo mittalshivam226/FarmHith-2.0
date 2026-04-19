@@ -17,7 +17,7 @@ export default function SoilmitraLoginPage() {
 
   useEffect(() => {
     if (!isLoading && firebaseUser) {
-      if (user?.role === 'SOIL_MITRA') {
+      if (user?.role === 'SOILMITRA') {
         router.push('/dashboard');
       } else if (user === null) {
         import('firebase/auth').then(({ signOut }) => signOut(auth));
