@@ -9,18 +9,18 @@
 ## Phase 1 — Fix the Build (Blocker)
 > Must be done before anything else. All portals fail to deploy until this is resolved.
 
-- [ ] **1.1** Fix wildcard Firebase exports in `packages/firebase/src/index.ts`
+- [x] **1.1** Fix wildcard Firebase exports in `packages/firebase/src/index.ts`
   - Remove all `export * from "firebase/auth"` and `export * from "firebase/firestore"` lines
   - Replace with named exports of initialized instances only: `auth`, `db`, `storage`, `app`
   - File location: `packages/firebase/src/index.ts`
 
-- [ ] **1.2** Fix pnpm version mismatch
+- [x] **1.2** Fix pnpm version mismatch
   - Open root `package.json`
   - Change `"packageManager"` field to `"pnpm@10.0.0"`
   - Run `pnpm install` to regenerate lockfile
   - Commit both `package.json` and `pnpm-lock.yaml`
 
-- [ ] **1.3** Verify all 5 portals build cleanly
+- [x] **1.3** Verify all 5 portals build cleanly
   - Run `pnpm build` from repo root
   - All 5 apps must show `✓ Compiled successfully`
   - Fix any remaining TypeScript or import errors before moving to Phase 2
@@ -99,14 +99,14 @@
     ```
   - Add to Vercel Environment Variables for each deployed portal
 
-- [ ] **3.3** Create Firebase Admin package
+- [x] **3.3** Create Firebase Admin package
   - File: `packages/firebase/src/admin.ts`
   - Initialize Firebase Admin SDK using `FIREBASE_SERVICE_ACCOUNT_JSON` env variable
   - Export: `adminAuth`, `adminDb`
   - This file is server-side only — never import in client components
 
-- [ ] **3.4** Create token verification utility
-  - File: `packages/utils/src/verifyToken.ts`
+- [x] **3.4** Create token verification utility
+  - File: `packages/firebase/src/verifyToken.ts`
   - Function: `verifyToken(request: Request)` 
   - Reads `Authorization: Bearer <token>` header
   - Verifies token using `adminAuth.verifyIdToken()`
@@ -118,7 +118,7 @@
 ## Phase 4 — Next.js API Routes (Backend)
 
 ### Service 1: Soil Testing
-- [ ] **4.1** Create soil test booking route
+- [x] **4.1** Create soil test booking route
   - File: `apps/farmer/app/api/soil-test/bookings/route.ts`
   - Method: POST
   - Auth: FARMER role required
@@ -127,7 +127,7 @@
   - Writes: `/soilTestBookings` with status PENDING
   - Returns: `{ bookingId, amount }`
 
-- [ ] **4.2** Create report upload route (Lab portal)
+- [x] **4.2** Create report upload route (Lab portal)
   - File: `apps/lab/app/api/reports/upload/route.ts`
   - Method: POST
   - Auth: LAB role required
@@ -137,7 +137,7 @@
   - Updates booking status to COMPLETED
   - Returns: `{ reportUrl }`
 
-- [ ] **4.3** Create lab booking management route
+- [x] **4.3** Create lab booking management route
   - File: `apps/lab/app/api/bookings/[bookingId]/route.ts`
   - Method: PATCH
   - Auth: LAB role required
@@ -146,7 +146,7 @@
   - Returns: `{ success: true }`
 
 ### Service 2: Soil-Mitra Sessions
-- [ ] **4.4** Create Mitra booking route
+- [x] **4.4** Create Mitra booking route
   - File: `apps/farmer/app/api/mitra/bookings/route.ts`
   - Method: POST
   - Auth: FARMER role required
@@ -155,7 +155,7 @@
   - Writes: `/mitraBookings` with `videoRoomUrl: null`, status PENDING
   - Returns: `{ bookingId, amount }`
 
-- [ ] **4.5** Create Daily.co room generation route
+- [x] **4.5** Create Daily.co room generation route
   - File: `apps/farmer/app/api/mitra/create-room/route.ts`
   - Method: POST
   - Auth: FARMER role required (called after payment confirmed)
@@ -165,17 +165,17 @@
   - Env variable needed: `DAILY_API_KEY`
 
 ### Service 3: Bio-Pellet Marketplace
-- [ ] **4.6** Create crop listing route
+- [x] **4.6** Create crop listing route
   - File: `apps/farmer/app/api/marketplace/listings/route.ts`
   - Method: POST
   - Auth: FARMER role required
-  - Reads: `biopelletProfiles` to get `procurementRatePerTon` (use 2000 as default if none)
-  - Calculates: `farmhithPricePerTon = procurementRatePerTon * 0.95`
+  - Uses fixed residue mapping table.
+  - Calculates: `farmhithPricePerTon = baseRate * 0.95`
   - Reads: `farmerProfiles/{uid}` for farmerName + district
   - Writes: `/cropListings` with status ACTIVE
   - Returns: `{ listingId, farmhithPricePerTon }`
 
-- [ ] **4.7** Create procurement order route
+- [x] **4.7** Create procurement order route
   - File: `apps/biopellet/app/api/orders/route.ts`
   - Method: POST
   - Auth: BIOPELLET role required
@@ -196,7 +196,7 @@
     ```
   - Also add to Vercel Environment Variables
 
-- [ ] **5.2** Create payment order creation route
+- [x] **5.2** Create payment order creation route
   - File: `apps/farmer/app/api/payments/create-order/route.ts`
   - Method: POST
   - Auth: Any authenticated user
@@ -204,7 +204,7 @@
   - Creates Razorpay order server-side
   - Returns: `{ razorpayOrderId, amount, currency: "INR" }`
 
-- [ ] **5.3** Create payment verification route
+- [x] **5.3** Create payment verification route
   - File: `apps/farmer/app/api/payments/verify/route.ts`
   - Method: POST
   - Verifies Razorpay signature using `crypto.createHmac`
@@ -213,7 +213,7 @@
   - Updates booking status to CONFIRMED
   - Returns: `{ success: true }`
 
-- [ ] **5.4** Create Razorpay webhook handler
+- [x] **5.4** Create Razorpay webhook handler
   - File: `apps/farmer/app/api/webhooks/razorpay/route.ts`
   - Method: POST
   - CRITICAL: Must read raw body BEFORE any JSON parsing
@@ -302,11 +302,11 @@
 
 | Phase | Status |
 |---|---|
-| Phase 1 — Fix Build | ⬜ Not started |
-| Phase 2 — Firestore Layer | ⬜ Not started |
-| Phase 3 — Admin SDK | ⬜ Not started |
-| Phase 4 — API Routes | ⬜ Not started |
-| Phase 5 — Payments | ⬜ Not started |
+| Phase 1 — Fix Build | ✅ Complete |
+| Phase 2 — Firestore Layer | 🚧 User actions pending |
+| Phase 3 — Admin SDK | 🚧 User actions pending |
+| Phase 4 — API Routes | ✅ Complete |
+| Phase 5 — Payments | 🚧 User actions pending |
 | Phase 6 — E2E Testing | ⬜ Not started |
 | Phase 7 — Deploy | ⬜ Not started |
 
