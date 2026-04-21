@@ -5,9 +5,15 @@ import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, Input, Select, Button, useToast, Avatar, Badge } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
 import { db } from '@farmhith/firebase';
-import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import type { SoilmitraProfile } from '@farmhith/types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CreditCard } from 'lucide-react';
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const DURATION_OPTIONS = [
   { label: '30 Minutes', value: '30' },
@@ -18,7 +24,7 @@ const DURATION_OPTIONS = [
 export default function BookMitraPage() {
   const router = useRouter();
   const params = useParams();
-  const { user } = useAuth();
+  const { user, getToken } = useAuth();
   const toast = useToast();
   const mitraId = params?.id as string;
 
@@ -31,7 +37,7 @@ export default function BookMitraPage() {
     sessionDate: '',
     sessionTime: '',
     cropType: '',
-    problemDescription: '',
+    farmDetails: '',
     durationMinutes: '30',
   });
 
@@ -48,42 +54,100 @@ export default function BookMitraPage() {
     })();
   }, [mitraId]);
 
-  const calculatedFee = mitra ? mitra.sessionFee * (parseInt(form.durationMinutes) / 30) : 0;
+  const calculatedFee = mitra ? Math.round(mitra.sessionFee * (parseInt(form.durationMinutes) / 30)) : 0;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleBookAndPay = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !mitra) return;
     setSubmitting(true);
 
     try {
-      const sessionDatetime = `${form.sessionDate}T${form.sessionTime}:00`;
+      const idToken = await getToken();
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+      };
 
-      await addDoc(collection(db, 'mitraBookings'), {
-        farmerId: user.id,
-        farmerName: user.name,
-        mitraId: mitra.userId,
-        mitraName: mitra.fullName,
-        sessionDatetime,
-        durationMinutes: parseInt(form.durationMinutes),
-        cropType: form.cropType,
-        problemDescription: form.problemDescription,
-        status: 'PENDING',
-        amountPaid: calculatedFee,
-        farmerConsentedReport: false, // required by MitraBooking type
-        farmerRating: null,
-        mitraNotes: null,
-        createdAt: new Date().toISOString(),
+      // 1. Create mitra booking via server API
+      const bookRes = await fetch('/api/mitra/bookings', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          mitraId: mitra.userId,
+          sessionDatetime: `${form.sessionDate}T${form.sessionTime}:00`,
+          cropType: form.cropType,
+          farmDetails: form.farmDetails,
+          durationMinutes: parseInt(form.durationMinutes),
+          farmerConsentedReport: false,
+        }),
       });
 
-      toast.show({
-        title: 'Session Booked',
-        message: `Your consultation with ${mitra.fullName} has been scheduled.`,
-        type: 'success',
+      if (!bookRes.ok) {
+        const err = await bookRes.json();
+        throw new Error(err.error ?? 'Failed to create booking');
+      }
+      const { bookingId, amount } = await bookRes.json();
+
+      // 2. Create Razorpay order
+      const orderRes = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          amount: amount ?? calculatedFee,
+          serviceType: 'MITRA_SESSION',
+          serviceRefId: bookingId,
+        }),
       });
-      router.push('/dashboard/mitra');
-    } catch (err) {
+
+      if (!orderRes.ok) {
+        const err = await orderRes.json();
+        throw new Error(err.error ?? 'Failed to create payment order');
+      }
+      const { razorpayOrderId, amount: paise } = await orderRes.json();
+
+      // 3. Open Razorpay checkout
+      const rzp = new window.Razorpay({
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: paise,
+        currency: 'INR',
+        name: 'FarmHith',
+        description: `Consultation with ${mitra.fullName}`,
+        order_id: razorpayOrderId,
+        handler: async (response: any) => {
+          // 4. Verify payment on server
+          const verifyRes = await fetch('/api/payments/verify', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              razorpayOrderId:   response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              serviceType:       'MITRA_SESSION',
+              serviceRefId:      bookingId,
+              amount:            calculatedFee,
+              payeeUid:          mitra.userId,
+            }),
+          });
+
+          if (verifyRes.ok) {
+            toast.show({ title: 'Booking Confirmed!', message: `Session with ${mitra.fullName} booked.`, type: 'success' });
+            router.push('/dashboard/mitra');
+          } else {
+            toast.show({ title: 'Payment Verification Failed', message: 'Please contact support.', type: 'error' });
+          }
+        },
+        prefill: {
+          name:  user.name,
+          email: user.email,
+          contact: user.phone,
+        },
+        theme: { color: '#0d9488' }, // teal-600
+      });
+      rzp.open();
+    } catch (err: any) {
       console.error(err);
-      toast.show({ title: 'Error', message: 'Failed to book session. Please try again.', type: 'error' });
+      toast.show({ title: 'Booking Failed', message: err.message ?? 'Please try again.', type: 'error' });
+    } finally {
       setSubmitting(false);
     }
   };
@@ -133,23 +197,29 @@ export default function BookMitraPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleBookAndPay} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input type="date" label="Preferred Date" value={form.sessionDate} onChange={(e) => setForm({ ...form, sessionDate: e.target.value })} required />
             <Input type="time" label="Preferred Time" value={form.sessionTime} onChange={(e) => setForm({ ...form, sessionTime: e.target.value })} required />
           </div>
 
-          <Select label="Session Duration" value={form.durationMinutes} onChange={(val) => setForm({ ...form, durationMinutes: val })} options={DURATION_OPTIONS} required />
+          <Select
+            label="Session Duration"
+            value={form.durationMinutes}
+            onChange={(val) => setForm({ ...form, durationMinutes: val })}
+            options={DURATION_OPTIONS}
+            required
+          />
 
           <Input label="Crop Type" placeholder="What crop are you growing?" value={form.cropType} onChange={(e) => setForm({ ...form, cropType: e.target.value })} required />
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-gray-700">Problem Description</label>
+            <label className="block text-sm font-medium text-gray-700">Farm Details / Problem Description</label>
             <textarea
-              className="w-full h-24 px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all resize-none"
-              placeholder="Briefly describe the issue (e.g. Yellowing leaves, pest attack)..."
-              value={form.problemDescription}
-              onChange={(e) => setForm({ ...form, problemDescription: e.target.value })}
+              className="w-full h-24 px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all resize-none"
+              placeholder="Describe the issue (e.g. Yellowing leaves, pest attack)..."
+              value={form.farmDetails}
+              onChange={(e) => setForm({ ...form, farmDetails: e.target.value })}
               required
             />
           </div>
@@ -161,8 +231,16 @@ export default function BookMitraPage() {
             </div>
             <div className="flex justify-end gap-3">
               <Button type="button" variant="outline" onClick={() => router.back()} disabled={submitting}>Cancel</Button>
-              <Button type="submit" variant="primary" disabled={submitting || !form.sessionDate || !form.sessionTime || !form.cropType}>
-                {submitting ? <><Loader2 size={14} className="animate-spin mr-2 inline" />Booking…</> : 'Pay & Book'}
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={submitting || !form.sessionDate || !form.sessionTime || !form.cropType}
+                className="flex items-center gap-2"
+              >
+                {submitting
+                  ? <><Loader2 size={14} className="animate-spin mr-1 inline" />Processing…</>
+                  : <><CreditCard size={14} className="inline mr-1" />Pay & Book</>
+                }
               </Button>
             </div>
           </div>

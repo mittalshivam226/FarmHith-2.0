@@ -60,6 +60,17 @@ export async function POST(request: Request) {
       uploadedAt: FieldValue.serverTimestamp(),
     });
 
+    // ALSO write to top-level soilReports/{bookingId} so farmer's useSoilReport hook can read it
+    await adminDb.collection('soilReports').doc(bookingId).set({
+      bookingId,
+      reportUrl,
+      testParameters: { ph, nitrogen, phosphorus, potassium },
+      technicianNotes,
+      recommendation: technicianNotes, // use notes as recommendation fallback
+      generatedAt: new Date().toISOString(),
+      uploadedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+
     // Update parent booking status → COMPLETED
     await adminDb.collection('soilTestBookings').doc(bookingId).update({
       status: 'COMPLETED',

@@ -235,6 +235,30 @@ export function useAllSoilTestBookings() {
   );
 }
 
+/** Admin: all mitra sessions across all mitras */
+export function useAllMitraSessions() {
+  return useCollection<MitraBooking>(
+    'mitraBookings',
+    [orderBy('sessionDatetime', 'desc')]
+  );
+}
+
+/** Admin: all crop listings (any status) */
+export function useAllCropListingsAdmin() {
+  return useCollection<CropListing>(
+    'cropListings',
+    [orderBy('createdAt', 'desc')]
+  );
+}
+
+/** Admin: all procurement orders */
+export function useAllProcurementOrders() {
+  return useCollection<ProcurementOrder>(
+    'procurementOrders',
+    [orderBy('createdAt', 'desc')]
+  );
+}
+
 /** Admin: all platform payments */
 export function useAllPayments() {
   return useCollection<Payment>(
@@ -243,5 +267,21 @@ export function useAllPayments() {
   );
 }
 
+/** Admin: all lab profiles */
+export function useAllLabProfiles() {
+  return useCollection<LabProfile & { id: string }>(  
+    'labProfiles',
+    [orderBy('labName', 'asc')]
+  );
+}
+
+/** Admin: all soilmitra profiles */
+export function useAllSoilmitraProfiles() {
+  return useCollection<SoilmitraProfile & { id: string }>(
+    'soilmitraProfiles',
+    [orderBy('rating', 'desc')]
+  );
+}
+
 // ─── Re-exports ────────────────────────────────────────────────────────────────
-export type { SoilTestBooking, MitraBooking, SoilReport, CropListing, ProcurementOrder, User, Payment };
+export type { SoilTestBooking, MitraBooking, SoilReport, CropListing, ProcurementOrder, User, Payment, LabProfile, SoilmitraProfile };

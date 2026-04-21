@@ -5,14 +5,18 @@ import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, Input, Select, Button, useToast } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
 import { useAvailableLabs } from '@farmhith/hooks';
-import { db } from '@farmhith/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CreditCard } from 'lucide-react';
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 export default function BookSoilTestPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const { user, getToken } = useAuth();
   const toast = useToast();
   const [submitting, setSubmitting] = useState(false);
 
@@ -23,6 +27,7 @@ export default function BookSoilTestPage() {
     cropType: '',
     landParcelDetails: '',
     collectionDate: '',
+    reportConsentToMitra: false,
   });
 
   const selectedLab = labs.find(l => l.userId === form.labId);
@@ -33,30 +38,91 @@ export default function BookSoilTestPage() {
     setSubmitting(true);
 
     try {
-      await addDoc(collection(db, 'soilTestBookings'), {
-        farmerId: user.id,
-        farmerName: user.name,
-        labId: selectedLab.userId,
-        labName: selectedLab.labName,
-        cropType: form.cropType,
-        landParcelDetails: form.landParcelDetails,
-        collectionDate: form.collectionDate,
-        status: 'PENDING',
-        amountPaid: selectedLab.perTestPrice,
-        reportConsentToMitra: false,   // required by SoilTestBooking type
-        report: null,
-        createdAt: new Date().toISOString(),
+      const idToken = await getToken();
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+      };
+
+      // 1. Create soil test booking via server API
+      const bookRes = await fetch('/api/soil-test/bookings', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          labId:              selectedLab.userId,
+          cropType:           form.cropType,
+          landParcelDetails:  form.landParcelDetails,
+          collectionDate:     form.collectionDate,
+          reportConsentToMitra: form.reportConsentToMitra,
+        }),
       });
 
-      toast.show({
-        title: 'Booking Confirmed',
-        message: `Your soil test with ${selectedLab.labName} has been booked.`,
-        type: 'success',
+      if (!bookRes.ok) {
+        const err = await bookRes.json();
+        throw new Error(err.error ?? 'Failed to create booking');
+      }
+      const { bookingId, amountPaid } = await bookRes.json();
+
+      // 2. Create Razorpay order
+      const orderRes = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          amount:       amountPaid ?? selectedLab.perTestPrice,
+          serviceType:  'SOIL_TEST',
+          serviceRefId: bookingId,
+        }),
       });
-      router.push('/dashboard/soil-test');
-    } catch (err) {
+
+      if (!orderRes.ok) {
+        const err = await orderRes.json();
+        throw new Error(err.error ?? 'Failed to create payment order');
+      }
+      const { razorpayOrderId, amount: paise } = await orderRes.json();
+
+      // 3. Open Razorpay checkout
+      const rzp = new window.Razorpay({
+        key:         process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount:      paise,
+        currency:    'INR',
+        name:        'FarmHith',
+        description: `Soil Test — ${selectedLab.labName}`,
+        order_id:    razorpayOrderId,
+        handler: async (response: any) => {
+          // 4. Verify payment
+          const verifyRes = await fetch('/api/payments/verify', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              razorpayOrderId:   response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              serviceType:       'SOIL_TEST',
+              serviceRefId:      bookingId,
+              amount:            amountPaid ?? selectedLab.perTestPrice,
+              payeeUid:          selectedLab.userId,
+            }),
+          });
+
+          if (verifyRes.ok) {
+            toast.show({ title: 'Booking Confirmed!', message: `Soil test with ${selectedLab.labName} booked.`, type: 'success' });
+            router.push('/dashboard/soil-test');
+          } else {
+            toast.show({ title: 'Payment Verification Failed', message: 'Please contact support.', type: 'error' });
+          }
+        },
+        prefill: {
+          name:    user.name,
+          email:   user.email,
+          contact: user.phone,
+        },
+        theme: { color: '#2563eb' }, // blue-600
+      });
+      rzp.open();
+    } catch (err: any) {
       console.error(err);
-      toast.show({ title: 'Error', message: 'Failed to book. Please try again.', type: 'error' });
+      toast.show({ title: 'Booking Failed', message: err.message ?? 'Please try again.', type: 'error' });
+    } finally {
       setSubmitting(false);
     }
   };
@@ -121,17 +187,43 @@ export default function BookSoilTestPage() {
               required
             />
 
-            <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => router.back()} disabled={submitting}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={submitting || !form.labId || !form.cropType || !form.collectionDate}
-              >
-                {submitting ? <><Loader2 size={14} className="animate-spin mr-2 inline" />Booking…</> : 'Confirm Booking'}
-              </Button>
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={form.reportConsentToMitra}
+                onChange={(e) => setForm({ ...form, reportConsentToMitra: e.target.checked })}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-600 leading-snug">
+                I consent to share my soil report with Soil-Mitras for consultation purposes.
+              </span>
+            </label>
+
+            <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+              <div>
+                {selectedLab && (
+                  <>
+                    <p className="text-xs text-gray-500">Amount to Pay</p>
+                    <p className="text-lg font-bold text-blue-700">{formatCurrency(selectedLab.perTestPrice)}</p>
+                  </>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <Button type="button" variant="outline" onClick={() => router.back()} disabled={submitting}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={submitting || !form.labId || !form.cropType || !form.collectionDate}
+                  className="flex items-center gap-2"
+                >
+                  {submitting
+                    ? <><Loader2 size={14} className="animate-spin inline mr-1" />Processing…</>
+                    : <><CreditCard size={14} className="inline mr-1" />Pay & Book</>
+                  }
+                </Button>
+              </div>
             </div>
           </form>
         )}

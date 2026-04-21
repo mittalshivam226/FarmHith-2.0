@@ -4,8 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, Input, Select, Button, useToast, Checkbox } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
-import { db } from '@farmhith/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
 
 const PRICING_MODEL: Record<string, number> = {
@@ -18,7 +16,7 @@ const PRICING_MODEL: Record<string, number> = {
 
 export default function CreateListingPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, getToken } = useAuth();
   const toast = useToast();
   const [submitting, setSubmitting] = useState(false);
 
@@ -41,27 +39,36 @@ export default function CreateListingPage() {
     setSubmitting(true);
 
     try {
-      await addDoc(collection(db, 'cropListings'), {
-        farmerId: user.id,
-        farmerName: user.name,
-        residueType: form.residueType,
-        quantityTons: parseFloat(form.quantityTons),
-        location: form.location,
-        availableFrom: form.availableFrom,
-        farmhithPricePerTon: pricePerTon,
-        status: 'ACTIVE',
-        createdAt: serverTimestamp(),
+      const idToken = await getToken();
+      const res = await fetch('/api/marketplace/listings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+        },
+        body: JSON.stringify({
+          residueType:   form.residueType,
+          quantityTons:  parseFloat(form.quantityTons),
+          location:      form.location,
+          availableFrom: form.availableFrom,
+        }),
       });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? 'Failed to create listing');
+      }
+      const data = await res.json();
 
       toast.show({
         title: 'Listing Created',
-        message: 'Your crop residue is now visible to bio-pellet plants.',
+        message: `Your crop residue is now visible to bio-pellet plants. FarmHith price: ${formatCurrency(data.farmhithPricePerTon)}/ton`,
         type: 'success',
       });
       router.push('/dashboard/marketplace');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.show({ title: 'Error', message: 'Failed to create listing. Please try again.', type: 'error' });
+      toast.show({ title: 'Error', message: err.message ?? 'Failed to create listing. Please try again.', type: 'error' });
       setSubmitting(false);
     }
   };

@@ -1,36 +1,78 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, SectionHeader, Input, Select, Button, useToast, Badge } from '@farmhith/ui';
-import { Radio, Users, Target, Send, Megaphone } from 'lucide-react';
+import { Radio, Target, Send, Megaphone, Loader2 } from 'lucide-react';
+import { useAuth } from '@farmhith/auth';
 
-const MOCK_BROADCASTS = [
-  { id: '1', title: 'New Soil Testing Subsidy', target: 'FARMERS', date: '2026-04-10', status: 'SENT' },
-  { id: '2', title: 'Platform Maintenance Alert', target: 'ALL_USERS', date: '2026-04-05', status: 'SENT' },
-  { id: '3', title: 'Update Lab Capacity Settings', target: 'LABS', date: '2026-03-28', status: 'SENT' },
-];
+interface Broadcast {
+  id: string;
+  title: string;
+  targetAudience: string;
+  sentAt: any;
+  status: string;
+}
 
 export default function AdminBroadcastsPage() {
   const toast = useToast();
+  const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [form, setForm] = useState({
     title: '',
     message: '',
     targetAudience: 'ALL_USERS',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const fetchHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const idToken = await getToken();
+      const res = await fetch('/api/broadcasts', {
+        headers: idToken ? { Authorization: `Bearer ${idToken}` } : {},
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBroadcasts(data.broadcasts ?? []);
+      }
+    } catch { /* silent */ }
+    setHistoryLoading(false);
+  }, [getToken]);
+
+  useEffect(() => { fetchHistory(); }, [fetchHistory]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.title || !form.message) return;
     setLoading(true);
-    
-    setTimeout(() => {
-      setLoading(false);
-      setForm({ title: '', message: '', targetAudience: 'ALL_USERS' });
+
+    try {
+      const idToken = await getToken();
+      const res = await fetch('/api/broadcasts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) throw new Error('Failed to send broadcast');
+      const data = await res.json();
+
       toast.show({
         title: 'Broadcast Sent',
-        message: `Notification dispatched successfully to selected audience.`,
+        message: `Notification dispatched to ${data.notificationsSent} users.`,
         type: 'success',
       });
-    }, 1500);
+
+      setForm({ title: '', message: '', targetAudience: 'ALL_USERS' });
+      fetchHistory(); // refresh history
+    } catch {
+      toast.show({ title: 'Error', message: 'Failed to send broadcast. Please try again.', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,7 +92,7 @@ export default function AdminBroadcastsPage() {
                </div>
                <div>
                  <h3 className="text-base font-bold text-gray-900">Compose Message</h3>
-                 <p className="text-xs text-gray-500">This will appear in the user's notification bell.</p>
+                 <p className="text-xs text-gray-500">This will appear in each user&apos;s notification bell.</p>
                </div>
             </div>
 
@@ -77,7 +119,6 @@ export default function AdminBroadcastsPage() {
                 required
               />
 
-              {/* Textarea substitute */}
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700">Message Body</label>
                 <textarea
@@ -95,7 +136,7 @@ export default function AdminBroadcastsPage() {
                   disabled={loading || !form.title || !form.message}
                   className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 !text-white"
                 >
-                  <Send size={16} />
+                  {loading ? <Loader2 size={14} className="animate-spin" /> : <Send size={16} />}
                   {loading ? 'Transmitting...' : 'Send Broadcast'}
                 </Button>
               </div>
@@ -109,20 +150,29 @@ export default function AdminBroadcastsPage() {
              <h3 className="text-sm font-bold text-gray-900 mb-4 pb-3 border-b border-gray-100 flex items-center gap-2">
                <Radio size={16} className="text-gray-400" /> Recent Broadcasts
              </h3>
-             <div className="space-y-3">
-               {MOCK_BROADCASTS.map(b => (
-                 <div key={b.id} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <div className="flex items-start justify-between mb-2">
-                      <Badge variant="default" size="sm">{b.target.replace('_', ' ')}</Badge>
-                      <span className="text-xs text-gray-400">{b.date}</span>
-                    </div>
-                    <p className="text-sm font-medium text-gray-900">{b.title}</p>
-                 </div>
-               ))}
-               <div className="p-3 border border-dashed border-gray-200 rounded-xl text-center">
-                 <button className="text-xs text-purple-600 font-medium hover:underline">View All History →</button>
+             {historyLoading ? (
+               <div className="flex justify-center py-6">
+                 <Loader2 size={18} className="animate-spin text-gray-400" />
                </div>
-             </div>
+             ) : broadcasts.length === 0 ? (
+               <p className="text-sm text-gray-400 text-center py-4">No broadcasts sent yet.</p>
+             ) : (
+               <div className="space-y-3">
+                 {broadcasts.slice(0, 8).map(b => (
+                   <div key={b.id} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                      <div className="flex items-start justify-between mb-2">
+                        <Badge variant="default" size="sm">{b.targetAudience.replace('_', ' ')}</Badge>
+                        <span className="text-xs text-gray-400">
+                          {b.sentAt?.toDate
+                            ? new Date(b.sentAt.toDate()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+                            : '—'}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium text-gray-900">{b.title}</p>
+                   </div>
+                 ))}
+               </div>
+             )}
           </Card>
 
           <div className="bg-gray-100 border border-gray-200 p-4 rounded-xl flex items-start gap-3">
@@ -131,6 +181,7 @@ export default function AdminBroadcastsPage() {
                 <p className="text-sm font-semibold text-gray-900">Pro Tip</p>
                 <p className="text-xs text-gray-600 mt-1">
                   Keep broadcast titles under 40 characters for best visibility on mobile devices.
+                  Use role-targeted broadcasts to reduce notification fatigue.
                 </p>
              </div>
           </div>

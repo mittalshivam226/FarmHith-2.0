@@ -1,11 +1,12 @@
 'use client';
 import React from 'react';
-import { DataTable, type Column, SectionHeader, StatusBadge } from '@farmhith/ui';
+import { DataTable, type Column, SectionHeader, useToast } from '@farmhith/ui';
 import { formatDate } from '@farmhith/utils';
 import type { User } from '@farmhith/types';
 import { useAllUsers } from '@farmhith/hooks';
+import { useAuth } from '@farmhith/auth';
 import { getRoleLabel } from '@farmhith/utils';
-import { ShieldCheck, XCircle, Loader2 } from 'lucide-react';
+import { ShieldCheck, ShieldX, XCircle, Loader2, CheckCircle2 } from 'lucide-react';
 import { db } from '@farmhith/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 
@@ -30,13 +31,41 @@ function RolePill({ role }: { role: string }) {
 export default function AdminUsersPage() {
   const [tab, setTab] = React.useState<typeof ROLE_TABS[number]>('ALL');
   const { data: users, loading } = useAllUsers();
+  const { getToken } = useAuth();
+  const toast = useToast();
+  const [updatingId, setUpdatingId] = React.useState<string | null>(null);
 
   const filtered = tab === 'ALL'
     ? users
     : users.filter(u => u.role === tab);
 
-  // Role counts derived from live data
   const countByRole = (role: string) => users.filter(u => u.role === role).length;
+
+  // Toggle isVerified on the /users/{id} document via direct Firestore write
+  // (Profile-level verification is handled via /api/verify/:type/:id)
+  const toggleUserVerified = async (userId: string, currentVal: boolean) => {
+    setUpdatingId(userId);
+    try {
+      await updateDoc(doc(db, 'users', userId), { isVerified: !currentVal });
+      toast.show({ title: !currentVal ? 'User Verified' : 'Verification Removed', message: '', type: 'success' });
+    } catch {
+      toast.show({ title: 'Error', message: 'Could not update user.', type: 'error' });
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const suspendUser = async (userId: string) => {
+    setUpdatingId(userId);
+    try {
+      await updateDoc(doc(db, 'users', userId), { isSuspended: true });
+      toast.show({ title: 'User Suspended', message: '', type: 'success' });
+    } catch {
+      toast.show({ title: 'Error', message: 'Could not suspend user.', type: 'error' });
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const columns: Column<LiveUser>[] = [
     { key: 'id', header: 'ID', render: (u) => <span className="text-xs font-mono text-gray-400">{u.id.slice(0, 10)}</span> },
@@ -45,23 +74,37 @@ export default function AdminUsersPage() {
     { key: 'role', header: 'Role', sortable: true, render: (u) => <RolePill role={u.role} /> },
     { key: 'createdAt', header: 'Joined', sortable: true, render: (u) => u.createdAt ? formatDate(u.createdAt) : '—' },
     {
+      key: 'isVerified' as any, header: 'Verified',
+      render: (u: any) => u.isVerified
+        ? <span className="flex items-center gap-1 text-xs text-emerald-600 font-medium"><CheckCircle2 size={12} /> Yes</span>
+        : <span className="text-xs text-gray-400">No</span>,
+    },
+    {
       key: 'id', header: 'Actions',
-      render: (u) => (
+      render: (u: any) => (
         <div className="flex items-center gap-1">
-          <button
-            title="Verify"
-            onClick={() => updateDoc(doc(db, 'users', u.id), { isVerified: true }).catch(console.error)}
-            className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition-colors"
-          >
-            <ShieldCheck size={14} />
-          </button>
-          <button
-            title="Suspend"
-            onClick={() => updateDoc(doc(db, 'users', u.id), { isSuspended: true }).catch(console.error)}
-            className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
-          >
-            <XCircle size={14} />
-          </button>
+          {updatingId === u.id ? (
+            <Loader2 size={14} className="animate-spin text-gray-400" />
+          ) : (
+            <>
+              <button
+                title={u.isVerified ? 'Revoke Verification' : 'Verify User'}
+                onClick={() => toggleUserVerified(u.id, Boolean(u.isVerified))}
+                className={`p-1.5 rounded-lg transition-colors ${
+                  u.isVerified ? 'text-amber-500 hover:bg-amber-50' : 'text-green-600 hover:bg-green-50'
+                }`}
+              >
+                {u.isVerified ? <ShieldX size={14} /> : <ShieldCheck size={14} />}
+              </button>
+              <button
+                title="Suspend"
+                onClick={() => suspendUser(u.id)}
+                className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
+              >
+                <XCircle size={14} />
+              </button>
+            </>
+          )}
         </div>
       ),
     },

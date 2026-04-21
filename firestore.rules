@@ -216,5 +216,44 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ─── /soilReports/{bookingId} ──────────────────────────────────────────────
+    // Top-level mirror of sub-collection reports, written by Lab via Admin SDK.
+    // Farmer reads; Mitra reads when consent given; Admin reads all.
+
+    match /soilReports/{bookingId} {
+      allow read: if isSignedIn() && (
+        // Farmer whose booking this is
+        get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.farmerId == request.auth.uid
+        ||
+        // Lab who ran the test
+        get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.labId == request.auth.uid
+        ||
+        // Mitra — ONLY if farmer gave explicit consent
+        (
+          isRole('SOILMITRA') &&
+          get(/databases/$(database)/documents/soilTestBookings/$(bookingId)).data.reportConsentToMitra == true
+        )
+        ||
+        isAdmin()
+      );
+      // Written exclusively by Admin SDK (server-side) — no client writes
+      allow create, update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // ─── /disputes/{disputeId} ─────────────────────────────────────────────────
+    // Created and updated exclusively by Admin users and Admin SDK.
+
+    match /disputes/{disputeId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
+    // ─── /broadcasts/{broadcastId} ─────────────────────────────────────────────
+    // Created by Admin SDK only; admin users can read broadcast history.
+
+    match /broadcasts/{broadcastId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
   }
 }

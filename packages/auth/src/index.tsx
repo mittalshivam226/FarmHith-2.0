@@ -19,6 +19,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   logout: () => Promise<void>;
   updateUser: (updates: Partial<AuthUser>) => void;
+  /** Async — returns the Firebase ID token for use in Authorization headers */
+  getToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -87,6 +89,15 @@ export function AuthProvider({
     setUser((prev) => (prev ? { ...prev, ...updates } : null));
   };
 
+  const getToken = async (): Promise<string | null> => {
+    if (!firebaseUser) return null;
+    try {
+      return await firebaseUser.getIdToken();
+    } catch {
+      return null;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -96,6 +107,7 @@ export function AuthProvider({
         isAuthenticated: !!user,
         logout,
         updateUser,
+        getToken,
       }}
     >
       {children}

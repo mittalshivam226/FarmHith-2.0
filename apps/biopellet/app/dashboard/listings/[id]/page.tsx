@@ -5,14 +5,14 @@ import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, StatusBadge, Button, Badge, useToast, Modal } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { db } from '@farmhith/firebase';
-import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import type { CropListing } from '@farmhith/types';
 import { MapPin, Weight, CalendarDays, User, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function BiopelletListingDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const { user } = useAuth();
+  const { user, getToken } = useAuth();
   const toast = useToast();
   const listingId = params?.id as string;
 
@@ -40,18 +40,23 @@ export default function BiopelletListingDetailPage() {
     setSubmitting(true);
 
     try {
-      await addDoc(collection(db, 'procurementOrders'), {
-        plantId: user.id,
-        plantName: user.name,
-        listingId: listing.id,
-        farmerId: listing.farmerId,
-        farmerName: listing.farmerName,
-        listingResidueType: listing.residueType,
-        finalQuantityTons: listing.quantityTons,
-        totalAmount: listing.quantityTons * listing.farmhithPricePerTon,
-        status: 'INTERESTED',
-        createdAt: serverTimestamp(),
+      const idToken = await getToken();
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+        },
+        body: JSON.stringify({
+          listingId:         listing.id,
+          finalQuantityTons: listing.quantityTons,
+        }),
       });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? 'Failed to place order');
+      }
 
       toast.show({
         title: 'Interest Expressed',
@@ -59,9 +64,9 @@ export default function BiopelletListingDetailPage() {
         type: 'success',
       });
       router.push('/dashboard/orders');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.show({ title: 'Error', message: 'Failed to place order. Please try again.', type: 'error' });
+      toast.show({ title: 'Error', message: err.message ?? 'Failed to place order. Please try again.', type: 'error' });
       setSubmitting(false);
     } finally {
       setConfirmModal(false);
