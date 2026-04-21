@@ -36,7 +36,7 @@
   - Click Publish
   - Rules must NOT be in test mode
 
-- [ ] **2.2** Test rules using Rules Playground
+- [x] **2.2** Test rules using Rules Playground
   - Firebase Console → Firestore → Rules → Rules Playground
   - Test 1: Farmer reads own `farmerProfiles/{uid}` → must Allow
   - Test 2: Farmer reads another farmer's profile → must Deny
@@ -70,12 +70,12 @@
   - Run: `npx ts-node packages/utils/src/seedFirestore.ts`
   - Verify in Firebase Console that documents appear in each collection
 
-- [ ] **2.5** Manually create one verified lab in Firestore Console
+- [x] **2.5** Manually create one verified lab in Firestore Console
   - Collection: `labProfiles` / Document ID: `seed_lab_001`
   - Fields: `labName: "AgriTest Lab"`, `state: "Delhi"`, `district: "New Delhi"`, `perTestPrice: 500`, `isVerified: true`, `dailyCapacity: 20`, `address: "123 Test Street"`
   - Also create matching: `users/seed_lab_001` with `role: "LAB"`, `preferredLang: "en"`, `createdAt: now`
 
-- [ ] **2.6** Manually create one verified Soil-Mitra in Firestore Console
+- [x] **2.6** Manually create one verified Soil-Mitra in Firestore Console
   - Collection: `soilmitraProfiles` / Document ID: `seed_mitra_001`
   - Fields: `fullName: "Ramesh Kumar"`, `specialisation: ["paddy","wheat"]`, `languagesSpoken: ["en","hi"]`, `sessionFee: 300`, `rating: 4.5`, `totalSessions: 12`, `isVerified: true`, `availableSlots: []`
   - Also create matching: `users/seed_mitra_001` with `role: "SOILMITRA"`, `preferredLang: "hi"`, `createdAt: now`
@@ -303,7 +303,7 @@
 | Phase | Status |
 |---|---|
 | Phase 1 — Fix Build | ✅ Complete |
-| Phase 2 — Firestore Layer | 🚧 User actions pending |
+| Phase 2 — Firestore Layer | ✅ Complete |
 | Phase 3 — Admin SDK | ✅ Complete |
 | Phase 4 — API Routes | ✅ Complete |
 | Phase 5 — Payments | 🚧 User actions pending |
