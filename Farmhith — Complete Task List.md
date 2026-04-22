@@ -183,6 +183,27 @@
   - Writes: `/procurementOrders` with status INTERESTED
   - Returns: `{ orderId, totalAmount }`
 
+### Service 4: Admin Portal (Resolution & Management)
+- [x] **4.8** Create User Verification route
+  - File: `apps/admin/app/api/verify/[profileType]/[profileId]/route.ts`
+  - Method: PATCH
+  - Auth: ADMIN role required
+  - Toggles `isVerified` status safely on the backend
+  - Returns: `{ success: true }`
+
+- [x] **4.9** Create Disputes Management route
+  - File: `apps/admin/app/api/disputes/route.ts` and `[disputeId]/route.ts`
+  - Method: GET, PATCH
+  - Auth: ADMIN role required
+  - Updates dispute statuses (OPEN → INVESTIGATING → RESOLVED)
+  
+- [x] **4.10** Create Broadcast Notifications route
+  - File: `apps/admin/app/api/broadcasts/route.ts`
+  - Method: POST
+  - Auth: ADMIN role required
+  - Fans out individual notification documents using Firestore batched writes
+  - Returns: `{ success: true }`
+
 ---
 
 ## Phase 5 — Razorpay Payments
@@ -306,8 +327,8 @@
 | Phase 2 — Firestore Layer | ✅ Complete |
 | Phase 3 — Admin SDK | ✅ Complete |
 | Phase 4 — API Routes | ✅ Complete |
-| Phase 5 — Payments | 🚧 User actions pending |
-| Phase 6 — E2E Testing | ⬜ Not started |
+| Phase 5 — Payments | 🚧 Coding complete, needs Env Vars |
+| Phase 6 — E2E Testing | ⏳ Next Up |
 | Phase 7 — Deploy | ⬜ Not started |
 
 ---
