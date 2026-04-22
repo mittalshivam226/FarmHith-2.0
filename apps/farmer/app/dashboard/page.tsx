@@ -194,7 +194,7 @@ export default function FarmerDashboard() {
           <div className="py-8 text-center">
             <p className="text-sm text-gray-500">No crop listings yet.</p>
             <Link
-              href="/dashboard/marketplace/new"
+              href="/dashboard/marketplace/list"
               className="mt-2 inline-flex items-center text-sm text-green-600 font-medium hover:underline"
             >
               Create your first listing <ArrowRight size={14} className="ml-1" />
@@ -240,7 +240,7 @@ export default function FarmerDashboard() {
                 <div className="flex items-center gap-2">
                   <StatusBadge status={order.status} size="sm" />
                   <Link
-                    href="/dashboard/marketplace/orders"
+                    href="/dashboard/marketplace"
                     className="text-xs bg-amber-600 text-white px-3 py-1 rounded-lg hover:bg-amber-700 transition-colors"
                   >
                     Review

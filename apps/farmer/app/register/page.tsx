@@ -60,6 +60,7 @@ export default function FarmerRegisterPage() {
         phone: '',
         role: 'FARMER',
         name: form.fullName,
+        createdAt: new Date().toISOString(),
         isVerified: true,
         profile: {
           id: `fp-${uid}`,

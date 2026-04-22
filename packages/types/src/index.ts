@@ -220,6 +220,8 @@ export interface AuthUser {
   phone: string;
   role: Role;
   name: string;
+  preferredLang?: string;
+  createdAt: string;
   isVerified: boolean;
   profile?: FarmerProfile | LabProfile | BiopelletProfile | SoilmitraProfile;
 }

@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "firebase": "^10.11.0",
-    "firebase-admin": "^12.0.0"
+    "firebase-admin": "^12.0.0",
+    "@farmhith/types": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
