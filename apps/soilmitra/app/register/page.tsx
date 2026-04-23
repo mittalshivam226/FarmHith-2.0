@@ -79,6 +79,7 @@ export default function SoilmitraRegisterPage() {
         phone: '',
         role: 'SOILMITRA',
         name: form.fullName,
+        createdAt: new Date().toISOString(),
         isVerified: false,
         profile: mitraProfile,
       };

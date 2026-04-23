@@ -69,6 +69,7 @@ export default function LabRegisterPage() {
         phone: '',
         role: 'LAB',
         name: form.labName,
+        createdAt: new Date().toISOString(),
         isVerified: false,
         profile: labProfile,
       };

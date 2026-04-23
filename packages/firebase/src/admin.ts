@@ -42,3 +42,6 @@ const adminApp = getAdminApp();
 export const adminAuth    = admin.auth(adminApp);
 export const adminDb      = admin.firestore(adminApp);
 export const adminStorage = admin.storage(adminApp);
+
+// Re-export commonly needed Admin SDK utilities
+export const { FieldValue, FieldPath } = admin.firestore;

@@ -69,6 +69,7 @@ export interface LabProfile {
   labName: string;
   address: string;
   state: string;
+  district: string;
   perTestPrice: number;
   isVerified: boolean;
   dailyCapacity: number;
@@ -95,6 +96,7 @@ export interface SoilmitraProfile {
   bio?: string;
   photoUrl?: string;
   isVerified: boolean;
+  availableSlots?: string[];  // format: "mon:09:00 AM"
 }
 
 // ─── SOIL TESTING ─────────────────────────────────────────────────────────────
@@ -156,6 +158,7 @@ export interface MitraBooking {
   amountPaid: number;
   paymentId?: string;
   farmerConsentedReport: boolean;
+  linkedReportUrl?: string;   // URL to farmer's soil report if shared
   mitraNotes?: string;
   farmerRating?: number;
   createdAt: string;

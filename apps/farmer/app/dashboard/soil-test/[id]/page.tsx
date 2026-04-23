@@ -5,9 +5,54 @@ import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, StatusBadge, Button } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { db } from '@farmhith/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import { FlaskConical, Calendar, Info, FileText, Loader2 } from 'lucide-react';
+import { doc, onSnapshot, collection, getDocs } from 'firebase/firestore';
+import { FlaskConical, Calendar, Info, FileText, Loader2, CheckCircle2, Download } from 'lucide-react';
 import type { SoilTestBooking } from '@farmhith/types';
+
+interface SoilReport {
+  reportUrl: string;
+  testParameters: { pH: number; nitrogen: number; phosphorus: number; potassium: number };
+  technicianNotes: string;
+}
+
+const STATUS_STEPS = ['PENDING', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED'] as const;
+
+function StatusTimeline({ status }: { status: string }) {
+  if (status === 'CANCELLED') {
+    return (
+      <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium">
+        <span className="h-2 w-2 rounded-full bg-red-500" />
+        Booking Cancelled
+      </div>
+    );
+  }
+  const currentIdx = STATUS_STEPS.indexOf(status as typeof STATUS_STEPS[number]);
+  return (
+    <div className="flex items-center">
+      {STATUS_STEPS.map((step, idx) => {
+        const done = idx <= currentIdx;
+        const active = idx === currentIdx;
+        return (
+          <React.Fragment key={step}>
+            <div className="flex flex-col items-center">
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                done ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-400'
+              } ${active ? 'ring-4 ring-green-100' : ''}`}>
+                {done ? <CheckCircle2 size={14} /> : idx + 1}
+              </div>
+              <p className={`text-xs mt-1.5 font-medium whitespace-nowrap ${done ? 'text-green-700' : 'text-gray-400'}`}>
+                {step.replace('_', ' ')}
+              </p>
+            </div>
+            {idx < STATUS_STEPS.length - 1 && (
+              <div className={`flex-1 h-0.5 mx-2 mb-5 ${idx < currentIdx ? 'bg-green-500' : 'bg-gray-200'}`} />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function SoilTestDetailPage() {
   const router = useRouter();
@@ -15,20 +60,46 @@ export default function SoilTestDetailPage() {
   const bookingId = params?.id as string;
 
   const [booking, setBooking] = useState<SoilTestBooking | null>(null);
+  const [report, setReport] = useState<SoilReport | null>(null);
   const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!bookingId) return;
-    (async () => {
-      const snap = await getDoc(doc(db, 'soilTestBookings', bookingId));
-      if (!snap.exists()) {
-        setNotFound(true);
-      } else {
-        setBooking({ id: snap.id, ...snap.data() } as SoilTestBooking);
+
+    const unsub = onSnapshot(
+      doc(db, 'soilTestBookings', bookingId),
+      async (snap) => {
+        if (!snap.exists()) {
+          setError('Booking not found');
+          setLoading(false);
+          return;
+        }
+        const data = { id: snap.id, ...snap.data() } as SoilTestBooking;
+        setBooking(data);
+        setLoading(false);
+
+        // Fetch report when completed
+        if (data.status === 'COMPLETED') {
+          try {
+            const reportsSnap = await getDocs(
+              collection(db, 'soilTestBookings', bookingId, 'reports')
+            );
+            if (!reportsSnap.empty) {
+              setReport(reportsSnap.docs[0].data() as SoilReport);
+            }
+          } catch (e) {
+            console.error('Failed to load report sub-collection:', e);
+          }
+        }
+      },
+      (err) => {
+        setError(err.message);
+        setLoading(false);
       }
-      setLoading(false);
-    })();
+    );
+
+    return () => unsub();
   }, [bookingId]);
 
   if (loading) {
@@ -39,10 +110,10 @@ export default function SoilTestDetailPage() {
     );
   }
 
-  if (notFound || !booking) {
+  if (error || !booking) {
     return (
       <div className="max-w-3xl mx-auto py-12 text-center text-gray-500">
-        Booking not found.
+        {error ?? 'Booking not found.'}
         <div className="mt-4">
           <Button onClick={() => router.back()} variant="outline">Go Back</Button>
         </div>
@@ -54,13 +125,19 @@ export default function SoilTestDetailPage() {
     <div className="max-w-3xl mx-auto space-y-6">
       <SectionHeader
         title={`Booking #${booking.id.slice(0, 8)}`}
-        description="Soil test details and reports"
+        description="Soil test details and live status updates"
         action={
           <Button variant="outline" onClick={() => router.back()}>
             Back to List
           </Button>
         }
       />
+
+      {/* Status Timeline */}
+      <Card>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Live Status</p>
+        <StatusTimeline status={booking.status} />
+      </Card>
 
       <div className="grid md:grid-cols-2 gap-4">
         {/* Lab Info */}
@@ -82,13 +159,13 @@ export default function SoilTestDetailPage() {
                 <p className="font-medium text-gray-900">{formatDate(booking.collectionDate)}</p>
               </div>
             </div>
-            <div className="flex items-start gap-2 text-sm">
+            <div>
               <StatusBadge status={booking.status} size="sm" />
             </div>
           </div>
         </Card>
 
-        {/* Payment & Crop Info */}
+        {/* Crop & Area Details */}
         <Card>
           <div className="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
             <div className="h-10 w-10 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
@@ -101,11 +178,11 @@ export default function SoilTestDetailPage() {
           <div className="space-y-3">
             <div className="flex justify-between items-center text-sm border-b border-gray-50 pb-2">
               <span className="text-gray-500">Crop Type</span>
-              <span className="font-medium text-gray-900">{booking.cropType}</span>
+              <span className="font-medium text-gray-900 capitalize">{booking.cropType}</span>
             </div>
-            <div className="flex justify-between items-center text-sm border-b border-gray-50 pb-2">
-              <span className="text-gray-500">Land Details</span>
-              <span className="font-medium text-gray-900">{booking.landParcelDetails}</span>
+            <div className="flex justify-between items-start text-sm border-b border-gray-50 pb-2 gap-4">
+              <span className="text-gray-500 shrink-0">Land Details</span>
+              <span className="font-medium text-gray-900 text-right text-xs">{booking.landParcelDetails}</span>
             </div>
             <div className="flex justify-between items-center text-sm pt-1">
               <span className="text-gray-500">Amount Paid</span>
@@ -116,7 +193,7 @@ export default function SoilTestDetailPage() {
       </div>
 
       {/* Report Section */}
-      {booking.report ? (
+      {booking.status === 'COMPLETED' ? (
         <Card>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -125,34 +202,53 @@ export default function SoilTestDetailPage() {
               </div>
               <div>
                 <p className="font-bold text-gray-900">Soil Analysis Report</p>
-                <p className="text-xs text-gray-500">Generated {formatDate(booking.report.generatedAt)}</p>
+                <p className="text-xs text-gray-500">Your field's soil health data</p>
               </div>
             </div>
-            <Button variant="outline" className="text-purple-700 border-purple-200 hover:bg-purple-50">
-              Download PDF
-            </Button>
+            {report?.reportUrl && (
+              <a
+                href={report.reportUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-purple-700 border border-purple-200 hover:bg-purple-50 rounded-lg transition-colors"
+              >
+                <Download size={14} /> Download Report
+              </a>
+            )}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Nitrogen (N)', value: booking.report.testParameters.nitrogen, unit: 'mg/kg', color: 'text-blue-600', bg: 'bg-blue-50' },
-              { label: 'Phosphorus (P)', value: booking.report.testParameters.phosphorus, unit: 'mg/kg', color: 'text-red-500', bg: 'bg-red-50' },
-              { label: 'Potassium (K)', value: booking.report.testParameters.potassium, unit: 'mg/kg', color: 'text-green-600', bg: 'bg-green-50' },
-              { label: 'pH Level', value: booking.report.testParameters.ph, unit: '', color: 'text-amber-600', bg: 'bg-amber-50' },
-            ].map(p => (
-              <div key={p.label} className={`${p.bg} p-4 rounded-xl text-center border border-white/50`}>
-                <p className="text-xs text-gray-500 font-medium mb-1">{p.label}</p>
-                <p className={`text-2xl font-bold ${p.color}`}>
-                  {p.value} <span className="text-xs font-normal opacity-70">{p.unit}</span>
-                </p>
+          {report ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'pH', value: report.testParameters.pH, unit: '', color: 'text-amber-600', bg: 'bg-amber-50' },
+                  { label: 'Nitrogen (N)', value: report.testParameters.nitrogen, unit: 'kg/ha', color: 'text-blue-600', bg: 'bg-blue-50' },
+                  { label: 'Phosphorus (P)', value: report.testParameters.phosphorus, unit: 'kg/ha', color: 'text-red-500', bg: 'bg-red-50' },
+                  { label: 'Potassium (K)', value: report.testParameters.potassium, unit: 'kg/ha', color: 'text-green-600', bg: 'bg-green-50' },
+                ].map(p => (
+                  <div key={p.label} className={`${p.bg} p-4 rounded-xl text-center border border-white/50`}>
+                    <p className="text-xs text-gray-500 font-medium mb-1">{p.label}</p>
+                    <p className={`text-2xl font-bold ${p.color}`}>
+                      {p.value}
+                    </p>
+                    {p.unit && <p className="text-xs text-gray-400 mt-0.5">{p.unit}</p>}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
-            <p className="text-sm font-semibold text-gray-900 mb-2">Agronomist Recommendation</p>
-            <p className="text-sm text-gray-600 leading-relaxed">{booking.report.recommendation}</p>
-          </div>
+              {report.technicianNotes && (
+                <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                  <p className="text-sm font-semibold text-gray-900 mb-2">Technician Notes</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">{report.technicianNotes}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <Loader2 size={20} className="animate-spin mx-auto text-gray-400 mb-2" />
+              <p className="text-sm text-gray-400">Loading report data…</p>
+            </div>
+          )}
         </Card>
       ) : (
         <Card>
@@ -161,6 +257,7 @@ export default function SoilTestDetailPage() {
             <p className="font-medium text-gray-900">Report Pending</p>
             <p className="text-sm text-gray-500 mt-1">
               {booking.status === 'PENDING' ? 'Lab has not accepted this booking yet.' :
+               booking.status === 'ACCEPTED' ? 'Lab has accepted. Sample collection scheduled.' :
                booking.status === 'IN_PROGRESS' ? 'Lab is currently analyzing the sample.' :
                'Report will be available here when completed.'}
             </p>

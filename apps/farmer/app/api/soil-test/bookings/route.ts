@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       cropType,
       landParcelDetails,
       status:               'PENDING',
-      amountPaid:           lab.perTestPrice,
+      amountPaid:           0, // Payment on hold — Razorpay integration deferred
       reportConsentToMitra: Boolean(reportConsentToMitra),
       createdAt:            FieldValue.serverTimestamp(),
     });
