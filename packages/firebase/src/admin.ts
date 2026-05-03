@@ -4,15 +4,22 @@
  * Import from '@farmhith/firebase/admin' in Next.js API routes only.
  * NEVER import this file in client components, page components, or
  * any file inside packages/auth, packages/hooks, or packages/utils.
+ *
+ * ⚠️  Lazy initialization: getAdminApp() is intentionally NOT called at module
+ * load time. Next.js executes module-level code during `next build` static
+ * analysis, before environment variables are available. All admin service
+ * exports use a Proxy so that Firebase Admin only initializes on the first
+ * property access inside an actual request handler.
  */
 import * as admin from 'firebase-admin';
 import type { App } from 'firebase-admin/app';
 
+let _app: App | undefined;
+
 function getAdminApp(): App {
-  // Prevent double-initialization in Next.js dev hot-reload
-  if (admin.apps.length > 0) {
-    return admin.apps[0]!;
-  }
+  // Return cached instance (handles Next.js dev hot-reload)
+  if (_app) return _app;
+  if (admin.apps.length > 0) return (_app = admin.apps[0]!);
 
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   if (!serviceAccountJson) {
@@ -31,17 +38,36 @@ function getAdminApp(): App {
     );
   }
 
-  return admin.initializeApp({
+  _app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
     storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   });
+
+  return _app;
 }
 
-const adminApp = getAdminApp();
+/**
+ * Creates a Proxy that defers factory() until the first property access.
+ * This means the admin SDK is only initialized inside request handlers,
+ * never during `next build` module evaluation.
+ */
+function lazyService<T extends object>(factory: () => T): T {
+  let instance: T | undefined;
+  return new Proxy({} as T, {
+    get(_target, prop: string | symbol) {
+      if (!instance) instance = factory();
+      const value = (instance as Record<string | symbol, unknown>)[prop];
+      return typeof value === 'function' ? (value as Function).bind(instance) : value;
+    },
+  });
+}
 
-export const adminAuth    = admin.auth(adminApp);
-export const adminDb      = admin.firestore(adminApp);
-export const adminStorage = admin.storage(adminApp);
+// Lazy singletons — getAdminApp() is only called when a property is accessed
+// inside a request handler, not during build-time module evaluation.
+export const adminAuth    = lazyService<admin.auth.Auth>(() => admin.auth(getAdminApp()));
+export const adminDb      = lazyService<admin.firestore.Firestore>(() => admin.firestore(getAdminApp()));
+export const adminStorage = lazyService<admin.storage.Storage>(() => admin.storage(getAdminApp()));
 
-// Re-export commonly needed Admin SDK utilities
+// FieldValue and FieldPath are STATIC utilities on admin.firestore — they do
+// NOT require an initialized app, so they're safe to export directly.
 export const { FieldValue, FieldPath } = admin.firestore;
