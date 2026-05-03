@@ -7,7 +7,7 @@ import { LayoutDashboard, CalendarDays, DollarSign, User, Leaf, Clock } from 'lu
 
 const navItems = [
   { label: 'Dashboard',    href: '/dashboard',                icon: <LayoutDashboard size={18} /> },
-  { label: 'My Sessions',  href: '/dashboard/sessions',      icon: <CalendarDays size={18} /> },
+  { label: 'My Bookings',  href: '/dashboard/bookings',      icon: <CalendarDays size={18} /> },
   { label: 'Availability', href: '/dashboard/availability',  icon: <Clock size={18} /> },
   { label: 'Earnings',     href: '/dashboard/earnings',      icon: <DollarSign size={18} /> },
   { label: 'Profile',      href: '/dashboard/profile',       icon: <User size={18} /> },

@@ -23,14 +23,13 @@ export default function BiopelletRegisterPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const [form, setForm] = useState({
     plantName: '',
     email: '',
     password: '',
     state: '',
-    district: '',
-    address: '',
     primaryFeedstock: 'Paddy Straw',
     procurementRatePerTon: '',
   });
@@ -60,32 +59,25 @@ export default function BiopelletRegisterPage() {
       const uid = result.user.uid;
 
       const biopelletProfile = {
-        id: uid,
-        userId: uid,
         plantName: form.plantName,
         state: form.state,
-        district: form.district,
-        address: form.address,
         acceptedResidueTypes: [form.primaryFeedstock],
         procurementRatePerTon: parseFloat(form.procurementRatePerTon) || 0,
+        isVerified: false,
       };
 
-      const newUser: AuthUser = {
-        id: uid,
-        email: form.email,
-        phone: '',
+      // 1. Write /users/{uid} — base auth user doc matching Firestore rules
+      await setDoc(doc(db, 'users', uid), {
+        uid,
         role: 'BIOPELLET',
-        name: form.plantName,
-        isVerified: true,
-        profile: biopelletProfile,
-      };
+        preferredLang: 'en',
+        createdAt: new Date().toISOString(),
+      });
 
-      await Promise.all([
-        setDoc(doc(db, 'users', uid), newUser),
-        setDoc(doc(db, 'biopelletProfiles', uid), biopelletProfile),
-      ]);
+      // 2. Write /biopelletProfiles/{uid} — detailed profile
+      await setDoc(doc(db, 'biopelletProfiles', uid), biopelletProfile);
 
-      router.push('/dashboard');
+      setSuccess(true);
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/email-already-in-use') {
@@ -99,6 +91,29 @@ export default function BiopelletRegisterPage() {
   };
 
   if (isLoading) return null;
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-gray-800 p-8 rounded-3xl shadow-2xl border border-gray-700 text-center">
+          <div className="mx-auto bg-green-900/50 h-16 w-16 rounded-full flex items-center justify-center mb-6 border border-green-500/30">
+            <Factory size={32} className="text-green-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Account Created</h2>
+          <p className="text-gray-400 mb-6 leading-relaxed">
+            Your bio-pellet plant profile has been successfully submitted. It is currently <span className="font-semibold text-white">awaiting admin approval</span>.
+            We will notify you once your account is verified and ready for procurement.
+          </p>
+          <button
+            onClick={() => router.push('/login')}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 flex items-center justify-center p-4">
@@ -159,7 +174,7 @@ export default function BiopelletRegisterPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1.5">State *</label>
                 <select
@@ -175,27 +190,6 @@ export default function BiopelletRegisterPage() {
                   <option value="Maharashtra">Maharashtra</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">District</label>
-                <input
-                  type="text"
-                  value={form.district}
-                  onChange={(e) => setForm({ ...form, district: e.target.value })}
-                  placeholder="e.g. Patiala"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-700 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Full Facility Address</label>
-              <input
-                type="text"
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                placeholder="Street, Industrial Zone, City"
-                className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-700 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              />
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-700">

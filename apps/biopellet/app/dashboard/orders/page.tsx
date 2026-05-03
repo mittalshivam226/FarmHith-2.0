@@ -10,6 +10,13 @@ import { DollarSign, TrendingUp, Loader2 } from 'lucide-react';
 export default function BiopelletOrdersPage() {
   const { user } = useAuth();
   const { data: orders, loading } = usePlantOrders(user?.id);
+  const [filter, setFilter] = React.useState('ALL');
+
+  const TABS = ['ALL', 'INTERESTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
+
+  const filteredOrders = filter === 'ALL'
+    ? orders
+    : orders.filter(o => o.status === filter);
 
   const total      = orders.reduce((s, o) => s + o.totalAmount, 0);
   const confirmed  = orders.filter(o => o.status === 'CONFIRMED').length;
@@ -28,19 +35,35 @@ export default function BiopelletOrdersPage() {
         <StatCard label="Total Value" value={loading ? '—' : formatCurrency(total)}  icon={<DollarSign size={20} />} accent="purple" />
       </div>
 
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        {TABS.map(tab => (
+          <button
+            key={tab}
+            onClick={() => setFilter(tab)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              filter === tab
+                ? 'bg-green-600 text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
       <Card>
         <SectionHeader title="Order History" />
         {loading ? (
           <div className="flex justify-center py-8">
             <Loader2 size={20} className="animate-spin text-gray-400" />
           </div>
-        ) : orders.length === 0 ? (
+        ) : filteredOrders.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
             <p>No orders yet. <Link href="/dashboard/listings" className="text-green-600 hover:underline">Browse listings →</Link></p>
           </div>
         ) : (
           <div className="space-y-3">
-            {orders.map(order => (
+            {filteredOrders.map(order => (
               <div key={order.id} className="flex items-center justify-between p-4 rounded-xl bg-gray-50">
                 <div>
                   <p className="text-sm font-semibold text-gray-900">{order.farmerName}</p>

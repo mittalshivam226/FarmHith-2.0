@@ -113,7 +113,7 @@ export default function SoilTestPage() {
                   </div>
                 </div>
                 <Link
-                  href={`/dashboard/soil-test/book?labId=${lab.userId}`}
+                  href={`/dashboard/soil-test/book?labId=${lab.id}`}
                   className="mt-4 w-full block text-center text-sm font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 rounded-xl transition-colors"
                 >
                   Book with this Lab

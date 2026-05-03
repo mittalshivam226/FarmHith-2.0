@@ -1,30 +1,56 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FlaskConical, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { FlaskConical, Mail, Lock, ArrowRight, Loader2, LogOut } from 'lucide-react';
 import { useAuth } from '@farmhith/auth';
-import { auth } from '@farmhith/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '@farmhith/firebase';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function LabLoginPage() {
   const router = useRouter();
-  const { firebaseUser, user, isLoading } = useAuth();
+  const { firebaseUser, user, isLoading, logout } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Pending verification state
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && firebaseUser) {
-      if (user?.role === 'LAB') {
-        router.push('/dashboard');
-      } else if (user === null) {
-        import('firebase/auth').then(({ signOut }) => signOut(auth));
-        setError('No lab profile found. Please register or contact admin.');
+    if (isLoading) return;
+
+    const checkVerification = async () => {
+      if (firebaseUser && user?.role === 'LAB') {
+        try {
+          const profileSnap = await getDoc(doc(db, 'labProfiles', firebaseUser.uid));
+          if (profileSnap.exists()) {
+            const profile = profileSnap.data();
+            if (profile.isVerified) {
+              router.push('/dashboard');
+            } else {
+              setIsPending(true);
+            }
+          } else {
+            setError('Lab profile not found. Please contact support.');
+          }
+        } catch (err) {
+          console.error(err);
+          setError('Failed to fetch lab profile');
+        }
+      } else if (firebaseUser && user !== undefined) {
+        // Logged in but not a LAB or user doc not found
+        if (user && user.role !== 'LAB') {
+          // the auth provider already signs out and alerts, but just in case
+          logout();
+        }
       }
-    }
-  }, [firebaseUser, user, isLoading, router]);
+    };
+
+    checkVerification();
+  }, [firebaseUser, user, isLoading, router, logout]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -34,15 +60,45 @@ export default function LabLoginPage() {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // Let the useEffect handle the redirection/pending state
     } catch (err: any) {
       console.error(err);
       setError('Invalid email or password. Please try again.');
-    } finally {
       setLoading(false);
     }
   }
 
+  const handleSignOut = async () => {
+    await signOut(auth);
+    setIsPending(false);
+    setEmail('');
+    setPassword('');
+  };
+
   if (isLoading) return null;
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-100 p-8 text-center">
+          <div className="mx-auto bg-blue-100 h-16 w-16 rounded-full flex items-center justify-center mb-6">
+            <FlaskConical size={32} className="text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Awaiting Verification</h2>
+          <p className="text-gray-600 mb-8 leading-relaxed">
+            Your lab profile is currently under review by our administration team. 
+            You will be able to access the dashboard once your account is approved.
+          </p>
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center justify-center gap-2 bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-xl hover:bg-gray-200 transition-all duration-200"
+          >
+            <LogOut size={16} /> Sign Out
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex items-center justify-center p-4">

@@ -2,23 +2,18 @@
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
-import { Card, SectionHeader, Input, Select, Button, useToast } from '@farmhith/ui';
+import { Card, SectionHeader, Input, Select, Button } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
 import { useAvailableLabs } from '@farmhith/hooks';
-import { Loader2, CreditCard } from 'lucide-react';
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
+import { Loader2, FlaskConical, CheckCircle2 } from 'lucide-react';
 
 export default function BookSoilTestPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, getToken } = useAuth();
-  const toast = useToast();
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const { data: labs, loading: loadingLabs } = useAvailableLabs();
 
@@ -30,108 +25,73 @@ export default function BookSoilTestPage() {
     reportConsentToMitra: false,
   });
 
-  const selectedLab = labs.find(l => l.userId === form.labId);
+  const selectedLab = labs.find(l => l.id === form.labId);
+
+  // Min date = tomorrow
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split('T')[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !selectedLab) return;
+    if (!user) return;
+    if (!form.labId) { setError('Please select a lab'); return; }
+    if (!form.cropType.trim()) { setError('Please enter crop type'); return; }
+    if (!form.collectionDate) { setError('Please select a collection date'); return; }
+    if (!form.landParcelDetails.trim()) { setError('Please enter land parcel details'); return; }
+
+    setError(null);
     setSubmitting(true);
 
     try {
       const idToken = await getToken();
-      const headers = {
-        'Content-Type': 'application/json',
-        ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
-      };
-
-      // 1. Create soil test booking via server API
-      const bookRes = await fetch('/api/soil-test/bookings', {
+      const res = await fetch('/api/soil-test/bookings', {
         method: 'POST',
-        headers,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+        },
         body: JSON.stringify({
-          labId:              selectedLab.userId,
-          cropType:           form.cropType,
-          landParcelDetails:  form.landParcelDetails,
-          collectionDate:     form.collectionDate,
+          labId:                form.labId,   // lab.id === labProfile doc ID === userId
+          cropType:             form.cropType.trim(),
+          landParcelDetails:    form.landParcelDetails.trim(),
+          collectionDate:       form.collectionDate,
           reportConsentToMitra: form.reportConsentToMitra,
         }),
       });
 
-      if (!bookRes.ok) {
-        const err = await bookRes.json();
+      if (!res.ok) {
+        const err = await res.json();
         throw new Error(err.error ?? 'Failed to create booking');
       }
-      const { bookingId, amountPaid } = await bookRes.json();
 
-      // 2. Create Razorpay order
-      const orderRes = await fetch('/api/payments/create-order', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          amount:       amountPaid ?? selectedLab.perTestPrice,
-          serviceType:  'SOIL_TEST',
-          serviceRefId: bookingId,
-        }),
-      });
-
-      if (!orderRes.ok) {
-        const err = await orderRes.json();
-        throw new Error(err.error ?? 'Failed to create payment order');
-      }
-      const { razorpayOrderId, amount: paise } = await orderRes.json();
-
-      // 3. Open Razorpay checkout
-      const rzp = new window.Razorpay({
-        key:         process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount:      paise,
-        currency:    'INR',
-        name:        'FarmHith',
-        description: `Soil Test — ${selectedLab.labName}`,
-        order_id:    razorpayOrderId,
-        handler: async (response: any) => {
-          // 4. Verify payment
-          const verifyRes = await fetch('/api/payments/verify', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-              razorpayOrderId:   response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-              serviceType:       'SOIL_TEST',
-              serviceRefId:      bookingId,
-              amount:            amountPaid ?? selectedLab.perTestPrice,
-              payeeUid:          selectedLab.userId,
-            }),
-          });
-
-          if (verifyRes.ok) {
-            toast.show({ title: 'Booking Confirmed!', message: `Soil test with ${selectedLab.labName} booked.`, type: 'success' });
-            router.push('/dashboard/soil-test');
-          } else {
-            toast.show({ title: 'Payment Verification Failed', message: 'Please contact support.', type: 'error' });
-          }
-        },
-        prefill: {
-          name:    user.name,
-          email:   user.email,
-          contact: user.phone,
-        },
-        theme: { color: '#2563eb' }, // blue-600
-      });
-      rzp.open();
+      const { bookingId } = await res.json();
+      setSuccess('Booking created successfully!');
+      setTimeout(() => router.push(`/dashboard/soil-test/${bookingId}`), 800);
     } catch (err: any) {
-      console.error(err);
-      toast.show({ title: 'Booking Failed', message: err.message ?? 'Please try again.', type: 'error' });
+      setError(err.message ?? 'Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
+  if (success) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
+          <CheckCircle2 size={32} className="text-green-600" />
+        </div>
+        <p className="text-lg font-semibold text-gray-900">Booking Confirmed!</p>
+        <p className="text-sm text-gray-500">Redirecting to your booking details…</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <SectionHeader
         title="Book Soil Test"
-        description="Schedule a sample collection with a verified lab near you."
+        description="Schedule a soil sample collection with a verified lab near you."
       />
 
       <Card>
@@ -139,72 +99,103 @@ export default function BookSoilTestPage() {
           <div className="flex justify-center py-10">
             <Loader2 size={22} className="animate-spin text-gray-400" />
           </div>
+        ) : labs.length === 0 ? (
+          <div className="text-center py-10 text-gray-400">
+            <FlaskConical size={32} className="mx-auto mb-3 opacity-30" />
+            <p>No verified labs available yet.</p>
+            <p className="text-sm mt-1">Check back later or contact admin.</p>
+          </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <Select
-              label="Select Lab"
+              label="Select Lab *"
               value={form.labId}
               onChange={(val) => setForm({ ...form, labId: val })}
               options={[
-                { label: 'Select a lab...', value: '' },
+                { label: 'Select a lab…', value: '' },
                 ...labs.map(lab => ({
-                  label: `${lab.labName} — ${formatCurrency(lab.perTestPrice)}/test`,
-                  value: lab.userId,
+                  label: `${lab.labName} — ${formatCurrency(lab.perTestPrice)}/test (${lab.district ?? ''})`,
+                  value: lab.id,
                 })),
               ]}
               required
             />
 
             {selectedLab && (
-              <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-800">
-                <p className="font-semibold">{selectedLab.labName}</p>
-                <p className="text-xs mt-0.5 text-blue-600">{selectedLab.address} · Capacity: {selectedLab.dailyCapacity}/day</p>
-                <p className="font-bold mt-1">{formatCurrency(selectedLab.perTestPrice)} per test</p>
+              <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm">
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
+                    <FlaskConical size={16} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-blue-900">{selectedLab.labName}</p>
+                    <p className="text-xs text-blue-700 mt-0.5">{selectedLab.address}</p>
+                    <div className="flex items-center gap-4 mt-2">
+                      <span className="text-blue-700 font-bold">{formatCurrency(selectedLab.perTestPrice)} per test</span>
+                      <span className="text-xs text-blue-500">Capacity: {selectedLab.dailyCapacity}/day</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
             <Input
-              label="Crop Type"
+              label="Crop Type *"
               placeholder="e.g. Wheat, Paddy, Sugarcane"
               value={form.cropType}
               onChange={(e) => setForm({ ...form, cropType: e.target.value })}
               required
             />
 
-            <Input
-              label="Land Parcel Details / Area"
-              placeholder="e.g. 5 Acres, North Field"
-              value={form.landParcelDetails}
-              onChange={(e) => setForm({ ...form, landParcelDetails: e.target.value })}
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Land Parcel Details *
+              </label>
+              <textarea
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-900 resize-none"
+                rows={3}
+                placeholder="e.g. 5 Acres, North Field near village pond"
+                value={form.landParcelDetails}
+                onChange={(e) => setForm({ ...form, landParcelDetails: e.target.value })}
+                required
+              />
+            </div>
 
             <Input
               type="date"
-              label="Preferred Collection Date"
+              label="Preferred Collection Date *"
               value={form.collectionDate}
               onChange={(e) => setForm({ ...form, collectionDate: e.target.value })}
+              min={minDate}
               required
             />
 
-            <label className="flex items-start gap-3 cursor-pointer group">
+            <label className="flex items-start gap-3 cursor-pointer p-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors">
               <input
                 type="checkbox"
                 checked={form.reportConsentToMitra}
                 onChange={(e) => setForm({ ...form, reportConsentToMitra: e.target.checked })}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
               />
-              <span className="text-sm text-gray-600 leading-snug">
-                I consent to share my soil report with Soil-Mitras for consultation purposes.
-              </span>
+              <div>
+                <p className="text-sm font-medium text-gray-900">Share report with Soil-Mitra</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Allow my Soil-Mitra to view this soil report for consultation purposes.
+                </p>
+              </div>
             </label>
 
-            <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+            {error && (
+              <p className="text-sm text-red-600 bg-red-50 px-3 py-2.5 rounded-lg">{error}</p>
+            )}
+
+            <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
               <div>
                 {selectedLab && (
                   <>
-                    <p className="text-xs text-gray-500">Amount to Pay</p>
-                    <p className="text-lg font-bold text-blue-700">{formatCurrency(selectedLab.perTestPrice)}</p>
+                    <p className="text-xs text-gray-500">Booking fee</p>
+                    <p className="text-xl font-bold text-green-700">{formatCurrency(selectedLab.perTestPrice)}</p>
+                    <p className="text-xs text-gray-400">Payment collected on sample collection</p>
                   </>
                 )}
               </div>
@@ -215,13 +206,13 @@ export default function BookSoilTestPage() {
                 <Button
                   type="submit"
                   variant="primary"
-                  disabled={submitting || !form.labId || !form.cropType || !form.collectionDate}
-                  className="flex items-center gap-2"
+                  disabled={submitting || !form.labId || !form.cropType || !form.collectionDate || !form.landParcelDetails}
                 >
-                  {submitting
-                    ? <><Loader2 size={14} className="animate-spin inline mr-1" />Processing…</>
-                    : <><CreditCard size={14} className="inline mr-1" />Pay & Book</>
-                  }
+                  {submitting ? (
+                    <><Loader2 size={14} className="animate-spin inline mr-1" />Booking…</>
+                  ) : (
+                    'Confirm Booking'
+                  )}
                 </Button>
               </div>
             </div>

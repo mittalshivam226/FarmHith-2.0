@@ -40,38 +40,77 @@ export function AuthProvider({
     const unsubscribe = onAuthStateChanged(auth, async (decodedUser) => {
       setIsLoading(true);
       setFirebaseUser(decodedUser);
-      
+
       if (!decodedUser) {
         setUser(null);
         setIsLoading(false);
         return;
       }
 
-      // Fetch extended user profile from Firestore
       try {
+        // 1. Fetch /users/{uid} for role
         const userDocRef = doc(db, 'users', decodedUser.uid);
         const userDocSnap = await getDoc(userDocRef);
 
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data() as AuthUser;
-          
-          // Enforce role boundaries immediately on client
-          if (requiredRole && userData.role !== requiredRole) {
-            if (typeof window !== 'undefined') alert(`ROLE MISMATCH! Required: ${requiredRole}, Found: ${userData.role}`);
-            await signOut(auth);
-            setUser(null);
-          } else {
-            setUser(userData);
+        if (!userDocSnap.exists()) {
+          // Registration phase — user doc not yet written
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
+
+        const firestoreData = userDocSnap.data();
+        const role = firestoreData.role as Role;
+
+        // Enforce role boundaries immediately on client
+        if (requiredRole && role !== requiredRole) {
+          await signOut(auth);
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
+
+        // 2. Fetch the role-specific profile for name + phone
+        const profileCollectionMap: Record<string, string> = {
+          FARMER:    'farmerProfiles',
+          LAB:       'labProfiles',
+          BIOPELLET: 'biopelletProfiles',
+          SOILMITRA: 'soilmitraProfiles',
+          ADMIN:     'adminProfiles',
+        };
+        const profileCollection = profileCollectionMap[role];
+        let name = decodedUser.email ?? 'User';
+        let phone = '';
+
+        if (profileCollection) {
+          try {
+            const profileSnap = await getDoc(doc(db, profileCollection, decodedUser.uid));
+            if (profileSnap.exists()) {
+              const pData = profileSnap.data();
+              // Different profile collections use different name fields
+              name = pData.fullName ?? pData.labName ?? pData.plantName ?? name;
+              phone = pData.phone ?? '';
+            }
+          } catch {
+            // Non-blocking — profile may not exist yet during registration
           }
-        } else {
-          // User authenticated but no profile doc exists yet. (Registration phase)
-          setUser(null); // Or set a partial user depending on architecture
         }
+
+        // 3. Build AuthUser with explicit id = uid (Firestore doc stores 'uid', not 'id')
+        const authUser: AuthUser = {
+          id:            decodedUser.uid,
+          email:         decodedUser.email ?? '',
+          phone,
+          role,
+          name,
+          preferredLang: firestoreData.preferredLang ?? 'en',
+          createdAt:     firestoreData.createdAt?.toDate?.()?.toISOString?.() ?? new Date().toISOString(),
+          isVerified:    firestoreData.isVerified ?? true,
+        };
+
+        setUser(authUser);
       } catch (error: any) {
-        console.error("Error fetching user profile:", error);
-        if (typeof window !== 'undefined') {
-          alert("DATABASE ERROR FETCHING PROFILE: " + (error?.message || error));
-        }
+        console.error('[AuthProvider] Error fetching user profile:', error);
         setUser(null);
       } finally {
         setIsLoading(false);

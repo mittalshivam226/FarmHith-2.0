@@ -1,16 +1,16 @@
 // apps/farmer/app/api/marketplace/listings/route.ts
 // Task 4.6 — Create crop listing with fixed rate table
 // Auth: FARMER role required
-import { adminDb } from '@farmhith/firebase/admin';
+import { adminDb, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
-import { FieldValue } from 'firebase-admin/firestore';
 
-// Fixed rate table — no biopelletProfile read needed
+// Fixed rate table — must match the frontend PRICING_MODEL in marketplace/list/page.tsx
 const RESIDUE_BASE_RATES: Record<string, number> = {
-  'paddy straw':       2000,
-  'sugarcane bagasse': 2500,
-  'wheat straw':       1800,
+  'paddy straw':       2500,
+  'wheat straw':       2200,
+  'sugarcane bagasse': 1800,
   'cotton stalks':     1600,
+  'maize stalks':      1400,
   'default':           2000,
 };
 
@@ -40,9 +40,9 @@ export async function POST(request: Request) {
     if (!farmerSnap.exists) throw new ApiError(404, 'Farmer profile not found. Complete registration first.');
     const farmer = farmerSnap.data()!;
 
-    // Fixed rate table pricing — no biopelletProfile lookup
+    // Fixed rate table pricing
     const baseRate = RESIDUE_BASE_RATES[residueType.toLowerCase()] ?? RESIDUE_BASE_RATES['default']!;
-    const farmhithPricePerTon = Math.round(baseRate * 0.95);
+    const farmhithPricePerTon = baseRate;
 
     // Write to /cropListings
     const listingRef = adminDb.collection('cropListings').doc();

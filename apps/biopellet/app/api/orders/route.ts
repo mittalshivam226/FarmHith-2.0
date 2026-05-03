@@ -1,9 +1,8 @@
 // apps/biopellet/app/api/orders/route.ts
 // Task 4.7 — Biopellet plant places a procurement order on a crop listing
 // Auth: BIOPELLET role required
-import { adminDb } from '@farmhith/firebase/admin';
+import { adminDb, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
-import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST(request: Request) {
   try {

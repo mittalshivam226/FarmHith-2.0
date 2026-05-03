@@ -22,15 +22,15 @@ export default function SoilmitraRegisterPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const [form, setForm] = useState({
     fullName: '',
     email: '',
     password: '',
     bio: '',
-    specialty1: '',
-    specialty2: '',
-    language: 'Hindi',
+    specialisation: [] as string[],
+    languagesSpoken: [] as string[],
     sessionFee: '',
   });
 
@@ -42,8 +42,8 @@ export default function SoilmitraRegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.fullName || !form.email || !form.password || !form.specialty1) {
-      setError('Please fill in all required fields.');
+    if (!form.fullName || !form.email || !form.password || form.specialisation.length === 0 || form.languagesSpoken.length === 0) {
+      setError('Please fill in all required fields and select at least one specialisation and language.');
       return;
     }
     if (form.password.length < 6) {
@@ -58,38 +58,29 @@ export default function SoilmitraRegisterPage() {
       const result = await createUserWithEmailAndPassword(auth, form.email, form.password);
       const uid = result.user.uid;
 
-      const specialisations = [form.specialty1, form.specialty2].filter(Boolean);
-
       const mitraProfile = {
-        id: uid,
-        userId: uid,
         fullName: form.fullName,
         bio: form.bio,
-        specialisation: specialisations,
-        languagesSpoken: [form.language],
+        specialisation: form.specialisation,
+        languagesSpoken: form.languagesSpoken,
         sessionFee: parseFloat(form.sessionFee) || 0,
         rating: 0,
         totalSessions: 0,
         isVerified: false,
       };
 
-      const newUser: AuthUser = {
-        id: uid,
-        email: form.email,
-        phone: '',
+      // 1. Write /users/{uid} — base auth user doc matching Firestore rules
+      await setDoc(doc(db, 'users', uid), {
+        uid,
         role: 'SOILMITRA',
-        name: form.fullName,
+        preferredLang: 'en',
         createdAt: new Date().toISOString(),
-        isVerified: false,
-        profile: mitraProfile,
-      };
+      });
 
-      await Promise.all([
-        setDoc(doc(db, 'users', uid), newUser),
-        setDoc(doc(db, 'soilmitraProfiles', uid), mitraProfile),
-      ]);
+      // 2. Write /soilmitraProfiles/{uid} — detailed profile
+      await setDoc(doc(db, 'soilmitraProfiles', uid), mitraProfile);
 
-      router.push('/dashboard');
+      setSuccess(true);
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/email-already-in-use') {
@@ -102,7 +93,40 @@ export default function SoilmitraRegisterPage() {
     }
   };
 
+  const handleCheckbox = (field: 'specialisation' | 'languagesSpoken', value: string) => {
+    setForm(prev => {
+      const list = prev[field];
+      return {
+        ...prev,
+        [field]: list.includes(value) ? list.filter(item => item !== value) : [...list, value]
+      };
+    });
+  };
+
   if (isLoading) return null;
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-100 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl border border-teal-100 text-center">
+          <div className="mx-auto bg-teal-100 h-16 w-16 rounded-full flex items-center justify-center mb-6 text-teal-600">
+            <Leaf size={32} />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Account Created</h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            Your Soil-Mitra profile is currently <span className="font-semibold text-gray-900">pending admin approval</span>.
+            You will be able to set your availability and accept sessions once verified.
+          </p>
+          <button
+            onClick={() => router.push('/login')}
+            className="w-full flex items-center justify-center gap-2 bg-teal-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-teal-700 transition-all duration-200"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-100 flex items-center justify-center p-4">
@@ -167,35 +191,48 @@ export default function SoilmitraRegisterPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Primary Specialty *"
-                placeholder="e.g. Wheat Diseases"
-                value={form.specialty1}
-                onChange={(e) => setForm({ ...form, specialty1: e.target.value })}
-                required
-              />
-              <Input
-                label="Secondary Specialty"
-                placeholder="e.g. Soil Fertility"
-                value={form.specialty2}
-                onChange={(e) => setForm({ ...form, specialty2: e.target.value })}
-              />
+            <div className="pt-2 border-t border-gray-100">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Specialisations *</label>
+              <div className="flex flex-wrap gap-2">
+                {['Paddy', 'Wheat', 'Sugarcane', 'Horticulture', 'Vegetables', 'Fruits'].map(spec => (
+                  <label key={spec} className="inline-flex items-center space-x-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-100">
+                    <input
+                      type="checkbox"
+                      checked={form.specialisation.includes(spec)}
+                      onChange={() => handleCheckbox('specialisation', spec)}
+                      className="rounded text-teal-600 focus:ring-teal-500 w-4 h-4"
+                    />
+                    <span className="text-sm text-gray-700">{spec}</span>
+                  </label>
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+            <div className="pt-2 border-t border-gray-100">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Languages Spoken *</label>
+              <div className="flex flex-wrap gap-2">
+                {['English', 'Hindi', 'Tamil', 'Telugu', 'Kannada'].map(lang => (
+                  <label key={lang} className="inline-flex items-center space-x-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-100">
+                    <input
+                      type="checkbox"
+                      checked={form.languagesSpoken.includes(lang)}
+                      onChange={() => handleCheckbox('languagesSpoken', lang)}
+                      className="rounded text-teal-600 focus:ring-teal-500 w-4 h-4"
+                    />
+                    <span className="text-sm text-gray-700">{lang}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-gray-100">
               <Input
                 label="Consultation Fee (₹ / 30 min)"
                 type="number"
                 placeholder="e.g. 499"
                 value={form.sessionFee}
                 onChange={(e) => setForm({ ...form, sessionFee: e.target.value })}
-              />
-              <Select
-                label="Primary Language"
-                value={form.language}
-                onChange={(val) => setForm({ ...form, language: val })}
-                options={LANGUAGE_OPTIONS}
+                required
               />
             </div>
 
@@ -207,7 +244,7 @@ export default function SoilmitraRegisterPage() {
               type="submit"
               variant="primary"
               className="w-full mt-2 bg-teal-600 hover:bg-teal-700"
-              disabled={loading || !form.fullName || !form.email || !form.password || !form.specialty1}
+              disabled={loading}
             >
               {loading ? 'Creating Account…' : 'Register as Soil-Mitra'}
             </Button>

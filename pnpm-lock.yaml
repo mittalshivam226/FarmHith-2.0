@@ -412,9 +412,9 @@ importers:
 
   packages/types:
     dependencies:
-      '@farmhith/firebase':
-        specifier: workspace:^
-        version: link:../firebase
+      firebase:
+        specifier: ^10.11.0
+        version: 10.14.1
 
   packages/ui:
     dependencies:

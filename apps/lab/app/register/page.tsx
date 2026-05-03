@@ -6,8 +6,7 @@ import { Card, Input, Select, Button } from '@farmhith/ui';
 import { useAuth } from '@farmhith/auth';
 import { auth, db } from '@farmhith/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import type { AuthUser } from '@farmhith/types';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function LabRegisterPage() {
   const router = useRouter();
@@ -26,6 +25,8 @@ export default function LabRegisterPage() {
     perTestPrice: '',
     dailyCapacity: '',
   });
+
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     if (!isLoading && firebaseUser && user?.role === 'LAB') {
@@ -51,35 +52,26 @@ export default function LabRegisterPage() {
       const result = await createUserWithEmailAndPassword(auth, form.email, form.password);
       const uid = result.user.uid;
 
-      const labProfile = {
-        id: uid,
-        userId: uid,
-        labName: form.labName,
-        address: form.address,
+      // 1. Write /users/{uid} — base auth user doc matching Firestore rules
+      await setDoc(doc(db, 'users', uid), {
+        uid,
+        role: 'LAB',
+        preferredLang: 'en',
+        createdAt: serverTimestamp(),
+      });
+
+      // 2. Write /labProfiles/{uid} — detailed profile
+      await setDoc(doc(db, 'labProfiles', uid), {
+        labName: form.labName.trim(),
+        address: form.address.trim(),
         state: form.state,
-        district: form.district,
+        district: form.district.trim(),
         perTestPrice: parseFloat(form.perTestPrice) || 0,
         dailyCapacity: parseInt(form.dailyCapacity) || 0,
         isVerified: false, // Requires admin verification
-      };
+      });
 
-      const newUser: AuthUser = {
-        id: uid,
-        email: form.email,
-        phone: '',
-        role: 'LAB',
-        name: form.labName,
-        createdAt: new Date().toISOString(),
-        isVerified: false,
-        profile: labProfile,
-      };
-
-      await Promise.all([
-        setDoc(doc(db, 'users', uid), newUser),
-        setDoc(doc(db, 'labProfiles', uid), labProfile),
-      ]);
-
-      router.push('/dashboard');
+      setSuccess(true);
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/email-already-in-use') {
@@ -93,6 +85,26 @@ export default function LabRegisterPage() {
   };
 
   if (isLoading) return null;
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl text-center">
+          <div className="mx-auto bg-blue-100 h-16 w-16 rounded-full flex items-center justify-center mb-6">
+            <FlaskConical size={32} className="text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Account Created</h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            Your lab profile has been successfully submitted. It is currently <span className="font-semibold text-gray-900">awaiting admin approval</span>.
+            We will notify you once your account is verified and ready to receive bookings.
+          </p>
+          <Button variant="primary" onClick={() => router.push('/login')} className="w-full">
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">

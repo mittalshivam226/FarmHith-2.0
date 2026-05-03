@@ -8,6 +8,6 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@farmhith/firebase": "workspace:^"
+    "firebase": "^10.11.0"
   }
 }

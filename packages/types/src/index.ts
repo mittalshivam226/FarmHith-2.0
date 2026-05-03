@@ -82,6 +82,7 @@ export interface BiopelletProfile {
   state: string;
   acceptedResidueTypes: string[];
   procurementRatePerTon: number;
+  isVerified: boolean;
 }
 
 export interface SoilmitraProfile {

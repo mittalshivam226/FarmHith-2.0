@@ -1,13 +1,28 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sprout, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { Card, Input, Select, Button } from '@farmhith/ui';
-import { useAuth } from '@farmhith/auth';
+import { Sprout, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { auth, db } from '@farmhith/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import type { AuthUser } from '@farmhith/types';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { useAuth } from '@farmhith/auth';
+
+const INDIAN_STATES = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+  'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+  'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+  'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Delhi',
+];
+
+const PRIMARY_CROPS = [
+  { label: 'Paddy', value: 'paddy' },
+  { label: 'Wheat', value: 'wheat' },
+  { label: 'Sugarcane', value: 'sugarcane' },
+  { label: 'Cotton', value: 'cotton' },
+  { label: 'Horticulture', value: 'horticulture' },
+  { label: 'Other', value: 'other' },
+];
 
 export default function FarmerRegisterPage() {
   const router = useRouter();
@@ -20,11 +35,12 @@ export default function FarmerRegisterPage() {
     fullName: '',
     email: '',
     password: '',
-    aadhaar: '',
+    phone: '',
     state: '',
     district: '',
-    landSize: '',
+    totalLandAcres: '',
     primaryCrop: '',
+    aadhaarNumber: '',
   });
 
   // Redirect if already logged in with correct role
@@ -53,32 +69,26 @@ export default function FarmerRegisterPage() {
       const result = await createUserWithEmailAndPassword(auth, form.email, form.password);
       const uid = result.user.uid;
 
-      // 2. Build the AuthUser payload
-      const newUser: AuthUser = {
-        id: uid,
-        email: form.email,
-        phone: '',
-        role: 'FARMER',
-        name: form.fullName,
-        createdAt: new Date().toISOString(),
-        isVerified: true,
-        profile: {
-          id: `fp-${uid}`,
-          userId: uid,
-          fullName: form.fullName,
-          state: form.state,
-          district: form.district,
-          totalLandAcres: parseFloat(form.landSize) || 0,
-          primaryCrop: form.primaryCrop,
-          aadhaarNumber: form.aadhaar,
-        },
-      };
+      // 2. Write /users/{uid} — role document (EXACT schema from security rules)
+      await setDoc(doc(db, 'users', uid), {
+        uid,
+        id:           uid,       // explicit id field so AuthUser.id resolves correctly
+        role:         'FARMER',
+        preferredLang:'en',
+        isVerified:   true,
+        createdAt:    serverTimestamp(),
+      });
 
-      // 3. Write to Firestore: users/{uid} and farmerProfiles/{uid}
-      await Promise.all([
-        setDoc(doc(db, 'users', uid), newUser),
-        setDoc(doc(db, 'farmerProfiles', uid), newUser.profile!),
-      ]);
+      // 3. Write /farmerProfiles/{uid} — profile document
+      await setDoc(doc(db, 'farmerProfiles', uid), {
+        fullName: form.fullName.trim(),
+        phone: form.phone.trim(),
+        state: form.state,
+        district: form.district.trim(),
+        totalLandAcres: parseFloat(form.totalLandAcres) || 0,
+        primaryCrop: form.primaryCrop,
+        ...(form.aadhaarNumber ? { aadhaarNumber: form.aadhaarNumber.trim() } : {}),
+      });
 
       router.push('/dashboard');
     } catch (err: any) {
@@ -87,6 +97,8 @@ export default function FarmerRegisterPage() {
         setError('An account with this email already exists. Please log in.');
       } else if (err.code === 'auth/weak-password') {
         setError('Password is too weak. Use at least 6 characters.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Please enter a valid email address.');
       } else {
         setError(err.message || 'Registration failed. Please try again.');
       }
@@ -98,36 +110,46 @@ export default function FarmerRegisterPage() {
   if (isLoading) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg space-y-6">
-        <div className="text-center">
-          <div className="mx-auto bg-green-600 h-14 w-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-green-600/30">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-amber-50 flex items-center justify-center p-4 py-12">
+      <div className="w-full max-w-lg">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center h-16 w-16 rounded-3xl bg-gradient-to-br from-green-600 to-emerald-700 shadow-lg mb-4">
             <Sprout size={32} className="text-white" />
           </div>
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Join FarmHith</h1>
-          <p className="text-sm text-gray-500 mt-2">Farmer Portal Registration</p>
+          <p className="text-sm text-gray-500 mt-2">Farmer Portal Registration — किसान पोर्टल</p>
         </div>
 
-        <Card padding="lg" className="shadow-xl">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Full name + email */}
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Full Name *"
-                placeholder="Ramesh Kumar"
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                required
-              />
-              <Input
-                label="Email Address *"
-                type="email"
-                placeholder="farmer@example.com"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
+                <input
+                  type="text"
+                  value={form.fullName}
+                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                  placeholder="Ramesh Kumar"
+                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email Address *</label>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="farmer@example.com"
+                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
+                />
+              </div>
             </div>
 
+            {/* Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Password *</label>
               <div className="relative">
@@ -135,8 +157,8 @@ export default function FarmerRegisterPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="Min. 6 characters"
-                  className="w-full pr-10 pl-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  placeholder="Minimum 6 characters"
+                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                 />
                 <button
@@ -149,49 +171,81 @@ export default function FarmerRegisterPage() {
               </div>
             </div>
 
-            <Input
-              label="Aadhaar Number"
-              placeholder="0000 0000 0000"
-              value={form.aadhaar}
-              onChange={(e) => setForm({ ...form, aadhaar: e.target.value })}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <Select
-                label="State *"
-                value={form.state}
-                onChange={(val) => setForm({ ...form, state: val })}
-                required
-                options={[
-                  { label: 'Select State...', value: '' },
-                  { label: 'Punjab', value: 'Punjab' },
-                  { label: 'Haryana', value: 'Haryana' },
-                  { label: 'Uttar Pradesh', value: 'Uttar Pradesh' },
-                  { label: 'Maharashtra', value: 'Maharashtra' },
-                  { label: 'Madhya Pradesh', value: 'Madhya Pradesh' },
-                ]}
-              />
-              <Input
-                label="District"
-                placeholder="e.g. Ludhiana"
-                value={form.district}
-                onChange={(e) => setForm({ ...form, district: e.target.value })}
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Mobile Number</label>
+              <input
+                type="tel"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="+91 98765 43210"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
 
+            {/* State + District */}
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Total Land (Acres)"
-                type="number"
-                placeholder="e.g. 10.5"
-                value={form.landSize}
-                onChange={(e) => setForm({ ...form, landSize: e.target.value })}
-              />
-              <Input
-                label="Primary Crop"
-                placeholder="e.g. Wheat"
-                value={form.primaryCrop}
-                onChange={(e) => setForm({ ...form, primaryCrop: e.target.value })}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">State *</label>
+                <select
+                  value={form.state}
+                  onChange={(e) => setForm({ ...form, state: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                  required
+                >
+                  <option value="">Select State…</option>
+                  {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">District</label>
+                <input
+                  type="text"
+                  value={form.district}
+                  onChange={(e) => setForm({ ...form, district: e.target.value })}
+                  placeholder="e.g. Ludhiana"
+                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Land + Crop */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Total Land (Acres)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  value={form.totalLandAcres}
+                  onChange={(e) => setForm({ ...form, totalLandAcres: e.target.value })}
+                  placeholder="e.g. 10.5"
+                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Primary Crop</label>
+                <select
+                  value={form.primaryCrop}
+                  onChange={(e) => setForm({ ...form, primaryCrop: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                >
+                  <option value="">Select Crop…</option>
+                  {PRIMARY_CROPS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Aadhaar (optional) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Aadhaar Number (optional)</label>
+              <input
+                type="text"
+                value={form.aadhaarNumber}
+                onChange={(e) => setForm({ ...form, aadhaarNumber: e.target.value })}
+                placeholder="0000 0000 0000"
+                maxLength={14}
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
 
@@ -199,26 +253,29 @@ export default function FarmerRegisterPage() {
               <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
             )}
 
-            <Button
+            <button
               type="submit"
-              variant="primary"
-              className="w-full mt-4"
               disabled={loading || !form.fullName || !form.email || !form.password || !form.state}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed mt-2"
             >
-              {loading ? 'Creating Account…' : 'Create Farmer Account'}
-            </Button>
+              {loading ? (
+                <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> Creating Account…</>
+              ) : (
+                <><CheckCircle2 size={16} /> Create Farmer Account</>
+              )}
+            </button>
 
-            <div className="text-center">
+            <div className="text-center pt-2">
               <button
                 type="button"
                 onClick={() => router.push('/login')}
-                className="text-xs font-semibold text-green-700 hover:text-green-800 transition-colors"
+                className="text-sm text-green-700 font-medium hover:text-green-800 transition-colors"
               >
                 Already have an account? Login here
               </button>
             </div>
           </form>
-        </Card>
+        </div>
       </div>
     </div>
   );

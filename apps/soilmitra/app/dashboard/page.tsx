@@ -41,7 +41,7 @@ export default function SoilmitraDashboard() {
       <Card>
         <SectionHeader
           title="Upcoming Sessions"
-          action={<Link href="/dashboard/sessions" className="text-xs text-teal-600 hover:underline flex items-center gap-1">View all <ArrowRight size={12} /></Link>}
+          action={<Link href="/dashboard/bookings" className="text-xs text-teal-600 hover:underline flex items-center gap-1">View all <ArrowRight size={12} /></Link>}
         />
         {loading ? (
           <div className="flex justify-center py-8">

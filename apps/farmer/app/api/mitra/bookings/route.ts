@@ -1,9 +1,8 @@
 // apps/farmer/app/api/mitra/bookings/route.ts
 // Task 4.4 — Create Soil-Mitra booking
 // Auth: FARMER role required
-import { adminDb } from '@farmhith/firebase/admin';
+import { adminDb, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
-import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST(request: Request) {
   try {
@@ -39,21 +38,22 @@ export async function POST(request: Request) {
     // Write to /mitraBookings
     const bookingRef = adminDb.collection('mitraBookings').doc();
     await bookingRef.set({
-      farmerId:             decoded.uid,
+      farmerId:              decoded.uid,
       mitraId,
-      farmerName:           farmer.fullName,
-      mitraName:            mitra.fullName,
-      sessionDatetime:      new Date(sessionDatetime),
-      status:               'PENDING',
-      videoRoomUrl:         null,
-      amountPaid:           mitra.sessionFee,
+      farmerName:            farmer.fullName,
+      mitraName:             mitra.fullName,
+      sessionDatetime:       new Date(sessionDatetime),
+      durationMinutes:       60,
+      status:                'PENDING',
+      videoRoomUrl:          null,
+      amountPaid:            mitra.sessionFee,
       farmerConsentedReport: Boolean(farmerConsentedReport),
-      linkedReportUrl:      soilReportId ? `soilTestBookings/${soilReportId}` : null,
-      farmDetails:          farmDetails ?? null,
-      cropType:             cropType ?? null,
-      mitraNotes:           null,
-      farmerRating:         null,
-      createdAt:            FieldValue.serverTimestamp(),
+      linkedReportUrl:       soilReportId ? `soilTestBookings/${soilReportId}` : null,
+      farmDetails:           farmDetails ?? null,
+      cropType:              cropType ?? null,
+      mitraNotes:            null,
+      farmerRating:          null,
+      createdAt:             FieldValue.serverTimestamp(),
     });
 
     return Response.json(

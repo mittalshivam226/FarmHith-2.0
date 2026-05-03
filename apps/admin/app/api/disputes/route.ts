@@ -1,8 +1,7 @@
 // apps/admin/app/api/disputes/route.ts
 // Admin: Create / read disputes
-import { adminDb } from '@farmhith/firebase/admin';
+import { adminDb, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
-import { FieldValue } from 'firebase-admin/firestore';
 
 export async function GET(request: Request) {
   try {

@@ -1,9 +1,8 @@
 // apps/lab/app/api/reports/upload/route.ts
 // Task 4.2 — Lab uploads soil report PDF to Firebase Storage
 // Auth: LAB role required
-import { adminDb, adminStorage } from '@farmhith/firebase/admin';
+import { adminDb, adminStorage, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
-import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST(request: Request) {
   try {

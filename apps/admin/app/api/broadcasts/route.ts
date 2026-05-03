@@ -1,8 +1,7 @@
 // apps/admin/app/api/broadcasts/route.ts
 // Admin: Send platform broadcast (writes to Firestore notifications collection)
-import { adminDb } from '@farmhith/firebase/admin';
+import { adminDb, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
-import { FieldValue } from 'firebase-admin/firestore';
 
 const VALID_TARGETS = ['ALL_USERS', 'FARMERS', 'SOILMITRAS', 'LABS', 'BIOPELLET'] as const;
 type TargetAudience = typeof VALID_TARGETS[number];

@@ -1,9 +1,8 @@
 // apps/farmer/app/api/payments/verify/route.ts
 // Task 5.3 — Verify Razorpay signature + write payment + update booking
 // Auth: Any authenticated user
-import { adminDb } from '@farmhith/firebase/admin';
+import { adminDb, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
-import { FieldValue } from 'firebase-admin/firestore';
 import { createHmac } from 'crypto';
 
 // Platform commission rates per service type

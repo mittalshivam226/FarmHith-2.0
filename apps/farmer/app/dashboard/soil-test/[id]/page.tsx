@@ -5,14 +5,16 @@ import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, StatusBadge, Button } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { db } from '@farmhith/firebase';
-import { doc, onSnapshot, collection, getDocs } from 'firebase/firestore';
+import { doc, onSnapshot, getDoc } from 'firebase/firestore';
 import { FlaskConical, Calendar, Info, FileText, Loader2, CheckCircle2, Download } from 'lucide-react';
 import type { SoilTestBooking } from '@farmhith/types';
 
 interface SoilReport {
-  reportUrl: string;
-  testParameters: { pH: number; nitrogen: number; phosphorus: number; potassium: number };
-  technicianNotes: string;
+  reportUrl?: string;
+  testParameters: { ph: number; nitrogen: number; phosphorus: number; potassium: number; moisture?: number; organicCarbon?: number; ec?: number };
+  technicianNotes?: string;
+  recommendation?: string;
+  generatedAt?: string;
 }
 
 const STATUS_STEPS = ['PENDING', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED'] as const;
@@ -79,17 +81,15 @@ export default function SoilTestDetailPage() {
         setBooking(data);
         setLoading(false);
 
-        // Fetch report when completed
+        // Fetch report from top-level soilReports collection (doc ID = bookingId)
         if (data.status === 'COMPLETED') {
           try {
-            const reportsSnap = await getDocs(
-              collection(db, 'soilTestBookings', bookingId, 'reports')
-            );
-            if (!reportsSnap.empty) {
-              setReport(reportsSnap.docs[0].data() as SoilReport);
+            const reportSnap = await getDoc(doc(db, 'soilReports', bookingId));
+            if (reportSnap.exists()) {
+              setReport(reportSnap.data() as SoilReport);
             }
           } catch (e) {
-            console.error('Failed to load report sub-collection:', e);
+            console.error('Failed to load soil report:', e);
           }
         }
       },
@@ -221,10 +221,10 @@ export default function SoilTestDetailPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                  { label: 'pH', value: report.testParameters.pH, unit: '', color: 'text-amber-600', bg: 'bg-amber-50' },
-                  { label: 'Nitrogen (N)', value: report.testParameters.nitrogen, unit: 'kg/ha', color: 'text-blue-600', bg: 'bg-blue-50' },
-                  { label: 'Phosphorus (P)', value: report.testParameters.phosphorus, unit: 'kg/ha', color: 'text-red-500', bg: 'bg-red-50' },
-                  { label: 'Potassium (K)', value: report.testParameters.potassium, unit: 'kg/ha', color: 'text-green-600', bg: 'bg-green-50' },
+                   { label: 'pH',            value: report.testParameters.ph,         unit: '',       color: 'text-amber-600', bg: 'bg-amber-50' },
+                  { label: 'Nitrogen (N)',   value: report.testParameters.nitrogen,    unit: 'kg/ha', color: 'text-blue-600',  bg: 'bg-blue-50' },
+                  { label: 'Phosphorus (P)', value: report.testParameters.phosphorus,  unit: 'kg/ha', color: 'text-red-500',   bg: 'bg-red-50' },
+                  { label: 'Potassium (K)',  value: report.testParameters.potassium,   unit: 'kg/ha', color: 'text-green-600', bg: 'bg-green-50' },
                 ].map(p => (
                   <div key={p.label} className={`${p.bg} p-4 rounded-xl text-center border border-white/50`}>
                     <p className="text-xs text-gray-500 font-medium mb-1">{p.label}</p>

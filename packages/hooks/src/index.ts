@@ -38,12 +38,19 @@ function useCollection<T>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Serialize constraints to a stable key so the effect re-runs when they change
+  // (e.g. when farmerId loads after auth resolves)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const constraintKey = constraints.map(c => JSON.stringify(c)).join('|');
+
   useEffect(() => {
     if (!enabled) {
+      setData([]);
       setLoading(false);
       return;
     }
 
+    setLoading(true);
     const q = query(collection(db, collectionName), ...constraints);
 
     const unsubscribe = onSnapshot(
@@ -62,7 +69,7 @@ function useCollection<T>(
 
     return () => unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collectionName, enabled]);
+  }, [collectionName, enabled, constraintKey]);
 
   return { data, loading, error };
 }

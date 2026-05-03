@@ -2,8 +2,7 @@
 // Task 5.4 — Razorpay webhook handler
 // CRITICAL: Raw body must be read BEFORE any JSON parse for signature verification.
 // Always returns 200 — Razorpay retries on non-200.
-import { adminDb } from '@farmhith/firebase/admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { adminDb, FieldValue } from '@farmhith/firebase/admin';
 import { createHmac } from 'crypto';
 
 // Maps serviceType note → Firestore collection

@@ -1,8 +1,7 @@
 // apps/admin/app/api/disputes/[disputeId]/route.ts
 // Admin: Update dispute status (OPEN → INVESTIGATING → RESOLVED)
-import { adminDb } from '@farmhith/firebase/admin';
+import { adminDb, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
-import { FieldValue } from 'firebase-admin/firestore';
 
 export async function PATCH(
   request: Request,

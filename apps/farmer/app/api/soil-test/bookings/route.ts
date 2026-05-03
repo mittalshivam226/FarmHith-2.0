@@ -1,9 +1,8 @@
 // apps/farmer/app/api/soil-test/bookings/route.ts
 // Task 4.1 — Create soil test booking
 // Auth: FARMER role required
-import { adminDb } from '@farmhith/firebase/admin';
+import { adminDb, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
-import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST(request: Request) {
   try {
