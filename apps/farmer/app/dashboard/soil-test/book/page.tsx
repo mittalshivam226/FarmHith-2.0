@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, Input, Select, Button } from '@farmhith/ui';
@@ -7,7 +7,8 @@ import { formatCurrency } from '@farmhith/utils';
 import { useAvailableLabs } from '@farmhith/hooks';
 import { Loader2, FlaskConical, CheckCircle2 } from 'lucide-react';
 
-export default function BookSoilTestPage() {
+// Inner component uses useSearchParams — must be inside <Suspense>
+function BookSoilTestForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, getToken } = useAuth();
@@ -220,5 +221,21 @@ export default function BookSoilTestPage() {
         )}
       </Card>
     </div>
+  );
+}
+
+// Page wrapper — required so Next.js can statically render the route boundary
+// while the inner form waits for searchParams to resolve
+export default function BookSoilTestPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-24">
+          <Loader2 size={28} className="animate-spin text-gray-400" />
+        </div>
+      }
+    >
+      <BookSoilTestForm />
+    </Suspense>
   );
 }

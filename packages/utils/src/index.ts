@@ -10,8 +10,24 @@ export function formatCurrency(amount: number): string {
 
 // ─── DATES ────────────────────────────────────────────────────────────────────
 
-export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
+/**
+ * Normalises any date-like value to a JS Date.
+ * Handles: ISO strings, JS Dates, and Firestore Timestamp objects
+ * (which expose a `.toDate()` method but are not instanceof Date).
+ */
+function toDate(date: string | Date | unknown): Date {
+  if (date && typeof (date as any).toDate === 'function') {
+    return (date as any).toDate() as Date;
+  }
+  if (typeof date === 'string') return new Date(date);
+  if (date instanceof Date) return date;
+  // Fallback: try numeric milliseconds
+  return new Date(date as any);
+}
+
+export function formatDate(date: string | Date | unknown, options?: Intl.DateTimeFormatOptions): string {
+  const d = toDate(date);
+  if (isNaN(d.getTime())) return '—';
   return new Intl.DateTimeFormat('en-IN', {
     day: 'numeric',
     month: 'short',
@@ -20,8 +36,9 @@ export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOpt
   }).format(d);
 }
 
-export function formatDateTime(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
+export function formatDateTime(date: string | Date | unknown): string {
+  const d = toDate(date);
+  if (isNaN(d.getTime())) return '—';
   return new Intl.DateTimeFormat('en-IN', {
     day: 'numeric',
     month: 'short',
@@ -31,8 +48,9 @@ export function formatDateTime(date: string | Date): string {
   }).format(d);
 }
 
-export function formatRelativeTime(date: string | Date): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
+export function formatRelativeTime(date: string | Date | unknown): string {
+  const d = toDate(date);
+  if (isNaN(d.getTime())) return '—';
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
   const diffSec = Math.floor(diffMs / 1000);

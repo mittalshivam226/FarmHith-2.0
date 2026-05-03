@@ -94,7 +94,7 @@ export default function MitraPage() {
                     </div>
 
                     <Link
-                      href={`/dashboard/mitra/book/${mitra.userId}`}
+                      href={`/dashboard/mitra/book/${mitra.id}`}
                       className="mt-4 inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-5 py-2 rounded-xl transition-colors"
                     >
                       <Users size={15} /> Book Session
