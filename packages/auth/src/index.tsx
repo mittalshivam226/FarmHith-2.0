@@ -131,7 +131,10 @@ export function AuthProvider({
   const getToken = async (): Promise<string | null> => {
     if (!firebaseUser) return null;
     try {
-      return await firebaseUser.getIdToken();
+      // Force-refresh = true: always get a fresh token.
+      // Firebase ID tokens expire after 1 hour; without forceRefresh the
+      // cached token will be sent stale and the backend rejects it as "invalid".
+      return await firebaseUser.getIdToken(/* forceRefresh */ true);
     } catch {
       return null;
     }
