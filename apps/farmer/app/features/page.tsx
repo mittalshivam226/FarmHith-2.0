@@ -27,7 +27,7 @@ const FEATURE_SECTIONS = [
       { icon: <Globe size={18} />, title: 'Multilingual Results', desc: 'Get your results in Hindi, Punjabi, Marathi, Telugu, or English. Your language, your way.' },
       { icon: <Clock size={18} />, title: 'Delivered in 5 Days', desc: 'From sample collection to digital report — 5 working days, guaranteed.' },
       { icon: <TrendingUp size={18} />, title: 'Crop Recommendations', desc: 'Every report includes a tailored fertiliser plan for your exact crop and soil profile.' },
-      { icon: <Shield size={18} />, title: 'NABL Certified Labs', desc: 'All partner labs are NABL-accredited and verified by FarmHith's quality team.' },
+      { icon: <Shield size={18} />, title: 'NABL Certified Labs', desc: "All partner labs are NABL-accredited and verified by FarmHith's quality team." },
     ],
     cta: '/register',
     ctaText: 'Book Your First Test',
