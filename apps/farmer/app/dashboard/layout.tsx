@@ -2,52 +2,47 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
-import { PageShell, PortalSidebar, PageLoader } from '@farmhith/ui';
-import {
-  LayoutDashboard,
-  FlaskConical,
-  Users,
-  ShoppingBasket,
-  History,
-  User,
-  Sprout,
-} from 'lucide-react';
+import WebsiteNav from '../components/WebsiteNav';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  const navItems = [
-    { label: 'Dashboard',   href: '/dashboard',              icon: <LayoutDashboard size={18} /> },
-    { label: 'Soil Tests',  href: '/dashboard/soil-test',    icon: <FlaskConical size={18} /> },
-    { label: 'Soil-Mitra',  href: '/dashboard/mitra',        icon: <Users size={18} /> },
-    { label: 'Marketplace', href: '/dashboard/marketplace',  icon: <ShoppingBasket size={18} /> },
-    { label: 'History',     href: '/dashboard/history',      icon: <History size={18} /> },
-    { label: 'Profile',     href: '/dashboard/profile',      icon: <User size={18} /> },
-  ];
-
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isLoading, isAuthenticated, router]);
+    // Role guard — only farmers allowed in this section
+    if (!isLoading && user && user.role !== 'FARMER') {
+      router.push('/login');
+    }
+  }, [isLoading, isAuthenticated, user, router]);
 
-  if (isLoading) return <PageLoader label="Loading your dashboard…" />;
+  if (isLoading) {
+    return (
+      <div className="app-loading">
+        <div className="app-loading-spinner" />
+        <p>Loading your dashboard…</p>
+      </div>
+    );
+  }
+
   if (!isAuthenticated || !user) return null;
 
   return (
-    <PageShell
-      sidebar={
-        <PortalSidebar
-          portalName="Farmer Portal"
-          portalColor="from-green-600 to-emerald-700"
-          navItems={navItems}
-          user={{ name: user.name, role: user.role }}
-          logoIcon={<Sprout size={22} />}
-        />
-      }
-    >
-      {children}
-    </PageShell>
+    <div className="app-shell">
+      <WebsiteNav />
+      <main className="app-main">
+        {children}
+      </main>
+      <footer className="app-footer">
+        <p>© {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd.</p>
+        <div className="app-footer-links">
+          <a href="/">Home</a>
+          <a href="/features">Features</a>
+          <a href="/about">About</a>
+        </div>
+      </footer>
+    </div>
   );
 }
