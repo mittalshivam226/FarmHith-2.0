@@ -3,7 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
 import { StatCard, StatusBadge, Card, SectionHeader } from '@farmhith/ui';
-import { formatCurrency } from '@farmhith/utils';
+import { formatCurrency, formatDate } from '@farmhith/utils';
 import { useLabInbox } from '@farmhith/hooks';
 import { ClipboardList, CheckCircle, Clock, TrendingUp, Upload, ArrowRight, Loader2 } from 'lucide-react';
 
@@ -87,7 +87,7 @@ export default function LabDashboard() {
               >
                 <div>
                   <p className="text-sm font-medium text-gray-900">{booking.farmerName}</p>
-                  <p className="text-xs text-gray-500">{booking.cropType} · {booking.collectionDate}</p>
+                  <p className="text-xs text-gray-500">{booking.cropType} · {formatDate(booking.collectionDate)}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold text-gray-700">{formatCurrency(booking.amountPaid)}</span>
