@@ -6,8 +6,9 @@ import { useAuth } from '@farmhith/auth';
 import {
   FlaskConical, Users, ShoppingBasket, ArrowRight,
   Leaf, Shield, TrendingUp, Star, Sparkles, ChevronRight,
-  CheckCircle, Menu, X,
+  CheckCircle, Video, FileText, Award
 } from 'lucide-react';
+import WebsiteNav from './components/WebsiteNav';
 
 /* ─── Animated counter ─────────────────────────────────────── */
 function Counter({ target, suffix = '' }: { target: number; suffix?: string }) {
@@ -35,73 +36,68 @@ function Counter({ target, suffix = '' }: { target: number; suffix?: string }) {
 export default function LandingPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     if (!isLoading && user?.role === 'FARMER') router.replace('/dashboard');
   }, [user, isLoading, router]);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
   if (isLoading || user?.role === 'FARMER') return null;
+
+  const testimonials = [
+    {
+      name: 'Ramesh Kumar',
+      location: 'Ludhiana, Punjab',
+      crop: 'Wheat & Paddy',
+      stars: 5,
+      text: 'Maine paddy straw se ₹18,000 kamaye jo pehle main jala deta tha. FarmHith ne meri soch badal di.',
+      avatar: 'RK',
+    },
+    {
+      name: 'Sunita Devi',
+      location: 'Nashik, Maharashtra',
+      crop: 'Sugarcane',
+      stars: 5,
+      text: 'Soil-Mitra se baat ki, unhone exact fertiliser bataya. Is season yield 40% badh gayi. Bahut shukriya!',
+      avatar: 'SD',
+    },
+    {
+      name: 'Gurpreet Singh',
+      location: 'Amritsar, Punjab',
+      crop: 'Cotton',
+      stars: 5,
+      text: 'Soil test report se pata chala ki mere khet mein zinc ki kami hai. Lab report was so detailed and helpful.',
+      avatar: 'GS',
+    },
+    {
+      name: 'Vikram Patel',
+      location: 'Surat, Gujarat',
+      crop: 'Groundnut',
+      stars: 5,
+      text: 'FarmHith has completely digitized how I manage my soil. The Mitras are very knowledgeable.',
+      avatar: 'VP',
+    }
+  ];
 
   return (
     <div className="landing-root">
-      {/* ── Ambient orbs ─────────────────────────────────────── */}
+      {/* ── Ambient Backgrounds ─────────────────────────────────────── */}
+      <div className="bg-pattern" />
       <div className="orb orb-1" />
       <div className="orb orb-2" />
       <div className="orb orb-3" />
+      
+      {/* ── Floating Graphics ───────────────────────────────────────── */}
+      <div className="floating-graphic float-1"><Leaf size={64} /></div>
+      <div className="floating-graphic float-2"><FlaskConical size={64} /></div>
+      <div className="floating-graphic float-3"><Sparkles size={64} /></div>
 
       {/* ═══════════════ NAVBAR ══════════════════════════════ */}
-      <nav className={`navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
-        <div className="nav-inner">
-          {/* Logo */}
-          <Link href="/" className="logo">
-            <div className="logo-icon"><Leaf size={20} /></div>
-            <span className="logo-text">FarmHith</span>
-            <span className="logo-badge">Farmer</span>
-          </Link>
-
-          {/* Desktop links */}
-          <div className="nav-links">
-            <a href="#features" className="nav-link">Features</a>
-            <a href="#how-it-works" className="nav-link">How it works</a>
-            <a href="#testimonials" className="nav-link">Stories</a>
-          </div>
-
-          {/* CTA */}
-          <div className="nav-cta">
-            <Link href="/login" className="btn-ghost">Log in</Link>
-            <Link href="/register" className="btn-primary-sm">Get Started <ArrowRight size={14} /></Link>
-          </div>
-
-          {/* Mobile toggle */}
-          <button className="menu-toggle" onClick={() => setMenuOpen(v => !v)}>
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </div>
-
-        {/* Mobile drawer */}
-        {menuOpen && (
-          <div className="mobile-drawer">
-            <a href="#features" onClick={() => setMenuOpen(false)} className="mobile-link">Features</a>
-            <a href="#how-it-works" onClick={() => setMenuOpen(false)} className="mobile-link">How it works</a>
-            <a href="#testimonials" onClick={() => setMenuOpen(false)} className="mobile-link">Farmer Stories</a>
-            <Link href="/login" className="mobile-link">Log in</Link>
-            <Link href="/register" className="btn-primary-full">Create Free Account</Link>
-          </div>
-        )}
-      </nav>
+      <WebsiteNav />
 
       {/* ═══════════════ HERO ════════════════════════════════ */}
       <section className="hero">
         <div className="hero-badge">
-          <Sparkles size={13} />
+          <Sparkles size={14} />
           <span>Trusted by 50,000+ Indian Farmers</span>
         </div>
 
@@ -125,19 +121,47 @@ export default function LandingPage() {
           </a>
         </div>
 
-        {/* Hero card preview */}
-        <div className="hero-card-grid">
-          {[
-            { icon: <FlaskConical size={20} />, label: 'Soil Tests Completed', value: '1,24,000+', color: '#4edea3' },
-            { icon: <Users size={20} />, label: 'Expert Mitras Available', value: '2,800+', color: '#ffb95f' },
-            { icon: <TrendingUp size={20} />, label: 'Avg. Farmer Earnings', value: '₹32,000', color: '#c0c6db' },
-          ].map((card) => (
-            <div key={card.label} className="hero-stat-card">
-              <div className="hero-stat-icon" style={{ color: card.color }}>{card.icon}</div>
-              <p className="hero-stat-value" style={{ color: card.color }}>{card.value}</p>
-              <p className="hero-stat-label">{card.label}</p>
+        {/* Triple Block Layout (Inspiration from Wix) */}
+        <div className="w-full max-w-6xl mx-auto mt-16 grid grid-cols-1 md:grid-cols-3 gap-6" style={{ animation: 'heroFadeUp 1s 0.5s ease both' }}>
+          
+          {/* Block 1: Laboratory */}
+          <div className="relative rounded-[24px] overflow-hidden min-h-[400px] flex flex-col justify-end p-8 shadow-2xl group">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#003333] via-transparent to-transparent opacity-90" />
+            <div className="relative z-10 text-left">
+              <h3 className="text-white text-2xl font-bold mb-2">About Our Laboratory</h3>
+              <p className="text-gray-200 text-sm mb-4">NABL certified facilities ensuring maximum accuracy.</p>
+              <Link href="/about" className="inline-flex items-center gap-2 text-white font-semibold hover:text-[#D2B48C] transition-colors">
+                Learn More <ArrowRight size={16} />
+              </Link>
             </div>
-          ))}
+          </div>
+
+          {/* Block 2: Soil Services (Tan Block) */}
+          <div className="relative rounded-[24px] overflow-hidden min-h-[400px] flex flex-col justify-center p-10 shadow-2xl bg-[#D2B48C] text-[#003333] group">
+            <div className="relative z-10 text-center">
+              <FlaskConical size={48} className="mx-auto mb-6 opacity-80" />
+              <h3 className="text-3xl font-extrabold mb-4">Soil Testing Services</h3>
+              <p className="text-[#004d40] text-base mb-8 font-medium">Dedicated to providing accurate soil testing to help you optimize yields and make informed decisions.</p>
+              <Link href="/dashboard/soil-test" className="btn-primary-sm justify-center py-3 text-lg">
+                Get Started
+              </Link>
+            </div>
+          </div>
+
+          {/* Block 3: Educational Resources */}
+          <div className="relative rounded-[24px] overflow-hidden min-h-[400px] flex flex-col justify-end p-8 shadow-2xl group">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#003333] via-transparent to-transparent opacity-90" />
+            <div className="relative z-10 text-left">
+              <h3 className="text-white text-2xl font-bold mb-2">Educational Resources</h3>
+              <p className="text-gray-200 text-sm mb-4">Enhance your understanding of soil management.</p>
+              <Link href="/features" className="inline-flex items-center gap-2 text-white font-semibold hover:text-[#D2B48C] transition-colors">
+                Explore Resources <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+          
         </div>
       </section>
 
@@ -160,7 +184,7 @@ export default function LandingPage() {
 
       {/* ═══════════════ FEATURES ════════════════════════════ */}
       <section id="features" className="section">
-        <div className="section-label"><Sparkles size={12} /> Core Services</div>
+        <div className="section-label"><Sparkles size={14} /> Core Services</div>
         <h2 className="section-title">Everything your farm needs,<br /><span className="text-emerald">in one place.</span></h2>
         <p className="section-sub">Three powerful services designed to maximise your farm&apos;s potential.</p>
 
@@ -168,8 +192,6 @@ export default function LandingPage() {
           {[
             {
               icon: <FlaskConical size={32} />,
-              color: '#4edea3',
-              shadow: 'rgba(78,222,163,0.25)',
               tag: 'Soil Excellence',
               title: 'Precision Soil Testing',
               desc: 'Book certified lab tests for your fields. Get detailed NPK reports, pH analysis, and personalised crop recommendations — all in your language.',
@@ -178,9 +200,7 @@ export default function LandingPage() {
               ctaText: 'Book a Test',
             },
             {
-              icon: <Users size={32} />,
-              color: '#ffb95f',
-              shadow: 'rgba(255,185,95,0.25)',
+              icon: <Video size={32} />,
               tag: 'Expert Guidance',
               title: 'Your Soil-Mitra Awaits',
               desc: 'Connect with verified agricultural experts for 1-on-1 video consultations. Solve crop diseases, soil problems, and yield challenges — live.',
@@ -190,8 +210,6 @@ export default function LandingPage() {
             },
             {
               icon: <ShoppingBasket size={32} />,
-              color: '#c0c6db',
-              shadow: 'rgba(192,198,219,0.2)',
               tag: 'Waste to Wealth',
               title: 'Sell Crop Residue',
               desc: 'Stop burning stubble. List your paddy straw, wheat straw, and other crop residue on the marketplace and earn from bio-pellet plants.',
@@ -200,97 +218,92 @@ export default function LandingPage() {
               ctaText: 'List Your Residue',
             },
           ].map((f) => (
-            <div key={f.title} className="feature-card" style={{ '--glow': f.shadow } as React.CSSProperties}>
-              <div className="feature-icon-wrap" style={{ color: f.color, borderColor: `${f.color}33`, background: `${f.color}15` }}>
+            <div key={f.title} className="feature-card">
+              <div className="feature-icon-wrap">
                 {f.icon}
               </div>
-              <div className="feature-tag" style={{ color: f.color }}>{f.tag}</div>
+              <div className="feature-tag">{f.tag}</div>
               <h3 className="feature-title">{f.title}</h3>
               <p className="feature-desc">{f.desc}</p>
               <ul className="feature-bullets">
                 {f.bullets.map(b => (
-                  <li key={b}><CheckCircle size={14} style={{ color: f.color }} />{b}</li>
+                  <li key={b}><CheckCircle size={16} />{b}</li>
                 ))}
               </ul>
-              <Link href={f.cta} className="feature-cta" style={{ color: f.color, borderColor: `${f.color}40` }}>
-                {f.ctaText} <ChevronRight size={15} />
+              <Link href={f.cta} className="feature-cta">
+                {f.ctaText} <ChevronRight size={16} />
               </Link>
             </div>
           ))}
         </div>
+
+        <div className="split-section">
+            <div className="split-image">
+                <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1000&auto=format&fit=crop" alt="Smart Farming" />
+            </div>
+            <div className="split-content">
+                <div className="section-label"><Award size={14} /> Premium Quality</div>
+                <h2 className="section-title">Farming upgraded for the digital age.</h2>
+                <p className="section-sub">We combine traditional agricultural wisdom with modern technology to deliver the best results for your farm. Easy to use, fully transparent, and always focused on your growth.</p>
+                <ul className="feature-bullets" style={{ fontSize: '1.1rem', gap: '1rem' }}>
+                    <li><CheckCircle size={20} /> Real-time tracking of soil test reports</li>
+                    <li><CheckCircle size={20} /> Transparent pricing for crop residue</li>
+                    <li><CheckCircle size={20} /> Verified network of expert Soil-Mitras</li>
+                </ul>
+                <div style={{ marginTop: '2rem' }}>
+                    <Link href="/features" className="btn-primary-sm" style={{ display: 'inline-flex', padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
+                        Explore All Features <ArrowRight size={16} />
+                    </Link>
+                </div>
+            </div>
+        </div>
+
       </section>
 
       {/* ═══════════════ HOW IT WORKS ════════════════════════ */}
       <section id="how-it-works" className="section how-section">
-        <div className="section-label"><Sparkles size={12} /> Simple Process</div>
+        <div className="section-label"><Sparkles size={14} /> Simple Process</div>
         <h2 className="section-title">From field to results<br /><span className="text-gold">in 3 easy steps.</span></h2>
 
         <div className="steps-grid">
           {[
-            { num: '01', title: 'Create Your Account', desc: 'Register in under 2 minutes — just your name, village, and primary crop. No complex forms.', icon: <Shield size={24} /> },
-            { num: '02', title: 'Choose Your Service', desc: 'Book a soil test, find a Mitra expert, or list your crop residue for sale. Everything in one dashboard.', icon: <Leaf size={24} /> },
-            { num: '03', title: 'Grow & Earn More', desc: 'Act on expert recommendations, get paid for your residue, and watch your farm thrive season after season.', icon: <TrendingUp size={24} /> },
+            { num: '01', title: 'Create Your Account', desc: 'Register in under 2 minutes — just your name, village, and primary crop. No complex forms.', icon: <Shield size={32} /> },
+            { num: '02', title: 'Choose Your Service', desc: 'Book a soil test, find a Mitra expert, or list your crop residue for sale. Everything in one dashboard.', icon: <Leaf size={32} /> },
+            { num: '03', title: 'Grow & Earn More', desc: 'Act on expert recommendations, get paid for your residue, and watch your farm thrive season after season.', icon: <TrendingUp size={32} /> },
           ].map((step, i) => (
             <div key={step.num} className="step-card">
               <div className="step-num">{step.num}</div>
               <div className="step-icon">{step.icon}</div>
               <h3 className="step-title">{step.title}</h3>
               <p className="step-desc">{step.desc}</p>
-              {i < 2 && <div className="step-connector" />}
             </div>
           ))}
         </div>
       </section>
 
       {/* ═══════════════ TESTIMONIALS ════════════════════════ */}
-      <section id="testimonials" className="section">
-        <div className="section-label"><Sparkles size={12} /> Farmer Stories</div>
+      <section id="testimonials" className="section" style={{ backgroundColor: '#f8fafc' }}>
+        <div className="section-label"><Star size={14} /> Farmer Stories</div>
         <h2 className="section-title">Real farmers.<br /><span className="text-emerald">Real results.</span></h2>
 
-        <div className="testimonials-grid">
-          {[
-            {
-              name: 'Ramesh Kumar',
-              location: 'Ludhiana, Punjab',
-              crop: 'Wheat & Paddy',
-              stars: 5,
-              text: 'Maine paddy straw se ₹18,000 kamaye jo pehle main jala deta tha. FarmHith ne meri soch badal di.',
-              avatar: 'RK',
-              color: '#4edea3',
-            },
-            {
-              name: 'Sunita Devi',
-              location: 'Nashik, Maharashtra',
-              crop: 'Sugarcane',
-              stars: 5,
-              text: 'Soil-Mitra se baat ki, unhone exact fertiliser bataya. Is season yield 40% badh gayi. Bahut shukriya!',
-              avatar: 'SD',
-              color: '#ffb95f',
-            },
-            {
-              name: 'Gurpreet Singh',
-              location: 'Amritsar, Punjab',
-              crop: 'Cotton',
-              stars: 5,
-              text: 'Soil test report se pata chala ki mere khet mein zinc ki kami hai. Lab report was so detailed and helpful.',
-              avatar: 'GS',
-              color: '#c0c6db',
-            },
-          ].map((t) => (
-            <div key={t.name} className="testimonial-card">
-              <div className="testimonial-stars">
-                {Array(t.stars).fill(0).map((_, i) => <Star key={i} size={14} fill="#ffb95f" color="#ffb95f" />)}
-              </div>
-              <p className="testimonial-text">&ldquo;{t.text}&rdquo;</p>
-              <div className="testimonial-author">
-                <div className="testimonial-avatar" style={{ background: `${t.color}30`, color: t.color }}>{t.avatar}</div>
-                <div>
-                  <p className="testimonial-name">{t.name}</p>
-                  <p className="testimonial-meta">{t.crop} · {t.location}</p>
+        <div className="testimonials-wrapper mt-10">
+          <div className="testimonials-track">
+            {[...testimonials, ...testimonials].map((t, idx) => (
+              <div key={`${t.name}-${idx}`} className="testimonial-card">
+                <div className="testimonial-stars">
+                  {Array(t.stars).fill(0).map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
+                </div>
+                <p className="testimonial-text">&ldquo;{t.text}&rdquo;</p>
+                <div className="testimonial-author">
+                  <div className="testimonial-avatar">{t.avatar}</div>
+                  <div>
+                    <p className="testimonial-name">{t.name}</p>
+                    <p className="testimonial-meta">{t.crop} · {t.location}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
@@ -298,7 +311,7 @@ export default function LandingPage() {
       <section className="cta-section">
         <div className="cta-inner">
           <div className="cta-glow" />
-          <div className="section-label"><Sparkles size={12} /> Join Today</div>
+          <div className="section-label" style={{ background: '#ffffff', color: '#00838F', borderColor: '#e6e0d4' }}><Sparkles size={14} /> Join Today</div>
           <h2 className="cta-title">The future of Indian farming<br />starts with <span className="text-emerald">one click.</span></h2>
           <p className="cta-sub">Free to join. No hidden fees. Trusted by farmers across 18 states.</p>
           <div className="hero-actions">
@@ -308,6 +321,9 @@ export default function LandingPage() {
             <Link href="/login" className="btn-outline-lg">Already a member? Log in</Link>
           </div>
         </div>
+        <div className="cta-graphic">
+            <Leaf size={400} color="#00838F" />
+        </div>
       </section>
 
       {/* ═══════════════ FOOTER ══════════════════════════════ */}
@@ -315,7 +331,7 @@ export default function LandingPage() {
         <div className="footer-inner">
           <div className="footer-brand">
             <div className="logo">
-              <div className="logo-icon"><Leaf size={18} /></div>
+              <div className="logo-icon"><Leaf size={20} /></div>
               <span className="logo-text">FarmHith</span>
             </div>
             <p className="footer-tagline">Empowering Indian farmers with technology, expertise, and fair markets.</p>
@@ -326,6 +342,12 @@ export default function LandingPage() {
               <Link href="/dashboard/soil-test" className="footer-link">Soil Testing</Link>
               <Link href="/dashboard/mitra" className="footer-link">Soil-Mitra</Link>
               <Link href="/dashboard/marketplace" className="footer-link">Residue Market</Link>
+            </div>
+            <div>
+              <p className="footer-heading">Company</p>
+              <Link href="/about" className="footer-link">About Us</Link>
+              <Link href="/features" className="footer-link">Features</Link>
+              <a href="#testimonials" className="footer-link">Farmer Stories</a>
             </div>
             <div>
               <p className="footer-heading">Account</p>

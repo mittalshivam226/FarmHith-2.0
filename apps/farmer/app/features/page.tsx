@@ -17,8 +17,8 @@ const FEATURE_SECTIONS = [
   {
     tag: 'Soil Testing',
     icon: <FlaskConical size={28} />,
-    color: '#4edea3',
-    shadow: 'rgba(78,222,163,0.2)',
+    color: '#059669',
+    shadow: 'rgba(5,150,105,0.15)',
     title: 'Precision Soil Testing — Decoded.',
     sub: 'No more guesswork. Get lab-certified, crop-specific soil analysis in days, not weeks.',
     points: [
@@ -31,13 +31,13 @@ const FEATURE_SECTIONS = [
     ],
     cta: '/register',
     ctaText: 'Book Your First Test',
-    image: '🔬',
+    image: 'https://images.unsplash.com/photo-1530836369250-ef71a3f5e48d?q=80&w=1000&auto=format&fit=crop',
   },
   {
     tag: 'Soil-Mitra Consultations',
     icon: <Users size={28} />,
-    color: '#ffb95f',
-    shadow: 'rgba(255,185,95,0.2)',
+    color: '#eab308',
+    shadow: 'rgba(234,179,8,0.15)',
     title: 'Expert Guidance — On Demand.',
     sub: 'Talk to a verified agricultural expert whenever you need help. No waiting rooms. No travel.',
     points: [
@@ -50,13 +50,13 @@ const FEATURE_SECTIONS = [
     ],
     cta: '/register',
     ctaText: 'Find Your Mitra',
-    image: '👨‍🌾',
+    image: 'https://images.unsplash.com/photo-1595804368593-cc43ba2986f3?q=80&w=1000&auto=format&fit=crop',
   },
   {
     tag: 'Residue Marketplace',
     icon: <ShoppingBasket size={28} />,
-    color: '#c0c6db',
-    shadow: 'rgba(192,198,219,0.15)',
+    color: '#0284c7',
+    shadow: 'rgba(2,132,199,0.15)',
     title: 'Turn Stubble Into Income.',
     sub: 'Stop burning. Start earning. Connect with bio-pellet plants that want exactly what your field produces.',
     points: [
@@ -69,81 +69,94 @@ const FEATURE_SECTIONS = [
     ],
     cta: '/register',
     ctaText: 'Start Selling',
-    image: '♻️',
+    image: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=1000&auto=format&fit=crop',
   },
 ];
 
 export default function FeaturesPage() {
   return (
     <div className="landing-root">
+      <div className="bg-pattern" />
       <div className="orb orb-1" />
       <div className="orb orb-2" />
+      <div className="orb orb-3" />
       <WebsiteNav />
 
       {/* Hero */}
-      <section className="page-hero">
-        <div className="section-label"><Sparkles size={12} /> Platform Features</div>
-        <h1 className="page-hero-title">
-          Built for the <span className="text-emerald">Modern Indian Farmer.</span>
+      <section className="hero" style={{ paddingBottom: '4rem' }}>
+        <div className="hero-badge">
+          <Sparkles size={14} />
+          <span>Platform Features</span>
+        </div>
+        <h1 className="hero-title">
+          Built for the <br /><span className="text-emerald">Modern Indian Farmer.</span>
         </h1>
-        <p className="page-hero-sub">
+        <p className="hero-sub" style={{ maxWidth: '800px', margin: '1.5rem auto' }}>
           Three deeply integrated services — each solving a real problem, together transforming how India farms.
         </p>
       </section>
 
       {/* Feature Sections */}
       {FEATURE_SECTIONS.map((f, i) => (
-        <section key={f.tag} className={`feature-section ${i % 2 === 1 ? 'feature-section-alt' : ''}`}>
-          <div className="feature-section-inner">
-            {/* Badge + headline */}
-            <div className="feature-section-head">
-              <div className="feature-section-tag" style={{ color: f.color, borderColor: `${f.color}30`, background: `${f.color}12` }}>
-                {f.icon} {f.tag}
-              </div>
-              <h2 className="feature-section-title">{f.title}</h2>
-              <p className="feature-section-sub">{f.sub}</p>
+        <section key={f.tag} className="section" style={{ background: i % 2 === 1 ? '#f8fafc' : 'transparent', borderTop: i % 2 === 1 ? '1px solid #f1f5f9' : 'none', borderBottom: i % 2 === 1 ? '1px solid #f1f5f9' : 'none' }}>
+          <div className={`split-section ${i % 2 === 1 ? 'reverse' : ''}`} style={{ flexDirection: i % 2 === 1 ? 'row-reverse' : 'row' }}>
+            <div className="split-image">
+                <img src={f.image} alt={f.tag} />
             </div>
-
-            {/* Points grid */}
-            <div className="feature-points-grid">
-              {f.points.map(p => (
-                <div key={p.title} className="feature-point-card">
-                  <div className="feature-point-icon" style={{ color: f.color, background: `${f.color}15` }}>
-                    {p.icon}
-                  </div>
-                  <div>
-                    <p className="feature-point-title">{p.title}</p>
-                    <p className="feature-point-desc">{p.desc}</p>
-                  </div>
+            <div className="split-content">
+                <div className="section-label" style={{ color: f.color, borderColor: `${f.color}40`, background: `${f.color}10` }}>
+                    <span style={{ color: f.color }}>{f.icon}</span> {f.tag}
                 </div>
-              ))}
+                <h2 className="section-title">{f.title}</h2>
+                <p className="section-sub">{f.sub}</p>
+                <div className="features-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
+                  {f.points.map(p => (
+                    <div key={p.title} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: f.color, fontWeight: 600 }}>
+                        {p.icon}
+                        <span>{p.title}</span>
+                      </div>
+                      <p style={{ color: '#475569', fontSize: '0.9rem', lineHeight: '1.5' }}>{p.desc}</p>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: '2rem' }}>
+                    <Link href={f.cta} className="btn-primary-sm" style={{ display: 'inline-flex', padding: '0.75rem 1.5rem', fontSize: '1rem', background: f.color, borderColor: f.color }}>
+                        {f.ctaText} <ArrowRight size={16} />
+                    </Link>
+                </div>
             </div>
-
-            <Link href={f.cta} className="btn-primary-lg" style={{ marginTop: '2rem', display: 'inline-flex' }}>
-              {f.ctaText} <ArrowRight size={17} />
-            </Link>
           </div>
         </section>
       ))}
 
       {/* Comparison strip */}
-      <section className="comparison-section">
-        <div className="section-label"><Zap size={12} /> Why FarmHith</div>
-        <h2 className="section-title">The old way vs. <span className="text-emerald">the FarmHith way.</span></h2>
-        <div className="comparison-grid">
-          {[
-            { old: 'Travel 30 km to a government lab', new: 'Book online, get sample collected at your field' },
-            { old: 'Wait 6–8 weeks for test results', new: 'Digital report delivered in 5 days' },
-            { old: 'Burn stubble and pay fines', new: 'Sell residue and earn money' },
-            { old: 'Hope your neighbour knows the right crop advice', new: 'Video call a verified expert in your language' },
-            { old: 'No record of your farm history', new: 'Full digital history on your dashboard' },
-            { old: 'Payment delays for crop transactions', new: 'Bank transfer within 7 days' },
-          ].map((c, i) => (
-            <div key={i} className="comparison-row">
-              <div className="comparison-old">❌ {c.old}</div>
-              <div className="comparison-new"><CheckCircle size={16} style={{ color: '#4edea3', flexShrink: 0 }} /> {c.new}</div>
+      <section className="section" style={{ background: '#020617', color: '#ffffff', borderRadius: '2rem', margin: '4rem 1rem', padding: '4rem 2rem' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            <div className="section-label" style={{ background: 'transparent', borderColor: '#334155', color: '#94a3b8' }}><Zap size={14} /> Why FarmHith</div>
+            <h2 className="section-title" style={{ color: '#ffffff' }}>The old way vs. <span className="text-emerald">the FarmHith way.</span></h2>
+            
+            <div style={{ display: 'grid', gap: '1.5rem', marginTop: '3rem' }}>
+            {[
+                { old: 'Travel 30 km to a government lab', new: 'Book online, get sample collected at your field' },
+                { old: 'Wait 6–8 weeks for test results', new: 'Digital report delivered in 5 days' },
+                { old: 'Burn stubble and pay fines', new: 'Sell residue and earn money' },
+                { old: 'Hope your neighbour knows the right crop advice', new: 'Video call a verified expert in your language' },
+                { old: 'No record of your farm history', new: 'Full digital history on your dashboard' },
+                { old: 'Payment delays for crop transactions', new: 'Bank transfer within 7 days' },
+            ].map((c, i) => (
+                <div key={i} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', background: '#0f172a', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #1e293b', alignItems: 'center' }}>
+                    <div style={{ flex: 1, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <span style={{ color: '#ef4444' }}>❌</span> 
+                        <span style={{ textDecoration: 'line-through' }}>{c.old}</span>
+                    </div>
+                    <div style={{ flex: 1, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500 }}>
+                        <CheckCircle size={20} style={{ color: '#10b981', flexShrink: 0 }} /> 
+                        {c.new}
+                    </div>
+                </div>
+            ))}
             </div>
-          ))}
         </div>
       </section>
 
@@ -151,10 +164,10 @@ export default function FeaturesPage() {
       <section className="cta-section">
         <div className="cta-inner">
           <div className="cta-glow" />
-          <div className="section-label"><Leaf size={12} /> Get Started</div>
+          <div className="section-label" style={{ background: '#ffffff', color: '#059669', borderColor: '#d1fae5' }}><Leaf size={14} /> Get Started</div>
           <h2 className="cta-title">Ready to farm smarter?<br /><span className="text-emerald">It&apos;s free to join.</span></h2>
           <div className="hero-actions">
-            <Link href="/register" className="btn-primary-lg">Create Free Account <ArrowRight size={17} /></Link>
+            <Link href="/register" className="btn-primary-lg">Create Free Account <ArrowRight size={18} /></Link>
             <Link href="/login" className="btn-outline-lg">Already a member? Log in</Link>
           </div>
         </div>
@@ -164,19 +177,24 @@ export default function FeaturesPage() {
       <footer className="footer">
         <div className="footer-inner">
           <div className="footer-brand">
-            <div className="logo"><div className="logo-icon"><Leaf size={18} /></div><span className="logo-text">FarmHith</span></div>
+            <div className="logo"><div className="logo-icon"><Leaf size={20} /></div><span className="logo-text">FarmHith</span></div>
             <p className="footer-tagline">Empowering Indian farmers with technology, expertise, and fair markets.</p>
           </div>
           <div className="footer-links">
             <div>
               <p className="footer-heading">Services</p>
-              <Link href="/features#soil-testing" className="footer-link">Soil Testing</Link>
-              <Link href="/features#mitra" className="footer-link">Soil-Mitra</Link>
-              <Link href="/features#marketplace" className="footer-link">Residue Market</Link>
+              <Link href="/dashboard/soil-test" className="footer-link">Soil Testing</Link>
+              <Link href="/dashboard/mitra" className="footer-link">Soil-Mitra</Link>
+              <Link href="/dashboard/marketplace" className="footer-link">Residue Market</Link>
             </div>
             <div>
               <p className="footer-heading">Company</p>
               <Link href="/about" className="footer-link">About Us</Link>
+              <Link href="/features" className="footer-link">Features</Link>
+              <a href="#testimonials" className="footer-link">Farmer Stories</a>
+            </div>
+            <div>
+              <p className="footer-heading">Account</p>
               <Link href="/register" className="footer-link">Register</Link>
               <Link href="/login" className="footer-link">Login</Link>
             </div>
