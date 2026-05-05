@@ -5,7 +5,7 @@ import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, StatusBadge, Button } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { db } from '@farmhith/firebase';
-import { doc, onSnapshot, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { FlaskConical, Calendar, Info, FileText, Loader2, CheckCircle2, Download } from 'lucide-react';
 import type { SoilTestBooking } from '@farmhith/types';
 
@@ -69,41 +69,62 @@ export default function SoilTestDetailPage() {
   const [booking, setBooking] = useState<SoilTestBooking | null>(null);
   const [report, setReport] = useState<SoilReport | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reportLoading, setReportLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Listen to booking status changes in real-time
   useEffect(() => {
     if (!bookingId) return;
-
     const unsub = onSnapshot(
       doc(db, 'soilTestBookings', bookingId),
-      async (snap) => {
+      (snap) => {
         if (!snap.exists()) {
           setError('Booking not found');
           setLoading(false);
           return;
         }
-        const data = { id: snap.id, ...snap.data() } as SoilTestBooking;
-        setBooking(data);
+        setBooking({ id: snap.id, ...snap.data() } as SoilTestBooking);
         setLoading(false);
-
-        // Fetch report from top-level soilReports collection (doc ID = bookingId)
-        if (data.status === 'COMPLETED') {
-          try {
-            const reportSnap = await getDoc(doc(db, 'soilReports', bookingId));
-            if (reportSnap.exists()) {
-              setReport(reportSnap.data() as SoilReport);
-            }
-          } catch (e) {
-            console.error('Failed to load soil report:', e);
-          }
-        }
       },
       (err) => {
         setError(err.message);
         setLoading(false);
       }
     );
+    return () => unsub();
+  }, [bookingId]);
 
+  // Listen to soil report in real-time (separate listener so it reacts instantly when lab uploads)
+  useEffect(() => {
+    if (!bookingId) return;
+    setReportLoading(true);
+    const unsub = onSnapshot(
+      doc(db, 'soilReports', bookingId),
+      (snap) => {
+        if (snap.exists()) {
+          const data = snap.data() as any;
+          // Normalize testParameters — API may use 'pH' or 'ph' — merge both
+          const params = data.testParameters ?? {};
+          const normalized: SoilReport = {
+            ...data,
+            testParameters: {
+              ph:         params.ph         ?? params.pH         ?? 0,
+              nitrogen:   params.nitrogen   ?? params.N          ?? 0,
+              phosphorus: params.phosphorus ?? params.P          ?? 0,
+              potassium:  params.potassium  ?? params.K          ?? 0,
+            },
+          };
+          setReport(normalized);
+        } else {
+          setReport(null);
+        }
+        setReportLoading(false);
+      },
+      (err) => {
+        console.error('Failed to load soil report:', err);
+        setReportLoading(false);
+      }
+    );
     return () => unsub();
   }, [bookingId]);
 
@@ -241,7 +262,12 @@ export default function SoilTestDetailPage() {
             ) : null}
           </div>
 
-          {report ? (
+          {reportLoading ? (
+            <div className="text-center py-6">
+              <Loader2 size={20} className="animate-spin mx-auto text-gray-400 mb-2" />
+              <p className="text-sm text-gray-400">Loading report data…</p>
+            </div>
+          ) : report ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
