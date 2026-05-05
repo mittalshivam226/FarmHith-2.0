@@ -13,12 +13,17 @@ const navItems = [
 ];
 
 export default function BiopelletDashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const { user, isLoading, isAuthenticated, logout } = useAuth();
   const router = useRouter();
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) router.push('/login');
   }, [isLoading, isAuthenticated, router]);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  };
 
   if (isLoading) return <PageLoader label="Loading plant dashboard…" />;
   if (!isAuthenticated || !user) return null;
@@ -32,6 +37,7 @@ export default function BiopelletDashboardLayout({ children }: { children: React
           navItems={navItems}
           user={{ name: user.name, role: user.role }}
           logoIcon={<Factory size={22} />}
+          onLogout={handleLogout}
         />
       }
     >
