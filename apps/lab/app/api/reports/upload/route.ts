@@ -43,7 +43,14 @@ export async function POST(request: Request) {
     // This avoids calling makePublic() which requires storage.buckets.setIamPolicy IAM permission.
     const downloadToken = crypto.randomUUID();
 
-    const bucket   = adminStorage.bucket();
+    // The Firebase Admin SDK requires the appspot.com bucket name format.
+    // The newer `.firebasestorage.app` domain in env vars is for the client SDK only.
+    // We derive the correct GCS bucket name from the project ID.
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!;
+    const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET?.includes('appspot.com')
+      ? process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+      : `${projectId}.appspot.com`;
+    const bucket = adminStorage.bucket(bucketName);
     // Sanitise filename to remove spaces / special chars that break Storage paths
     const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
     const destPath = `reports/${bookingId}/${safeName}`;
