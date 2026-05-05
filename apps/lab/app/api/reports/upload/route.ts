@@ -4,7 +4,7 @@
 import { adminDb, adminStorage, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
 
-export const config = { api: { bodyParser: false } };
+
 
 export async function POST(request: Request) {
   try {
