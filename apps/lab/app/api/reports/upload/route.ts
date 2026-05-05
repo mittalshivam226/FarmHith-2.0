@@ -1,10 +1,11 @@
 // apps/lab/app/api/reports/upload/route.ts
-// Task 4.2 — Lab uploads soil report PDF to Firebase Storage
-// Auth: LAB role required
-import { adminDb, adminStorage, FieldValue } from '@farmhith/firebase/admin';
+// Stores PDF report as base64 in Firestore — no Firebase Storage required (100% free tier).
+import { adminDb, FieldValue } from '@farmhith/firebase/admin';
 import { verifyToken, ApiError } from '@farmhith/firebase/verifyToken';
 
-
+// Firestore has a 1MB document size limit.
+// A typical soil test PDF is 100–400KB → base64 is ~550KB max, well within limits.
+const MAX_FILE_BYTES = 900 * 1024; // 900KB safety limit
 
 export async function POST(request: Request) {
   try {
@@ -21,13 +22,8 @@ export async function POST(request: Request) {
     const phosphorus      = parseFloat(formData.get('phosphorus') as string) || 0;
     const potassium       = parseFloat(formData.get('potassium') as string) || 0;
 
-    if (!bookingId || !file) {
-      throw new ApiError(400, 'Missing required fields: bookingId, file');
-    }
-
-    // Verify file is a PDF
-    if (file.type && file.type !== 'application/pdf') {
-      throw new ApiError(400, 'Only PDF files are accepted');
+    if (!bookingId) {
+      throw new ApiError(400, 'Missing required field: bookingId');
     }
 
     // Verify booking exists and belongs to this lab
@@ -38,39 +34,47 @@ export async function POST(request: Request) {
       throw new ApiError(403, 'This booking does not belong to your lab');
     }
 
-    // --- Upload PDF to Firebase Storage ---
-    // Use a crypto random token so the URL never expires (same as Firebase Client SDK download URLs).
-    // This avoids calling makePublic() which requires storage.buckets.setIamPolicy IAM permission.
-    const downloadToken = crypto.randomUUID();
+    // --- Handle PDF (optional) — store as base64 in Firestore ---
+    let pdfBase64: string | null = null;
+    let pdfFileName: string | null = null;
+    let pdfMimeType: string | null = null;
 
-    // Strip surrounding quotes that .env.local parsing may inject, then use the bucket directly.
-    // firebase-admin v12+ supports both *.appspot.com and *.firebasestorage.app bucket names.
-    const bucketName = (process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? '').replace(/^"+|"+$/g, '');
-    console.log('[upload] Resolved storage bucket:', JSON.stringify(bucketName));
-    if (!bucketName) throw new ApiError(500, 'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET is not set');
-    const bucket = adminStorage.bucket(bucketName);
-    // Sanitise filename to remove spaces / special chars that break Storage paths
-    const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-    const destPath = `reports/${bookingId}/${safeName}`;
-    const fileRef  = bucket.file(destPath);
-    const buffer   = Buffer.from(await file.arrayBuffer());
+    if (file && file.size > 0) {
+      if (file.type && file.type !== 'application/pdf') {
+        throw new ApiError(400, 'Only PDF files are accepted');
+      }
+      if (file.size > MAX_FILE_BYTES) {
+        throw new ApiError(400, `PDF must be under 900KB. Your file is ${Math.round(file.size / 1024)}KB.`);
+      }
 
-    await fileRef.save(buffer, {
-      metadata: {
-        contentType: 'application/pdf',
-        // Setting firebaseStorageDownloadTokens allows the standard
-        // firebasestorage.googleapis.com URL to be used without makePublic().
-        metadata: {
-          firebaseStorageDownloadTokens: downloadToken,
-        },
-      },
-    });
+      const buffer = Buffer.from(await file.arrayBuffer());
+      pdfBase64 = buffer.toString('base64');
+      pdfFileName = file.name;
+      pdfMimeType = file.type || 'application/pdf';
+    }
 
-    // Construct the permanent Firebase Storage download URL
-    const encodedPath = encodeURIComponent(destPath);
-    const reportUrl   = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodedPath}?alt=media&token=${downloadToken}`;
+    // --- Write the report to Firestore ---
+    const reportData: Record<string, any> = {
+      bookingId,
+      testParameters: { pH: ph, nitrogen, phosphorus, potassium },
+      technicianNotes,
+      recommendation: technicianNotes,
+      hasPdf: !!pdfBase64,
+      generatedAt: new Date().toISOString(),
+      uploadedAt: FieldValue.serverTimestamp(),
+    };
 
-    // Write report sub-document under booking
+    // Only store base64 if a PDF was provided
+    if (pdfBase64) {
+      reportData.pdfBase64   = pdfBase64;
+      reportData.pdfFileName = pdfFileName;
+      reportData.pdfMimeType = pdfMimeType;
+    }
+
+    // Write to soilReports/{bookingId} for the farmer's dashboard hook
+    await adminDb.collection('soilReports').doc(bookingId).set(reportData, { merge: true });
+
+    // Also write as a sub-document for legacy compatibility
     const reportRef = adminDb
       .collection('soilTestBookings')
       .doc(bookingId)
@@ -78,22 +82,11 @@ export async function POST(request: Request) {
       .doc();
 
     await reportRef.set({
-      reportUrl,
       testParameters: { pH: ph, nitrogen, phosphorus, potassium },
       technicianNotes,
+      hasPdf: !!pdfBase64,
       uploadedAt: FieldValue.serverTimestamp(),
     });
-
-    // Write to top-level soilReports/{bookingId} so farmer's useSoilReport hook can read it
-    await adminDb.collection('soilReports').doc(bookingId).set({
-      bookingId,
-      reportUrl,
-      testParameters: { ph, nitrogen, phosphorus, potassium },
-      technicianNotes,
-      recommendation: technicianNotes,
-      generatedAt: new Date().toISOString(),
-      uploadedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
 
     // Update booking status → COMPLETED
     await adminDb.collection('soilTestBookings').doc(bookingId).update({
@@ -101,7 +94,12 @@ export async function POST(request: Request) {
       completedAt: FieldValue.serverTimestamp(),
     });
 
-    return Response.json({ reportUrl, reportId: reportRef.id }, { status: 201 });
+    return Response.json({
+      success: true,
+      reportId: reportRef.id,
+      hasPdf: !!pdfBase64,
+      message: 'Report submitted successfully.',
+    }, { status: 201 });
 
   } catch (err: any) {
     if (err instanceof ApiError) {

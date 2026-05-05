@@ -74,22 +74,20 @@ export default function LabBookingDetailPage() {
 
   const handleUploadReport = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bookingId || !selectedFile) {
-      toast.show({ title: 'Error', message: 'PDF report is required.', type: 'error' });
-      return;
-    }
+    if (!bookingId) return;
     setSubmitting(true);
 
     try {
       const token = await getToken();
       const formData = new FormData();
       formData.append('bookingId', bookingId);
-      formData.append('file', selectedFile);
       formData.append('ph', reportData.ph);
       formData.append('nitrogen', reportData.nitrogen);
       formData.append('phosphorus', reportData.phosphorus);
       formData.append('potassium', reportData.potassium);
       formData.append('technicianNotes', reportData.technicianNotes);
+      // PDF is optional — stored as base64 in Firestore (no Firebase Storage needed)
+      if (selectedFile) formData.append('file', selectedFile);
 
       const res = await fetch('/api/reports/upload', {
         method: 'POST',
@@ -301,20 +299,19 @@ export default function LabBookingDetailPage() {
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                   <div className="flex gap-2 items-center px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors relative">
                     <UploadCloud size={16} />
-                    <span>{selectedFile ? selectedFile.name : 'Attach Original PDF *'}</span>
+                    <span>{selectedFile ? selectedFile.name : 'Attach PDF (Optional, max 900KB)'}</span>
                     <input 
                       type="file" 
                       accept=".pdf" 
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       onChange={(e) => setSelectedFile(e.target.files ? e.target.files[0] : null)}
-                      required
                     />
                   </div>
 
                   <Button
                     type="submit"
                     variant="primary"
-                    disabled={submitting || booking.status !== 'IN_PROGRESS' || !reportData.nitrogen || !reportData.phosphorus || !reportData.potassium || !reportData.ph || !selectedFile}
+                    disabled={submitting || booking.status !== 'IN_PROGRESS' || !reportData.nitrogen || !reportData.phosphorus || !reportData.potassium || !reportData.ph || !reportData.technicianNotes}
                   >
                     {submitting
                       ? <><Loader2 size={14} className="animate-spin mr-2 inline" />Uploading…</>

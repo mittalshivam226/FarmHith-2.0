@@ -11,6 +11,11 @@ import type { SoilTestBooking } from '@farmhith/types';
 
 interface SoilReport {
   reportUrl?: string;
+  // New: PDF stored as base64 in Firestore (no Firebase Storage)
+  pdfBase64?: string;
+  pdfFileName?: string;
+  pdfMimeType?: string;
+  hasPdf?: boolean;
   testParameters: { ph: number; nitrogen: number; phosphorus: number; potassium: number; moisture?: number; organicCarbon?: number; ec?: number };
   technicianNotes?: string;
   recommendation?: string;
@@ -205,7 +210,26 @@ export default function SoilTestDetailPage() {
                 <p className="text-xs text-gray-500">Your field's soil health data</p>
               </div>
             </div>
-            {report?.reportUrl && (
+            {/* Download PDF — supports both legacy Storage URL and new Firestore base64 */}
+            {report?.pdfBase64 ? (
+              <button
+                onClick={() => {
+                  const blob = new Blob(
+                    [Uint8Array.from(atob(report.pdfBase64!), c => c.charCodeAt(0))],
+                    { type: report.pdfMimeType || 'application/pdf' }
+                  );
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = report.pdfFileName || 'soil-report.pdf';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-purple-700 border border-purple-200 hover:bg-purple-50 rounded-lg transition-colors"
+              >
+                <Download size={14} /> Download PDF
+              </button>
+            ) : report?.reportUrl ? (
               <a
                 href={report.reportUrl}
                 target="_blank"
@@ -214,7 +238,7 @@ export default function SoilTestDetailPage() {
               >
                 <Download size={14} /> Download Report
               </a>
-            )}
+            ) : null}
           </div>
 
           {report ? (
