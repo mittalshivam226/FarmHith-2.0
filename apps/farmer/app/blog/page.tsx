@@ -72,7 +72,7 @@ export default function BlogPage() {
         </div>
 
         <div className="mt-16 text-center">
-          <button className="btn-outline-lg inline-flex justify-center text-lg">
+          <button onClick={() => alert('More articles are currently being written. Check back soon!')} className="btn-outline-lg inline-flex justify-center text-lg">
             Load More Articles
           </button>
         </div>

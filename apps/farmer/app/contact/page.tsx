@@ -1,9 +1,29 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { Mail, MapPin, Phone, MessageSquare } from 'lucide-react';
 import WebsiteNav from '../components/WebsiteNav';
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({ name: '', contactInfo: '', message: '' });
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (!res.ok) throw new Error('Failed to send');
+      setStatus('success');
+      setFormData({ name: '', contactInfo: '', message: '' });
+    } catch (err) {
+      console.error(err);
+      setStatus('error');
+    }
+  };
   return (
     <div className="landing-root">
       <div className="bg-pattern" />
@@ -53,23 +73,32 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div className="bg-white border border-gray-200 rounded-[24px] p-8 shadow-xl">
             <h3 className="text-2xl font-bold text-[#0f172a] mb-6">Send us a message</h3>
-            <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Full Name</label>
-                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-medium focus:border-[#00838F] outline-none transition-colors" placeholder="e.g. Ramesh Kumar" />
+            {status === 'success' ? (
+              <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl p-6 text-center">
+                <h4 className="font-bold text-lg mb-2">Message Sent Successfully!</h4>
+                <p>Thank you for reaching out. Our support team will contact you within 24 hours.</p>
+                <button onClick={() => setStatus('idle')} className="mt-4 text-[#00838F] font-bold underline">Send another message</button>
               </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number / Email</label>
-                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-medium focus:border-[#00838F] outline-none transition-colors" placeholder="Enter contact details" />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Message</label>
-                <textarea rows={4} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-medium focus:border-[#00838F] outline-none transition-colors resize-none" placeholder="How can we help you?"></textarea>
-              </div>
-              <button className="btn-primary-sm justify-center py-3 text-lg mt-2 w-full">
-                Send Message
-              </button>
-            </form>
+            ) : (
+              <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Full Name</label>
+                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-medium focus:border-[#00838F] outline-none transition-colors" placeholder="e.g. Ramesh Kumar" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number / Email</label>
+                  <input type="text" value={formData.contactInfo} onChange={e => setFormData({...formData, contactInfo: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-medium focus:border-[#00838F] outline-none transition-colors" placeholder="Enter contact details" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Message</label>
+                  <textarea rows={4} value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 font-medium focus:border-[#00838F] outline-none transition-colors resize-none" placeholder="How can we help you?"></textarea>
+                </div>
+                {status === 'error' && <p className="text-red-500 font-medium text-sm">Failed to send message. Please try again.</p>}
+                <button disabled={status === 'loading'} className="btn-primary-sm justify-center py-3 text-lg mt-2 w-full disabled:opacity-50">
+                  {status === 'loading' ? 'Sending...' : 'Send Message'}
+                </button>
+              </form>
+            )}
           </div>
 
         </div>
