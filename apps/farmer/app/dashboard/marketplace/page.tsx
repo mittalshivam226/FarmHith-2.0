@@ -76,10 +76,10 @@ export default function MarketplacePage() {
                     <span className="font-semibold">{listing.quantityTons} tons</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <MapPin size={14} className="text-gray-400" />{listing.location}
+                    <MapPin size={14} className="text-gray-400" />{(listing as any).location ?? listing.farmerDistrict ?? 'Location not set'}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Clock size={14} className="text-gray-400" />Available from {formatDate(listing.availableFrom)}
+                    <Clock size={14} className="text-gray-400" />Available from {listing.availableFrom ? formatDate(listing.availableFrom) : '—'}
                   </div>
                 </div>
                 <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
@@ -116,8 +116,10 @@ export default function MarketplacePage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-semibold text-gray-900">{order.plantName}</p>
-                    <p className="text-sm text-gray-500">{order.listingResidueType} · {order.finalQuantityTons} tons</p>
-                    <p className="text-xs text-gray-400 mt-0.5">Received {formatDate(order.createdAt)}</p>
+                    <p className="text-sm text-gray-500">
+                      {(order as any).residueType ?? (order as any).listingResidueType ?? 'Crop Residue'} · {order.finalQuantityTons} tons
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">Received {order.createdAt ? formatDate(order.createdAt) : '—'}</p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <p className="text-lg font-bold text-green-700">{formatCurrency(order.totalAmount)}</p>

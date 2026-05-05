@@ -1,0 +1,85 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "cropListings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "farmerId",  "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "cropListings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "procurementOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "farmerId",  "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "procurementOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "plantId",   "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "soilTestBookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "farmerId",  "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "soilTestBookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "labId",     "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "mitraBookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "farmerId",       "order": "ASCENDING" },
+        { "fieldPath": "sessionDatetime","order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "mitraBookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "mitraId",        "order": "ASCENDING" },
+        { "fieldPath": "sessionDatetime","order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "soilmitraProfiles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isVerified", "order": "ASCENDING" },
+        { "fieldPath": "rating",     "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

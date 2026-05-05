@@ -38,8 +38,6 @@ function useCollection<T>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Serialize constraints to a stable key so the effect re-runs when they change
-  // (e.g. when farmerId loads after auth resolves)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const constraintKey = constraints.map(c => JSON.stringify(c)).join('|');
 
@@ -61,9 +59,27 @@ function useCollection<T>(
         setError(null);
       },
       (err) => {
-        console.error(`[useCollection:${collectionName}]`, err);
-        setError(err.message);
-        setLoading(false);
+        // If composite index is missing, Firestore returns a FAILED_PRECONDITION error.
+        // Fall back to a query without orderBy so data still loads while the index builds.
+        if (err.code === 'failed-precondition' || err.message?.includes('index')) {
+          console.warn(`[useCollection:${collectionName}] Index missing — retrying without orderBy. Deploy firestore.indexes.json to fix.`, err.message);
+          const fallbackConstraints = constraints.filter(c => {
+            try { return !(JSON.stringify(c).includes('orderBy')); } catch { return true; }
+          });
+          const fallbackQ = query(collection(db, collectionName), ...fallbackConstraints);
+          getDocs(fallbackQ).then(snap => {
+            setData(snap.docs.map(d => ({ id: d.id, ...d.data() } as T)));
+            setLoading(false);
+          }).catch(e2 => {
+            console.error(`[useCollection:${collectionName}] Fallback also failed`, e2);
+            setError(e2.message);
+            setLoading(false);
+          });
+        } else {
+          console.error(`[useCollection:${collectionName}]`, err);
+          setError(err.message);
+          setLoading(false);
+        }
       }
     );
 

@@ -31,6 +31,9 @@ export async function POST(request: Request) {
     if (!residueType || !availableFrom) {
       throw new ApiError(400, 'Missing required fields: residueType, availableFrom');
     }
+    if (!location) {
+      throw new ApiError(400, 'Missing required field: location');
+    }
     if (typeof quantityTons !== 'number' || quantityTons <= 0) {
       throw new ApiError(400, 'quantityTons must be a positive number');
     }
@@ -48,12 +51,14 @@ export async function POST(request: Request) {
     const listingRef = adminDb.collection('cropListings').doc();
     await listingRef.set({
       farmerId:           decoded.uid,
-      farmerName:         farmer.fullName,
-      farmerDistrict:     farmer.district,
-      farmerState:        farmer.state,
+      farmerName:         farmer.fullName ?? farmer.name ?? 'Unknown',
+      farmerDistrict:     farmer.district ?? '',
+      farmerState:        farmer.state ?? '',
       residueType,
       quantityTons,
-      location:           location ?? `${farmer.district}, ${farmer.state}`,
+      // Store location explicitly so the UI can display it
+      location:           location ?? `${farmer.district ?? ''}, ${farmer.state ?? ''}`,
+      // Use admin.firestore.Timestamp so formatDate() works on the client
       availableFrom:      new Date(availableFrom),
       farmhithPricePerTon,
       status:             'ACTIVE',
