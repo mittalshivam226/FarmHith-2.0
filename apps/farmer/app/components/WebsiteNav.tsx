@@ -20,6 +20,9 @@ const APP_NAV = [
 const PUBLIC_NAV = [
   { label: 'Features', href: '/features' },
   { label: 'About',    href: '/about' },
+  { label: 'FAQ',      href: '/faq' },
+  { label: 'Blog',     href: '/blog' },
+  { label: 'Contact',  href: '/contact' },
 ];
 
 export default function WebsiteNav() {

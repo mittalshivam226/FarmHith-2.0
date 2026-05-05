@@ -347,7 +347,9 @@ export default function LandingPage() {
               <p className="footer-heading">Company</p>
               <Link href="/about" className="footer-link">About Us</Link>
               <Link href="/features" className="footer-link">Features</Link>
-              <a href="#testimonials" className="footer-link">Farmer Stories</a>
+              <Link href="/blog" className="footer-link">Blog & Resources</Link>
+              <Link href="/faq" className="footer-link">FAQs</Link>
+              <Link href="/contact" className="footer-link">Contact Us</Link>
             </div>
             <div>
               <p className="footer-heading">Account</p>
