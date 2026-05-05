@@ -38,14 +38,9 @@ function getAdminApp(): App {
     );
   }
 
-  // The firebase-admin SDK needs the GCS bucket name in the legacy appspot.com format.
-  // Projects created after 2023 may have a `.firebasestorage.app` domain in their config
-  // but the underlying GCS bucket is still `<projectId>.appspot.com`.
-  const storageBucketEnv = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? '';
-  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? '';
-  const storageBucket = storageBucketEnv.includes('appspot.com')
-    ? storageBucketEnv
-    : `${projectId}.appspot.com`;
+  // firebase-admin v12+ supports both *.appspot.com and *.firebasestorage.app bucket formats.
+  // Strip any surrounding quotes that can sneak in from .env.local parsing.
+  const storageBucket = (process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ?? '').replace(/^"+|"+$/g, '');
 
   _app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
