@@ -14,38 +14,38 @@ export interface ToastMessage {
 
 // ─── Internal single toast component ─────────────────────────────────────────
 const icons: Record<ToastVariant, React.ReactNode> = {
-  success: <CheckCircle size={16} className="text-green-600" />,
-  error:   <XCircle size={16} className="text-red-500" />,
-  warning: <AlertCircle size={16} className="text-amber-500" />,
-  info:    <Info size={16} className="text-blue-500" />,
+  success: <CheckCircle size={16} className="text-success-600" />,
+  error:   <XCircle size={16} className="text-error-500" />,
+  warning: <AlertCircle size={16} className="text-warning-500" />,
+  info:    <Info size={16} className="text-info-500" />,
 };
 
 const bg: Record<ToastVariant, string> = {
-  success: 'border-green-200 bg-green-50',
-  error:   'border-red-200 bg-red-50',
-  warning: 'border-amber-200 bg-amber-50',
-  info:    'border-blue-200 bg-blue-50',
+  success: 'border-success-100 bg-success-50',
+  error:   'border-error-100 bg-error-50',
+  warning: 'border-warning-100 bg-warning-50',
+  info:    'border-info-100 bg-info-50',
 };
 
 function Toast({ toast, onDismiss }: { toast: ToastMessage; onDismiss: (id: string) => void }) {
   return (
     <div
       className={`
-        flex items-start gap-3 px-4 py-3 rounded-xl border shadow-lg w-80
+        flex items-start gap-3 px-4 py-3 rounded-md border shadow-md w-80
         ${bg[toast.variant]}
-        animate-in slide-in-from-right-4 fade-in duration-300
+        animate-in slide-in-from-right-4 fade-in duration-200
       `}
     >
       <div className="mt-0.5 shrink-0">{icons[toast.variant]}</div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-900">{toast.title}</p>
+        <p className="text-sm font-semibold text-slate-900">{toast.title}</p>
         {toast.description && (
-          <p className="text-xs text-gray-600 mt-0.5">{toast.description}</p>
+          <p className="text-xs text-slate-600 mt-0.5">{toast.description}</p>
         )}
       </div>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="p-0.5 rounded text-gray-400 hover:text-gray-600 shrink-0 mt-0.5"
+        className="p-0.5 rounded text-slate-400 hover:text-slate-600 shrink-0 mt-0.5"
       >
         <X size={14} />
       </button>
