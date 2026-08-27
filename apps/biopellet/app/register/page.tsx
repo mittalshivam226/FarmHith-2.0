@@ -94,79 +94,85 @@ export default function BiopelletRegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-gray-800 p-8 rounded-3xl shadow-2xl border border-gray-700 text-center">
-          <div className="mx-auto bg-green-900/50 h-16 w-16 rounded-full flex items-center justify-center mb-6 border border-green-500/30">
-            <Factory size={32} className="text-green-400" />
+      <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow-sm border border-slate-200 sm:rounded-lg sm:px-10 text-center">
+            <div className="mx-auto bg-amber-100 h-16 w-16 rounded-full flex items-center justify-center mb-6">
+              <Factory size={32} className="text-amber-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Account Created</h2>
+            <p className="text-slate-600 mb-6 leading-relaxed text-sm">
+              Your bio-pellet plant profile has been successfully submitted. It is currently <span className="font-semibold text-slate-900">awaiting admin approval</span>.
+              We will notify you once your account is verified and ready for procurement.
+            </p>
+            <button
+              onClick={() => router.push('/login')}
+              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-700 hover:bg-amber-800 transition-colors"
+            >
+              Go to Login
+            </button>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Account Created</h2>
-          <p className="text-gray-400 mb-6 leading-relaxed">
-            Your bio-pellet plant profile has been successfully submitted. It is currently <span className="font-semibold text-white">awaiting admin approval</span>.
-            We will notify you once your account is verified and ready for procurement.
-          </p>
-          <button
-            onClick={() => router.push('/login')}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200"
-          >
-            Go to Login
-          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg space-y-6">
-        <div className="text-center">
-          <div className="mx-auto bg-gradient-to-br from-green-500 to-emerald-600 h-14 w-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-green-600/40">
-            <Factory size={30} className="text-white" />
-          </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Setup Plant Profile</h1>
-          <p className="text-sm text-gray-400 mt-2">Start sourcing biomass directly from local farmers</p>
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <div className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-amber-700 mb-4 shadow-sm">
+          <Factory size={24} className="text-white" />
         </div>
+        <h2 className="text-center text-2xl font-bold tracking-tight text-slate-900">
+          Setup Plant Profile
+        </h2>
+        <p className="mt-2 text-center text-sm text-slate-600">
+          Start sourcing biomass directly from local farmers
+        </p>
+      </div>
 
-        <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+        <div className="bg-white py-8 px-4 shadow-sm border border-slate-200 sm:rounded-lg sm:px-10">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Plant / Company Name *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Plant / Company Name *</label>
               <input
                 type="text"
                 value={form.plantName}
                 onChange={(e) => setForm({ ...form, plantName: e.target.value })}
                 placeholder="e.g. Greenleaf Bio-Energy Ltd."
-                className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-700 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 py-2.5 border px-3"
                 required
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Email Address *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email Address *</label>
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="ops@yourplant.in"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-700 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 py-2.5 border px-3"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Password *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Password *</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     placeholder="Min. 6 characters"
-                    className="w-full pr-10 pl-4 py-3 rounded-xl border border-gray-600 bg-gray-700 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    className="block w-full pr-10 sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 py-2.5 border px-3"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-500 hover:text-gray-300"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -176,11 +182,11 @@ export default function BiopelletRegisterPage() {
 
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">State *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">State *</label>
                 <select
                   value={form.state}
                   onChange={(e) => setForm({ ...form, state: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 py-2.5 border px-3 bg-white"
                   required
                 >
                   <option value="">Select State...</option>
@@ -192,46 +198,51 @@ export default function BiopelletRegisterPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Primary Feedstock</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Primary Feedstock</label>
                 <select
                   value={form.primaryFeedstock}
                   onChange={(e) => setForm({ ...form, primaryFeedstock: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 py-2.5 border px-3 bg-white"
                 >
                   {RESIDUE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Procurement Rate (₹/ton)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Procurement Rate (₹/ton)</label>
                 <input
                   type="number"
                   value={form.procurementRatePerTon}
                   onChange={(e) => setForm({ ...form, procurementRatePerTon: e.target.value })}
                   placeholder="e.g. 2500"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-600 bg-gray-700 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 py-2.5 border px-3"
                 />
               </div>
             </div>
 
-            {error && <p className="text-sm text-red-400 bg-red-900/30 px-3 py-2 rounded-lg">{error}</p>}
+            {error && (
+              <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-md text-sm mt-2">
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={loading || !form.plantName || !form.email || !form.password || !form.state}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-700 hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 transition-colors mt-2"
             >
               {loading ? 'Creating Account…' : 'Register Plant Account'}
             </button>
 
-            <div className="text-center">
+            <div className="mt-4 text-center text-sm">
+              <span className="text-slate-600">Already registered? </span>
               <button
                 type="button"
                 onClick={() => router.push('/login')}
-                className="text-xs font-semibold text-green-400 hover:text-green-300 transition-colors"
+                className="font-medium text-amber-700 hover:text-amber-600"
               >
-                Already registered? Login here
+                Login here
               </button>
             </div>
           </form>
