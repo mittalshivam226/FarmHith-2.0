@@ -25,10 +25,10 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-// Deterministic color from name
+// Deterministic color from name — restrained palette matching the design system
 const colors = [
-  'bg-green-500', 'bg-blue-500', 'bg-purple-500', 'bg-amber-500',
-  'bg-rose-500', 'bg-teal-500', 'bg-indigo-500', 'bg-orange-500',
+  'bg-primary-500', 'bg-info-500', 'bg-purple-500', 'bg-accent-500',
+  'bg-error-500', 'bg-success-500', 'bg-indigo-500', 'bg-orange-500',
 ];
 function getColor(name: string) {
   let hash = 0;
