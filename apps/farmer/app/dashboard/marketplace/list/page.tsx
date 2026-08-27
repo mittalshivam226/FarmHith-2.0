@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
-import { Card, SectionHeader, Input, Select, Button, useToast, Checkbox } from '@farmhith/ui';
+import { Card, SectionHeader, Input, Select, Button, useToast, Checkbox, Alert } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
-import { ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
+import { ShieldCheck, ArrowLeft } from 'lucide-react';
 
 const PRICING_MODEL: Record<string, number> = {
   'Paddy Straw': 2500,
@@ -19,6 +19,7 @@ export default function CreateListingPage() {
   const { user, getToken } = useAuth();
   const toast = useToast();
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     residueType: '',
@@ -36,6 +37,13 @@ export default function CreateListingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !form.termsAccepted) return;
+    
+    if (parseFloat(form.quantityTons) <= 0) {
+      setError('Quantity must be greater than 0 tons.');
+      return;
+    }
+    
+    setError(null);
     setSubmitting(true);
 
     try {
@@ -68,7 +76,8 @@ export default function CreateListingPage() {
       router.push('/dashboard/marketplace');
     } catch (err: any) {
       console.error(err);
-      toast.show({ title: 'Error', message: err.message ?? 'Failed to create listing. Please try again.', type: 'error' });
+      setError(err.message ?? 'Failed to create listing. Please try again.');
+    } finally {
       setSubmitting(false);
     }
   };
@@ -162,14 +171,21 @@ export default function CreateListingPage() {
             </div>
           </div>
 
+          {error && (
+            <Alert variant="error" title="Validation Error">
+              <p>{error}</p>
+            </Alert>
+          )}
+
           <div className="pt-2 flex justify-end">
             <Button
               type="submit"
               variant="primary"
               className="w-full sm:w-auto"
+              loading={submitting}
               disabled={submitting || !form.residueType || !form.quantityTons || !form.availableFrom || !form.location || !form.termsAccepted}
             >
-              {submitting ? <><Loader2 size={14} className="animate-spin mr-2 inline" />Publishing…</> : 'Publish Listing'}
+              Publish Listing
             </Button>
           </div>
         </form>
