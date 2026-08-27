@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import WebsiteNav from '../components/WebsiteNav';
-import { Leaf, Target, Heart, Zap, Users, Globe, ArrowRight, Sparkles } from 'lucide-react';
+import { Leaf, Target, Heart, Zap, Users, Globe, ArrowRight } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -25,14 +25,12 @@ const VALUES = [
 export default function AboutPage() {
   return (
     <div className="landing-root">
-      <div className="bg-pattern" />
-      <div className="orb orb-1" /><div className="orb orb-2" /><div className="orb orb-3" />
       <WebsiteNav />
 
       {/* Mission Hero */}
       <section className="hero" style={{ paddingBottom: '4rem' }}>
         <div className="hero-badge">
-          <Sparkles size={14} />
+          <Leaf size={14} />
           <span>Our Mission</span>
         </div>
         <h1 className="hero-title">
