@@ -1,19 +1,19 @@
 'use client';
 import React from 'react';
-import { SectionHeader, StatCard, StatusBadge, DataTable, type Column } from '@farmhith/ui';
+import { SectionHeader, StatCard, StatusBadge, DataTable, type Column, QueryState } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import type { ProcurementOrder } from '@farmhith/types';
 import { useAllProcurementOrders } from '@farmhith/hooks';
 import { db } from '@farmhith/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
-import { ShoppingCart, CheckCircle, TrendingUp, Clock, Loader2 } from 'lucide-react';
+import { ShoppingCart, CheckCircle, TrendingUp, Clock } from 'lucide-react';
 
 const STATUS_TABS = ['ALL', 'INTERESTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'] as const;
 
 export default function AdminOrdersPage() {
   const [tab, setTab] = React.useState<typeof STATUS_TABS[number]>('ALL');
   const [updating, setUpdating] = React.useState<string | null>(null);
-  const { data: orders, loading } = useAllProcurementOrders();
+  const { data: orders, loading, error } = useAllProcurementOrders();
 
   const handleMarkCompleted = async (order: ProcurementOrder) => {
     setUpdating(order.id);
@@ -95,11 +95,15 @@ export default function AdminOrdersPage() {
         ))}
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-gray-400" />
-        </div>
-      ) : (
+      <QueryState
+        loading={loading}
+        error={error}
+        empty={orders.length === 0}
+        emptyProps={{
+          title: "No orders found",
+          description: "No procurement orders match this filter."
+        }}
+      >
         <DataTable
           columns={columns}
           data={filtered}
@@ -107,7 +111,7 @@ export default function AdminOrdersPage() {
           emptyTitle="No orders found"
           emptyDescription="No procurement orders match this filter."
         />
-      )}
+      </QueryState>
     </div>
   );
 }
