@@ -2,20 +2,21 @@
 
 import React, { useMemo } from 'react';
 import { useAuth } from '@farmhith/auth';
-import { Card, CardContent } from '@farmhith/ui';
+import { Card, CardContent, QueryState } from '@farmhith/ui';
 import { useMyBookings, useMyMitraSessions, useFarmerOrders } from '@farmhith/hooks';
-import { CalendarDays, FlaskConical, UserCheck, Factory, IndianRupee, Loader2 } from 'lucide-react';
+import { CalendarDays, FlaskConical, UserCheck, Factory, IndianRupee, Activity } from 'lucide-react';
 import { formatDate } from '@farmhith/utils';
 
 export default function FarmerHistory() {
   const { user } = useAuth();
   const farmerId = user?.id;
 
-  const { data: soilBookings, loading: loadingBookings } = useMyBookings(farmerId);
-  const { data: mitraSessions, loading: loadingSessions } = useMyMitraSessions(farmerId);
-  const { data: orders, loading: loadingOrders } = useFarmerOrders(farmerId);
+  const { data: soilBookings, loading: loadingBookings, error: errorBookings } = useMyBookings(farmerId);
+  const { data: mitraSessions, loading: loadingSessions, error: errorSessions } = useMyMitraSessions(farmerId);
+  const { data: orders, loading: loadingOrders, error: errorOrders } = useFarmerOrders(farmerId);
 
   const isLoading = loadingBookings || loadingSessions || loadingOrders;
+  const isError = errorBookings || errorSessions || errorOrders;
 
   const historyItems = useMemo(() => {
     const items = [];
@@ -66,15 +67,16 @@ export default function FarmerHistory() {
         <p className="text-slate-500">Your past interactions, soil tests, and marketplace transactions.</p>
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="animate-spin text-gray-400" size={32} />
-        </div>
-      ) : historyItems.length === 0 ? (
-        <div className="text-center py-12 text-slate-500 bg-slate-50 rounded-2xl border border-slate-100">
-          No history found. Book a test or list a crop to get started!
-        </div>
-      ) : (
+      <QueryState
+        loading={isLoading}
+        error={isError}
+        empty={historyItems.length === 0}
+        emptyProps={{
+          icon: <Activity size={24} />,
+          title: "No history found",
+          description: "Book a soil test, consult a Mitra, or list a crop to get started!"
+        }}
+      >
         <div className="space-y-4">
           {historyItems.map((item) => (
             <Card key={item.id} className="hover:border-slate-300 transition-colors">
@@ -116,7 +118,7 @@ export default function FarmerHistory() {
             </Card>
           ))}
         </div>
-      )}
+      </QueryState>
     </div>
   );
 }
