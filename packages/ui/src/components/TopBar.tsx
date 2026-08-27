@@ -49,15 +49,15 @@ export function TopBar({
       {/* Right side: Actions & User */}
       <div className="flex items-center gap-2 md:gap-4">
         {/* Notifications */}
-        <button aria-label="Notifications" className="relative p-1.5 md:p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors shrink-0">
+        <button aria-label="Notifications" className="relative p-1.5 md:p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-full transition-colors shrink-0">
           <Bell size={18} className="md:w-5 md:h-5" />
           {unreadNotifications > 0 && (
-            <span className="absolute top-1 right-1 md:top-1.5 md:right-1.5 h-2 w-2 rounded-full bg-error-500 ring-2 ring-white" />
+            <span className="absolute top-1 right-1 md:top-1.5 md:right-1.5 h-2 w-2 rounded-full bg-error-500 ring-2 ring-slate-800" />
           )}
         </button>
 
         {/* Vertical divider */}
-        <div className="h-6 w-px bg-slate-200" />
+        <div className="h-6 w-px bg-slate-700" />
 
         {/* User Dropdown */}
         {user && (
@@ -66,14 +66,14 @@ export function TopBar({
               onClick={() => setProfileOpen(!profileOpen)}
               aria-label="User menu"
               aria-expanded={profileOpen}
-              className="flex items-center gap-2 md:gap-2.5 p-1 pr-1.5 md:pr-2 rounded-full hover:bg-slate-50 transition-colors shrink-0"
+              className="flex items-center gap-2 md:gap-2.5 p-1 pr-1.5 md:pr-2 rounded-full hover:bg-slate-700 transition-colors shrink-0"
             >
               <Avatar name={user.name} src={user.avatar} size="sm" />
               <div className="hidden md:block text-left mr-1">
-                <p className="text-sm font-semibold text-slate-700 leading-tight">
+                <p className="text-sm font-semibold text-slate-200 leading-tight">
                   {user.name.split(' ')[0]}
                 </p>
-                <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider leading-tight">
+                <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider leading-tight">
                   {user.role}
                 </p>
               </div>
@@ -87,11 +87,11 @@ export function TopBar({
 
             {/* Dropdown Menu */}
             {profileOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                <div className="px-4 py-3 border-b border-slate-100">
-                  <p className="text-sm font-semibold text-slate-900 truncate">{user.name}</p>
+              <div className="absolute right-0 mt-2 w-56 bg-slate-800 rounded-lg shadow-xl border border-slate-700 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="px-4 py-3 border-b border-slate-700">
+                  <p className="text-sm font-semibold text-slate-100 truncate">{user.name}</p>
                   {user.email && (
-                    <p className="text-xs text-slate-500 truncate mt-0.5">{user.email}</p>
+                    <p className="text-xs text-slate-400 truncate mt-0.5">{user.email}</p>
                   )}
                 </div>
                 <div className="py-1">
