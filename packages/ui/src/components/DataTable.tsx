@@ -57,16 +57,16 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white">
-      <table className="min-w-full divide-y divide-gray-100">
+    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <table className="min-w-full divide-y divide-slate-200">
         <thead>
-          <tr className="bg-gray-50">
+          <tr className="bg-slate-50">
             {columns.map((col) => (
               <th
                 key={String(col.key)}
                 className={`
-                  px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide
-                  ${col.sortable ? 'cursor-pointer select-none hover:text-gray-900' : ''}
+                  px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap
+                  ${col.sortable ? 'cursor-pointer select-none hover:text-slate-700' : ''}
                   ${col.className ?? ''}
                 `}
                 onClick={() => col.sortable && toggleSort(String(col.key))}
@@ -74,7 +74,7 @@ export function DataTable<T>({
                 <span className="flex items-center gap-1">
                   {col.header}
                   {col.sortable && (
-                    <span className="text-gray-400">
+                    <span className="text-slate-400">
                       {sortKey === String(col.key) ? (
                         sortDir === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
                       ) : (
@@ -87,20 +87,20 @@ export function DataTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-50">
+        <tbody className="divide-y divide-slate-100">
           {sorted.map((row) => (
             <tr
               key={keyExtractor(row)}
               onClick={() => onRowClick?.(row)}
               className={`
-                transition-colors
-                ${onRowClick ? 'cursor-pointer hover:bg-green-50/50' : 'hover:bg-gray-50/50'}
+                transition-colors duration-100
+                ${onRowClick ? 'cursor-pointer hover:bg-primary-50/50' : 'hover:bg-slate-50/50'}
               `}
             >
               {columns.map((col) => (
                 <td
                   key={String(col.key)}
-                  className={`px-4 py-3 text-sm text-gray-700 ${col.className ?? ''}`}
+                  className={`px-4 py-3 text-sm text-slate-700 whitespace-nowrap ${col.className ?? ''}`}
                 >
                   {col.render
                     ? col.render(row)
