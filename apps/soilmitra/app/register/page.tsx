@@ -107,73 +107,86 @@ export default function SoilmitraRegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-100 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl border border-teal-100 text-center">
-          <div className="mx-auto bg-teal-100 h-16 w-16 rounded-full flex items-center justify-center mb-6 text-teal-600">
-            <Leaf size={32} />
+      <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow-sm border border-slate-200 sm:rounded-lg sm:px-10 text-center">
+            <div className="mx-auto bg-teal-100 h-16 w-16 rounded-full flex items-center justify-center mb-6 text-teal-600">
+              <Leaf size={32} />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Account Created</h2>
+            <p className="text-slate-600 mb-6 leading-relaxed text-sm">
+              Your Soil-Mitra profile is currently <span className="font-semibold text-slate-900">pending admin approval</span>.
+              You will be able to set your availability and accept sessions once verified.
+            </p>
+            <button
+              onClick={() => router.push('/login')}
+              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 transition-colors"
+            >
+              Go to Login
+            </button>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Account Created</h2>
-          <p className="text-gray-600 mb-6 leading-relaxed">
-            Your Soil-Mitra profile is currently <span className="font-semibold text-gray-900">pending admin approval</span>.
-            You will be able to set your availability and accept sessions once verified.
-          </p>
-          <button
-            onClick={() => router.push('/login')}
-            className="w-full flex items-center justify-center gap-2 bg-teal-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-teal-700 transition-all duration-200"
-          >
-            Go to Login
-          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg space-y-6">
-        <div className="text-center">
-          <div className="mx-auto bg-teal-600 h-14 w-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-teal-600/30">
-            <Leaf size={30} className="text-white" />
-          </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Become a Soil-Mitra</h1>
-          <p className="text-sm text-gray-500 mt-2">Set up your expert profile and start guiding farmers</p>
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <div className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-teal-600 mb-4 shadow-sm">
+          <Leaf size={24} className="text-white" />
         </div>
+        <h2 className="text-center text-2xl font-bold tracking-tight text-slate-900">
+          Become a Soil-Mitra
+        </h2>
+        <p className="mt-2 text-center text-sm text-slate-600">
+          Set up your expert profile
+        </p>
+      </div>
 
-        <Card padding="lg" className="shadow-xl">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Full Name *"
-                placeholder="Dr. Harpreet Kaur"
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                required
-              />
-              <Input
-                label="Email Address *"
-                type="email"
-                placeholder="expert@farmhith.in"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-              />
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+        <div className="bg-white py-8 px-4 shadow-sm border border-slate-200 sm:rounded-lg sm:px-10">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  value={form.fullName}
+                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                  placeholder="Dr. Harpreet Kaur"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 py-2.5 border px-3"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email Address *</label>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="expert@farmhith.in"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 py-2.5 border px-3"
+                  required
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Password *</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="Min. 6 characters"
-                  className="w-full pr-10 pl-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                  className="block w-full pr-10 sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 py-2.5 border px-3"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -181,85 +194,88 @@ export default function SoilmitraRegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Professional Bio</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Professional Bio</label>
               <textarea
                 value={form.bio}
                 onChange={(e) => setForm({ ...form, bio: e.target.value })}
                 placeholder="Tell farmers about your agronomy experience..."
                 rows={3}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all resize-none"
+                className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 py-2 border px-3 resize-none"
               />
             </div>
 
-            <div className="pt-2 border-t border-gray-100">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Specialisations *</label>
+            <div className="pt-2 border-t border-slate-100">
+              <label className="block text-sm font-medium text-slate-700 mb-2">Specialisations *</label>
               <div className="flex flex-wrap gap-2">
                 {['Paddy', 'Wheat', 'Sugarcane', 'Horticulture', 'Vegetables', 'Fruits'].map(spec => (
-                  <label key={spec} className="inline-flex items-center space-x-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-100">
+                  <label key={spec} className="inline-flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 cursor-pointer hover:bg-slate-100 transition-colors">
                     <input
                       type="checkbox"
                       checked={form.specialisation.includes(spec)}
                       onChange={() => handleCheckbox('specialisation', spec)}
-                      className="rounded text-teal-600 focus:ring-teal-500 w-4 h-4"
+                      className="rounded text-teal-600 focus:ring-teal-500 w-4 h-4 border-slate-300"
                     />
-                    <span className="text-sm text-gray-700">{spec}</span>
+                    <span className="text-sm text-slate-700">{spec}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <div className="pt-2 border-t border-gray-100">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Languages Spoken *</label>
+            <div className="pt-2 border-t border-slate-100">
+              <label className="block text-sm font-medium text-slate-700 mb-2">Languages Spoken *</label>
               <div className="flex flex-wrap gap-2">
                 {['English', 'Hindi', 'Tamil', 'Telugu', 'Kannada'].map(lang => (
-                  <label key={lang} className="inline-flex items-center space-x-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-100">
+                  <label key={lang} className="inline-flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 cursor-pointer hover:bg-slate-100 transition-colors">
                     <input
                       type="checkbox"
                       checked={form.languagesSpoken.includes(lang)}
                       onChange={() => handleCheckbox('languagesSpoken', lang)}
-                      className="rounded text-teal-600 focus:ring-teal-500 w-4 h-4"
+                      className="rounded text-teal-600 focus:ring-teal-500 w-4 h-4 border-slate-300"
                     />
-                    <span className="text-sm text-gray-700">{lang}</span>
+                    <span className="text-sm text-slate-700">{lang}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <div className="pt-2 border-t border-gray-100">
-              <Input
-                label="Consultation Fee (₹ / 30 min)"
+            <div className="pt-2 border-t border-slate-100">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Consultation Fee (₹ / 30 min)</label>
+              <input
                 type="number"
-                placeholder="e.g. 499"
                 value={form.sessionFee}
                 onChange={(e) => setForm({ ...form, sessionFee: e.target.value })}
+                placeholder="e.g. 499"
+                className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 py-2.5 border px-3"
                 required
               />
             </div>
 
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+              <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-md text-sm">
+                {error}
+              </div>
             )}
 
-            <Button
+            <button
               type="submit"
-              variant="primary"
-              className="w-full mt-2 bg-teal-600 hover:bg-teal-700"
-              disabled={loading}
+              disabled={loading || !form.fullName || !form.email || !form.password || form.specialisation.length === 0 || form.languagesSpoken.length === 0}
+              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 transition-colors mt-2"
             >
               {loading ? 'Creating Account…' : 'Register as Soil-Mitra'}
-            </Button>
+            </button>
 
-            <div className="text-center">
+            <div className="mt-4 text-center text-sm">
+              <span className="text-slate-600">Already registered? </span>
               <button
                 type="button"
                 onClick={() => router.push('/login')}
-                className="text-xs font-semibold text-teal-700 hover:text-teal-800 transition-colors"
+                className="font-medium text-teal-600 hover:text-teal-500"
               >
-                Already registered? Login here
+                Login here
               </button>
             </div>
           </form>
-        </Card>
+        </div>
       </div>
     </div>
   );
