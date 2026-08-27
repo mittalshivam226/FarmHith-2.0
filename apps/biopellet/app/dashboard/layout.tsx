@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
-import { PageShell, PortalSidebar, PageLoader } from '@farmhith/ui';
+import { PageShell, PortalSidebar, TopBar, PageLoader } from '@farmhith/ui';
 import { LayoutDashboard, Search, ShoppingCart, User, Factory } from 'lucide-react';
 
 const navItems = [
@@ -15,29 +15,43 @@ const navItems = [
 export default function BiopelletDashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) router.push('/login');
   }, [isLoading, isAuthenticated, router]);
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/login');
-  };
-
   if (isLoading) return <PageLoader label="Loading plant dashboard…" />;
   if (!isAuthenticated || !user) return null;
+
+  const pathSegments = pathname.split('/').filter(Boolean);
+  const breadcrumbs = pathSegments.map((segment, index) => {
+    const href = '/' + pathSegments.slice(0, index + 1).join('/');
+    return {
+      label: segment.charAt(0).toUpperCase() + segment.slice(1).replace('-', ' '),
+      href: index === pathSegments.length - 1 ? undefined : href,
+    };
+  });
 
   return (
     <PageShell
       sidebar={
         <PortalSidebar
-          portalName="Bio-Pellet Plant"
-          portalColor="from-gray-800 to-green-800"
+          portalName="Bio-Pellet Plant Portal"
+          portalColor="bg-amber-700"
           navItems={navItems}
-          user={{ name: user.name, role: user.role }}
           logoIcon={<Factory size={22} />}
-          onLogout={handleLogout}
+        />
+      }
+      topbar={
+        <TopBar
+          breadcrumbs={breadcrumbs}
+          user={user}
+          onLogout={async () => {
+            await logout();
+            router.push('/');
+          }}
+          onProfileClick={() => router.push('/dashboard/profile')}
         />
       }
     >
