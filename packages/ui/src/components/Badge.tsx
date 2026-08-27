@@ -11,20 +11,20 @@ interface BadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  default: 'bg-gray-100 text-gray-700',
-  success: 'bg-green-100 text-green-800',
-  warning: 'bg-amber-100 text-amber-800',
-  error: 'bg-red-100 text-red-800',
-  info: 'bg-blue-100 text-blue-800',
-  purple: 'bg-purple-100 text-purple-800',
+  default: 'bg-slate-100 text-slate-700',
+  success: 'bg-success-50 text-success-700',
+  warning: 'bg-warning-50 text-warning-700',
+  error:   'bg-error-50 text-error-700',
+  info:    'bg-info-50 text-info-700',
+  purple:  'bg-purple-100 text-purple-800',
 };
 
 export function Badge({ children, variant = 'default', size = 'md', className = '' }: BadgeProps) {
   return (
     <span
       className={`
-        inline-flex items-center font-medium rounded-full
-        ${size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs'}
+        inline-flex items-center font-semibold rounded-sm
+        ${size === 'sm' ? 'px-1.5 py-0.5 text-[10px] leading-tight' : 'px-2 py-0.5 text-xs'}
         ${variantClasses[variant]}
         ${className}
       `}
@@ -54,6 +54,13 @@ const statusMap: Record<string, BadgeVariant> = {
   MATCHED: 'info',
   SOLD: 'default',
   EXPIRED: 'default',
+  SETTLED: 'success',
+  CAPTURED: 'info',
+  FARMER: 'success',
+  LAB: 'info',
+  SOILMITRA: 'default',
+  BIOPELLET: 'purple',
+  ADMIN: 'error',
 };
 
 const statusLabel: Record<string, string> = {
@@ -68,6 +75,13 @@ const statusLabel: Record<string, string> = {
   MATCHED: 'Matched',
   SOLD: 'Sold',
   EXPIRED: 'Expired',
+  SETTLED: 'Settled',
+  CAPTURED: 'Captured',
+  FARMER: 'Farmer',
+  LAB: 'Lab',
+  SOILMITRA: 'Soil-Mitra',
+  BIOPELLET: 'Bio-Pellet',
+  ADMIN: 'Admin',
 };
 
 interface StatusBadgeProps {
