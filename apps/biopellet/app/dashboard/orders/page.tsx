@@ -2,14 +2,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
-import { Card, SectionHeader, StatCard, StatusBadge } from '@farmhith/ui';
+import { Card, SectionHeader, StatCard, StatusBadge, QueryState } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { usePlantOrders } from '@farmhith/hooks';
-import { DollarSign, TrendingUp, Loader2 } from 'lucide-react';
+import { DollarSign, TrendingUp } from 'lucide-react';
 
 export default function BiopelletOrdersPage() {
   const { user } = useAuth();
-  const { data: orders, loading } = usePlantOrders(user?.id);
+  const { data: orders, loading, error } = usePlantOrders(user?.id);
   const [filter, setFilter] = React.useState('ALL');
 
   const TABS = ['ALL', 'INTERESTED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
@@ -53,15 +53,16 @@ export default function BiopelletOrdersPage() {
 
       <Card>
         <SectionHeader title="Order History" />
-        {loading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 size={20} className="animate-spin text-gray-400" />
-          </div>
-        ) : filteredOrders.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
-            <p>No orders yet. <Link href="/dashboard/listings" className="text-green-600 hover:underline">Browse listings →</Link></p>
-          </div>
-        ) : (
+        <QueryState
+          loading={loading}
+          error={error}
+          empty={filteredOrders.length === 0}
+          emptyProps={{
+            title: "No orders yet",
+            description: "Browse listings to start procuring.",
+            action: <Link href="/dashboard/listings" className="text-sm font-semibold text-primary-600 hover:underline">Browse listings</Link>
+          }}
+        >
           <div className="space-y-3">
             {filteredOrders.map(order => (
               <div key={order.id} className="flex items-center justify-between p-4 rounded-xl bg-gray-50">
@@ -77,7 +78,7 @@ export default function BiopelletOrdersPage() {
               </div>
             ))}
           </div>
-        )}
+        </QueryState>
       </Card>
     </div>
   );
