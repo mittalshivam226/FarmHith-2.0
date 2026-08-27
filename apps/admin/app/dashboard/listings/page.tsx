@@ -1,28 +1,35 @@
 'use client';
 import React from 'react';
-import { SectionHeader, StatCard, StatusBadge, DataTable, type Column } from '@farmhith/ui';
+import { SectionHeader, StatCard, StatusBadge, DataTable, type Column, QueryState } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import type { CropListing } from '@farmhith/types';
 import { useAllCropListingsAdmin } from '@farmhith/hooks';
 import { db } from '@farmhith/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
-import { ShoppingBasket, CheckCircle, TrendingUp, Loader2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { ShoppingBasket, CheckCircle, TrendingUp } from 'lucide-react';
 
 const STATUS_TABS = ['ALL', 'ACTIVE', 'MATCHED', 'SOLD', 'EXPIRED'] as const;
 
 export default function AdminListingsPage() {
   const [tab, setTab] = React.useState<typeof STATUS_TABS[number]>('ALL');
   const [updating, setUpdating] = React.useState<string | null>(null);
-  const { data: listings, loading } = useAllCropListingsAdmin();
+  const { data: listings, loading, error } = useAllCropListingsAdmin();
 
   const handleMarkSold = async (id: string) => {
     setUpdating(id);
     try {
-      await updateDoc(doc(db, 'cropListings', id), { status: 'SOLD' });
-    } catch (e) {
-      console.error(e);
+      await updateDoc(doc(db, 'cropListings', id), {
+        status: 'SOLD',
+        updatedAt: new Date().toISOString()
+      });
+      toast.success('Listing marked as sold successfully');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update listing status');
+    } finally {
+      setUpdating(null);
     }
-    setUpdating(null);
   };
 
   const columns: Column<CropListing>[] = [
@@ -75,7 +82,7 @@ export default function AdminListingsPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <SectionHeader title="Crop Listings" description="All farmer crop residue listings on the marketplace" />
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard label="Active Listings" value={loading ? '—' : activeCount}                icon={<ShoppingBasket size={20} />} accent="green" />
         <StatCard label="Total Sold"       value={loading ? '—' : soldCount}                 icon={<CheckCircle size={20} />}    accent="blue" />
         <StatCard label="Total Tonnes"     value={loading ? '—' : totalTons.toLocaleString('en-IN')} icon={<TrendingUp size={20} />}  accent="amber" />
@@ -92,11 +99,15 @@ export default function AdminListingsPage() {
         ))}
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-gray-400" />
-        </div>
-      ) : (
+      <QueryState
+        loading={loading}
+        error={error}
+        empty={listings.length === 0}
+        emptyProps={{
+          title: "No listings found",
+          description: "No crop listings match this filter."
+        }}
+      >
         <DataTable
           columns={columns}
           data={filtered}
@@ -104,7 +115,7 @@ export default function AdminListingsPage() {
           emptyTitle="No listings found"
           emptyDescription="No crop listings match this filter."
         />
-      )}
+      </QueryState>
     </div>
   );
 }
