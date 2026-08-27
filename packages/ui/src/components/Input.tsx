@@ -18,7 +18,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-slate-700 mb-1.5"
+            className="block text-sm font-medium text-slate-300 mb-1.5"
           >
             {label}
           </label>
@@ -33,13 +33,13 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={[
-              'w-full rounded-md border bg-white px-3 py-3 md:py-2.5 text-sm text-slate-900',
+              'w-full rounded-md border bg-slate-800 px-3 py-3 md:py-2.5 text-sm text-slate-100',
               'placeholder:text-slate-400 transition-colors duration-150',
-              'focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent',
-              'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed',
+              'focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent focus:shadow-glow-sm',
+              'disabled:bg-slate-800/50 disabled:text-slate-600 disabled:cursor-not-allowed',
               error
                 ? 'border-error-500 focus:ring-error-400'
-                : 'border-slate-200 hover:border-slate-300',
+                : 'border-slate-600 hover:border-slate-500',
               leftElement ? 'pl-10' : '',
               rightElement ? 'pr-10' : '',
               className,
@@ -56,8 +56,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             </span>
           )}
         </div>
-        {error && <p id={`${inputId}-error`} className="mt-1.5 text-xs text-error-600 font-medium">{error}</p>}
-        {hint && !error && <p id={`${inputId}-hint`} className="mt-1.5 text-xs text-slate-500">{hint}</p>}
+        {error && <p id={`${inputId}-error`} className="mt-1.5 text-xs text-error-500 font-medium">{error}</p>}
+        {hint && !error && <p id={`${inputId}-hint`} className="mt-1.5 text-xs text-slate-400">{hint}</p>}
       </div>
     );
   },
