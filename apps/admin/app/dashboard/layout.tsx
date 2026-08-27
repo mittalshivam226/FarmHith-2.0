@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
-import { PageShell, PortalSidebar, PageLoader } from '@farmhith/ui';
+import { PageShell, PortalSidebar, PageLoader, TopBar } from '@farmhith/ui';
 import {
   LayoutDashboard, Users, ClipboardList, CalendarDays,
   ShoppingBasket, ShoppingCart, CreditCard, BarChart2,
@@ -25,8 +25,9 @@ const navItems = [
 ];
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const { user, isLoading, isAuthenticated, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) router.push('/login');
@@ -35,15 +36,34 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
   if (isLoading) return <PageLoader label="Authenticating admin…" />;
   if (!isAuthenticated || !user) return null;
 
+  // Generate simple breadcrumbs from pathname
+  const pathSegments = pathname.split('/').filter(Boolean);
+  const breadcrumbs = pathSegments.map((segment, index) => {
+    const href = '/' + pathSegments.slice(0, index + 1).join('/');
+    return {
+      label: segment.charAt(0).toUpperCase() + segment.slice(1).replace('-', ' '),
+      href: index === pathSegments.length - 1 ? undefined : href,
+    };
+  });
+
   return (
     <PageShell
       sidebar={
         <PortalSidebar
           portalName="Admin Panel"
-          portalColor="from-slate-800 to-slate-900"
+          portalColor="bg-slate-900"
           navItems={navItems}
-          user={{ name: user.name, role: user.role }}
           logoIcon={<ShieldCheck size={22} />}
+        />
+      }
+      topbar={
+        <TopBar
+          breadcrumbs={breadcrumbs}
+          user={user}
+          onLogout={async () => {
+            await logout();
+            router.push('/');
+          }}
         />
       }
     >
