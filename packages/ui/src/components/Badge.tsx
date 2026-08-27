@@ -11,12 +11,12 @@ interface BadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  default: 'bg-slate-100 text-slate-700',
-  success: 'bg-success-50 text-success-700',
-  warning: 'bg-warning-50 text-warning-700',
-  error:   'bg-error-50 text-error-700',
-  info:    'bg-info-50 text-info-700',
-  purple:  'bg-purple-100 text-purple-800',
+  default: 'bg-slate-800 border border-slate-700 text-slate-300 shadow-sm',
+  success: 'bg-success-500/10 text-success-400 border border-success-500/20 shadow-glow-sm',
+  warning: 'bg-warning-500/10 text-warning-400 border border-warning-500/20 shadow-glow-sm',
+  error:   'bg-error-500/10 text-error-400 border border-error-500/20 shadow-glow-sm',
+  info:    'bg-info-500/10 text-info-400 border border-info-500/20 shadow-glow-sm',
+  purple:  'bg-purple-500/10 text-purple-400 border border-purple-500/20 shadow-glow-sm',
 };
 
 export function Badge({ children, variant = 'default', size = 'md', className = '' }: BadgeProps) {
