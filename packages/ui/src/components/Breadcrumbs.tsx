@@ -23,7 +23,7 @@ export function Breadcrumbs({ items, homeHref = '/dashboard', className = '' }: 
         <li>
           <Link
             href={homeHref}
-            className="text-slate-400 hover:text-slate-600 transition-colors"
+            className="text-slate-500 hover:text-slate-300 transition-colors"
             title="Home"
           >
             <Home size={16} />
@@ -33,10 +33,10 @@ export function Breadcrumbs({ items, homeHref = '/dashboard', className = '' }: 
           const isLast = index === items.length - 1;
           return (
             <li key={`${item.label}-${index}`} className="flex items-center space-x-2">
-              <ChevronRight size={14} className="text-slate-300" />
+              <ChevronRight size={14} className="text-slate-600" />
               {isLast || !item.href ? (
                 <span
-                  className="text-sm font-semibold text-slate-800"
+                  className="text-sm font-semibold text-slate-100"
                   aria-current={isLast ? 'page' : undefined}
                 >
                   {item.label}
@@ -44,7 +44,7 @@ export function Breadcrumbs({ items, homeHref = '/dashboard', className = '' }: 
               ) : (
                 <Link
                   href={item.href}
-                  className="text-sm font-medium text-slate-500 hover:text-primary-600 transition-colors"
+                  className="text-sm font-medium text-slate-400 hover:text-primary-400 transition-colors"
                 >
                   {item.label}
                 </Link>
