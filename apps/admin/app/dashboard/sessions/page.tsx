@@ -1,10 +1,10 @@
 'use client';
 import React from 'react';
-import { SectionHeader, StatCard, StatusBadge, DataTable, type Column } from '@farmhith/ui';
+import { SectionHeader, StatCard, StatusBadge, DataTable, type Column, QueryState } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import type { MitraBooking } from '@farmhith/types';
 import { useAllMitraSessions } from '@farmhith/hooks';
-import { CalendarDays, CheckCircle, Clock, TrendingUp, Loader2, Video } from 'lucide-react';
+import { CalendarDays, CheckCircle, Clock, TrendingUp, Video } from 'lucide-react';
 
 const STATUS_TABS = ['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'] as const;
 
@@ -33,7 +33,7 @@ const columns: Column<MitraBooking>[] = [
 
 export default function AdminSessionsPage() {
   const [tab, setTab] = React.useState<typeof STATUS_TABS[number]>('ALL');
-  const { data: sessions, loading } = useAllMitraSessions();
+  const { data: sessions, loading, error } = useAllMitraSessions();
 
   const filtered       = tab === 'ALL' ? sessions : sessions.filter(s => s.status === tab);
   const totalRevenue   = sessions.reduce((s, b) => s + b.amountPaid, 0);
@@ -62,11 +62,15 @@ export default function AdminSessionsPage() {
         ))}
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-gray-400" />
-        </div>
-      ) : (
+      <QueryState
+        loading={loading}
+        error={error}
+        empty={sessions.length === 0}
+        emptyProps={{
+          title: "No sessions found",
+          description: "No mitra sessions match this filter."
+        }}
+      >
         <DataTable
           columns={columns}
           data={filtered}
@@ -74,7 +78,7 @@ export default function AdminSessionsPage() {
           emptyTitle="No sessions found"
           emptyDescription="No mitra sessions match this filter."
         />
-      )}
+      </QueryState>
     </div>
   );
 }
