@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
 import {
   FlaskConical, Users, ShoppingBasket, ArrowRight,
-  Leaf, Shield, TrendingUp, Star, Sparkles, ChevronRight,
+  Leaf, Shield, TrendingUp, Star, ChevronRight,
   CheckCircle, Video, FileText, Award
 } from 'lucide-react';
 import WebsiteNav from './components/WebsiteNav';
@@ -80,36 +80,25 @@ export default function LandingPage() {
 
   return (
     <div className="landing-root">
-      {/* ── Ambient Backgrounds ─────────────────────────────────────── */}
-      <div className="bg-pattern" />
-      <div className="orb orb-1" />
-      <div className="orb orb-2" />
-      <div className="orb orb-3" />
-      
-      {/* ── Floating Graphics ───────────────────────────────────────── */}
-      <div className="floating-graphic float-1"><Leaf size={64} /></div>
-      <div className="floating-graphic float-2"><FlaskConical size={64} /></div>
-      <div className="floating-graphic float-3"><Sparkles size={64} /></div>
-
       {/* ═══════════════ NAVBAR ══════════════════════════════ */}
       <WebsiteNav />
 
       {/* ═══════════════ HERO ════════════════════════════════ */}
       <section className="hero">
         <div className="hero-badge">
-          <Sparkles size={14} />
+          <Leaf size={14} />
           <span>Trusted by 50,000+ Indian Farmers</span>
         </div>
 
         <h1 className="hero-title">
-          Your Farm.<br />
-          <span className="text-emerald">Your Future.</span><br />
-          Your Way.
+          Test your soil.<br />
+          <span className="text-emerald">Consult experts.</span><br />
+          Sell residue.
         </h1>
 
         <p className="hero-sub">
-          Book precision soil tests, consult expert Soil-Mitras, and sell your
-          crop residue — all from one powerful platform built for the modern Indian farmer.
+          Book certified lab tests, get 1-on-1 guidance from Soil-Mitras, and
+          earn from crop residue — one platform for Indian farmers.
         </p>
 
         <div className="hero-actions">
@@ -125,7 +114,7 @@ export default function LandingPage() {
         <div className="w-full max-w-6xl mx-auto mt-16 grid grid-cols-1 md:grid-cols-3 gap-6" style={{ animation: 'heroFadeUp 1s 0.5s ease both' }}>
           
           {/* Block 1: Laboratory */}
-          <div className="relative rounded-[24px] overflow-hidden min-h-[400px] flex flex-col justify-end p-8 shadow-2xl group">
+          <div className="relative rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-end p-8 shadow-lg group">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#003333] via-transparent to-transparent opacity-90" />
             <div className="relative z-10 text-left">
@@ -138,7 +127,7 @@ export default function LandingPage() {
           </div>
 
           {/* Block 2: Soil Services (Tan Block) */}
-          <div className="relative rounded-[24px] overflow-hidden min-h-[400px] flex flex-col justify-center p-10 shadow-2xl bg-[#D2B48C] text-[#003333] group">
+          <div className="relative rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-center p-10 shadow-lg bg-[#D2B48C] text-[#003333] group">
             <div className="relative z-10 text-center">
               <FlaskConical size={48} className="mx-auto mb-6 opacity-80" />
               <h3 className="text-3xl font-extrabold mb-4">Soil Testing Services</h3>
@@ -150,7 +139,7 @@ export default function LandingPage() {
           </div>
 
           {/* Block 3: Educational Resources */}
-          <div className="relative rounded-[24px] overflow-hidden min-h-[400px] flex flex-col justify-end p-8 shadow-2xl group">
+          <div className="relative rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-end p-8 shadow-lg group">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#003333] via-transparent to-transparent opacity-90" />
             <div className="relative z-10 text-left">
@@ -184,7 +173,7 @@ export default function LandingPage() {
 
       {/* ═══════════════ FEATURES ════════════════════════════ */}
       <section id="features" className="section">
-        <div className="section-label"><Sparkles size={14} /> Core Services</div>
+        <div className="section-label">Core Services</div>
         <h2 className="section-title">Everything your farm needs,<br /><span className="text-emerald">in one place.</span></h2>
         <p className="section-sub">Three powerful services designed to maximise your farm&apos;s potential.</p>
 
@@ -262,7 +251,7 @@ export default function LandingPage() {
 
       {/* ═══════════════ HOW IT WORKS ════════════════════════ */}
       <section id="how-it-works" className="section how-section">
-        <div className="section-label"><Sparkles size={14} /> Simple Process</div>
+        <div className="section-label">How It Works</div>
         <h2 className="section-title">From field to results<br /><span className="text-gold">in 3 easy steps.</span></h2>
 
         <div className="steps-grid">
@@ -310,19 +299,15 @@ export default function LandingPage() {
       {/* ═══════════════ FINAL CTA ═══════════════════════════ */}
       <section className="cta-section">
         <div className="cta-inner">
-          <div className="cta-glow" />
-          <div className="section-label" style={{ background: '#ffffff', color: '#00838F', borderColor: '#e6e0d4' }}><Sparkles size={14} /> Join Today</div>
-          <h2 className="cta-title">The future of Indian farming<br />starts with <span className="text-emerald">one click.</span></h2>
-          <p className="cta-sub">Free to join. No hidden fees. Trusted by farmers across 18 states.</p>
+          <div className="section-label" style={{ background: '#ffffff', color: '#00838F', borderColor: '#e6e0d4' }}>Get Started</div>
+          <h2 className="cta-title">Join FarmHith today.<br /><span className="text-emerald">It&apos;s free.</span></h2>
+          <p className="cta-sub">No hidden fees. Trusted by farmers across 18 states.</p>
           <div className="hero-actions">
             <Link href="/register" className="btn-primary-lg">
               Create Free Account <ArrowRight size={18} />
             </Link>
             <Link href="/login" className="btn-outline-lg">Already a member? Log in</Link>
           </div>
-        </div>
-        <div className="cta-graphic">
-            <Leaf size={400} color="#00838F" />
         </div>
       </section>
 
