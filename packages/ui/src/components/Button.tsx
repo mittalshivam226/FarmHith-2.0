@@ -14,15 +14,15 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const variants: Record<string, string> = {
   primary:
-    'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 focus-visible:ring-primary-400',
+    'bg-primary-500 text-slate-950 hover:bg-primary-400 active:bg-primary-600 shadow-glow-sm hover:shadow-glow-md focus-visible:ring-primary-400 font-semibold',
   secondary:
-    'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 focus-visible:ring-slate-300',
+    'bg-slate-800/80 backdrop-blur-md text-slate-100 border border-slate-600 hover:bg-slate-700 hover:border-slate-500 focus-visible:ring-slate-500 shadow-sm hover:shadow-glow-sm',
   ghost:
-    'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-800 focus-visible:ring-slate-300',
+    'bg-transparent text-slate-400 hover:bg-slate-800 hover:text-slate-100 focus-visible:ring-slate-500',
   outline:
-    'bg-transparent text-primary-600 border border-primary-200 hover:bg-primary-50 focus-visible:ring-primary-400',
+    'bg-transparent text-primary-400 border border-primary-500/50 hover:bg-primary-500/10 hover:border-primary-400 hover:shadow-glow-sm focus-visible:ring-primary-400',
   destructive:
-    'bg-error-600 text-white hover:bg-error-700 active:bg-error-700 focus-visible:ring-error-500',
+    'bg-error-500 text-white hover:bg-error-400 active:bg-error-600 focus-visible:ring-error-400',
 };
 
 /* Danger is an alias for destructive — keeps backward compat */
