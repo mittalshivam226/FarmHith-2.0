@@ -47,7 +47,7 @@ export default function BlogPage() {
 
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-left mt-10">
           {posts.map((post, i) => (
-            <div key={i} className="bg-white rounded-[24px] overflow-hidden border border-gray-100 shadow-lg hover:shadow-xl transition-shadow flex flex-col group cursor-pointer">
+            <div key={i} className="bg-white rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col group cursor-pointer">
               <div className="relative h-56 overflow-hidden">
                 <img src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute top-4 left-4 bg-[#f2f0eb] text-[#006064] font-bold text-xs uppercase tracking-wider px-3 py-1 rounded-full border border-[#D2B48C]">
