@@ -2,16 +2,16 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
-import { StatCard, StatusBadge, Card, SectionHeader } from '@farmhith/ui';
+import { StatCard, StatusBadge, Card, SectionHeader, QueryState, CardSkeleton, Button } from '@farmhith/ui';
 import { formatCurrency, formatDate, formatRelativeTime } from '@farmhith/utils';
 import { useMitraSchedule } from '@farmhith/hooks';
-import { CalendarDays, DollarSign, Star, Clock, ArrowRight, Video, Loader2 } from 'lucide-react';
+import { CalendarDays, DollarSign, Star, Clock, ArrowRight, Video } from 'lucide-react';
 
 export default function SoilmitraDashboard() {
   const { user } = useAuth();
   const mitraId = user?.id;
 
-  const { data: sessions, loading } = useMitraSchedule(mitraId);
+  const { data: sessions, loading, error } = useMitraSchedule(mitraId);
 
   const upcoming  = sessions.filter(s => s.status === 'CONFIRMED' || s.status === 'PENDING');
   const completed = sessions.filter(s => s.status === 'COMPLETED');
@@ -43,13 +43,16 @@ export default function SoilmitraDashboard() {
           title="Upcoming Sessions"
           action={<Link href="/dashboard/bookings" className="text-xs text-teal-600 hover:underline flex items-center gap-1">View all <ArrowRight size={12} /></Link>}
         />
-        {loading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 size={20} className="animate-spin text-gray-400" />
-          </div>
-        ) : upcoming.length === 0 ? (
-          <p className="text-sm text-gray-500 py-6 text-center">No upcoming sessions. Farmers will book you once your profile is live.</p>
-        ) : (
+        <QueryState
+          loading={loading}
+          error={error}
+          empty={upcoming.length === 0}
+          emptyProps={{
+            title: "No upcoming sessions",
+            description: "Farmers will book you once your profile is live."
+          }}
+          loadingFallback={<div className="space-y-3"><CardSkeleton /><CardSkeleton /></div>}
+        >
           <div className="space-y-3">
             {upcoming.map(session => {
               const sessionTime = new Date(session.sessionDatetime);
@@ -76,28 +79,30 @@ export default function SoilmitraDashboard() {
                   <div className="flex items-center gap-2">
                     <StatusBadge status={session.status} size="sm" />
                     {canJoin && (
-                      <button className="text-xs bg-teal-600 text-white px-3 py-1.5 rounded-lg hover:bg-teal-700 transition-colors">
+                      <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-white border-transparent">
                         Join
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
               );
             })}
           </div>
-        )}
+        </QueryState>
       </Card>
 
       {/* Recent completed */}
       <Card>
         <SectionHeader title="Recent Sessions" />
-        {loading ? (
-          <div className="flex justify-center py-6">
-            <Loader2 size={20} className="animate-spin text-gray-400" />
-          </div>
-        ) : completed.length === 0 ? (
-          <p className="text-sm text-gray-500 py-6 text-center">No completed sessions yet.</p>
-        ) : (
+        <QueryState
+          loading={loading}
+          error={error}
+          empty={completed.length === 0}
+          emptyProps={{
+            title: "No completed sessions",
+            description: "No completed sessions yet."
+          }}
+        >
           <div className="space-y-3">
             {completed.map(session => (
               <div key={session.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
@@ -117,7 +122,7 @@ export default function SoilmitraDashboard() {
               </div>
             ))}
           </div>
-        )}
+        </QueryState>
       </Card>
     </div>
   );
