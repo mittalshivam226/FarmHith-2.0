@@ -84,7 +84,7 @@ export default function LandingPage() {
       <WebsiteNav />
 
       {/* ═══════════════ HERO ════════════════════════════════ */}
-      <section className="hero">
+      <section className="hero data-flow-bg relative overflow-hidden">\n        <div className="cyber-grid" />\n        <div className="digital-overlay" />\n        <div className="relative z-10 w-full flex flex-col items-center">
         <div className="hero-badge">
           <Leaf size={14} />
           <span>Trusted by 50,000+ Indian Farmers</span>
@@ -116,22 +116,22 @@ export default function LandingPage() {
           {/* Block 1: Laboratory */}
           <div className="relative rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-end p-8 shadow-lg group">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#003333] via-transparent to-transparent opacity-90" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90" />
             <div className="relative z-10 text-left">
               <h3 className="text-white text-2xl font-bold mb-2">About Our Laboratory</h3>
               <p className="text-gray-200 text-sm mb-4">NABL certified facilities ensuring maximum accuracy.</p>
-              <Link href="/about" className="inline-flex items-center gap-2 text-white font-semibold hover:text-[#D2B48C] transition-colors">
+              <Link href="/about" className="inline-flex items-center gap-2 text-white font-semibold hover:text-primary-400 transition-colors">
                 Learn More <ArrowRight size={16} />
               </Link>
             </div>
           </div>
 
           {/* Block 2: Soil Services (Tan Block) */}
-          <div className="relative rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-center p-10 shadow-lg bg-[#D2B48C] text-[#003333] group">
+          <div className="relative rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-center p-10 shadow-lg bg-slate-800/80 backdrop-blur-md text-slate-100 border border-slate-700 shadow-glow-sm group">
             <div className="relative z-10 text-center">
               <FlaskConical size={48} className="mx-auto mb-6 opacity-80" />
               <h3 className="text-3xl font-extrabold mb-4">Soil Testing Services</h3>
-              <p className="text-[#004d40] text-base mb-8 font-medium">Dedicated to providing accurate soil testing to help you optimize yields and make informed decisions.</p>
+              <p className="text-slate-300 text-base mb-8 font-medium">Dedicated to providing accurate soil testing to help you optimize yields and make informed decisions.</p>
               <Link href="/dashboard/soil-test" className="btn-primary-sm justify-center py-3 text-lg">
                 Get Started
               </Link>
@@ -141,18 +141,18 @@ export default function LandingPage() {
           {/* Block 3: Educational Resources */}
           <div className="relative rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-end p-8 shadow-lg group">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#003333] via-transparent to-transparent opacity-90" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90" />
             <div className="relative z-10 text-left">
               <h3 className="text-white text-2xl font-bold mb-2">Educational Resources</h3>
               <p className="text-gray-200 text-sm mb-4">Enhance your understanding of soil management.</p>
-              <Link href="/features" className="inline-flex items-center gap-2 text-white font-semibold hover:text-[#D2B48C] transition-colors">
+              <Link href="/features" className="inline-flex items-center gap-2 text-white font-semibold hover:text-primary-400 transition-colors">
                 Explore Resources <ArrowRight size={16} />
               </Link>
             </div>
           </div>
           
         </div>
-      </section>
+      \n        </div></section>
 
       {/* ═══════════════ STATS STRIP ════════════════════════ */}
       <section className="stats-strip">
@@ -207,7 +207,7 @@ export default function LandingPage() {
               ctaText: 'List Your Residue',
             },
           ].map((f) => (
-            <div key={f.title} className="feature-card">
+            <div key={f.title} className="feature-card hud-element">
               <div className="feature-icon-wrap">
                 {f.icon}
               </div>
@@ -260,7 +260,7 @@ export default function LandingPage() {
             { num: '02', title: 'Choose Your Service', desc: 'Book a soil test, find a Mitra expert, or list your crop residue for sale. Everything in one dashboard.', icon: <Leaf size={32} /> },
             { num: '03', title: 'Grow & Earn More', desc: 'Act on expert recommendations, get paid for your residue, and watch your farm thrive season after season.', icon: <TrendingUp size={32} /> },
           ].map((step, i) => (
-            <div key={step.num} className="step-card">
+            <div key={step.num} className="step-card hud-element">
               <div className="step-num">{step.num}</div>
               <div className="step-icon">{step.icon}</div>
               <h3 className="step-title">{step.title}</h3>
@@ -271,7 +271,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════ TESTIMONIALS ════════════════════════ */}
-      <section id="testimonials" className="section" style={{ backgroundColor: '#f8fafc' }}>
+      <section id="testimonials" className="section" style={{ backgroundColor: 'var(--color-surface)' }}>
         <div className="section-label"><Star size={14} /> Farmer Stories</div>
         <h2 className="section-title">Real farmers.<br /><span className="text-emerald">Real results.</span></h2>
 
@@ -299,7 +299,7 @@ export default function LandingPage() {
       {/* ═══════════════ FINAL CTA ═══════════════════════════ */}
       <section className="cta-section">
         <div className="cta-inner">
-          <div className="section-label" style={{ background: '#ffffff', color: '#00838F', borderColor: '#e6e0d4' }}>Get Started</div>
+          <div className="section-label" style={{ background: 'transparent', color: 'var(--color-primary)', borderColor: 'var(--color-primary-dark)' }}>Get Started</div>
           <h2 className="cta-title">Join FarmHith today.<br /><span className="text-emerald">It&apos;s free.</span></h2>
           <p className="cta-sub">No hidden fees. Trusted by farmers across 18 states.</p>
           <div className="hero-actions">
