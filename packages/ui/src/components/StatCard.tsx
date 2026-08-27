@@ -11,30 +11,30 @@ interface StatCardProps {
 }
 
 const accentMap = {
-  green:  { icon: 'bg-green-50 text-green-600',  border: 'border-green-100' },
-  blue:   { icon: 'bg-blue-50 text-blue-600',    border: 'border-blue-100' },
-  amber:  { icon: 'bg-amber-50 text-amber-600',  border: 'border-amber-100' },
-  purple: { icon: 'bg-purple-50 text-purple-600', border: 'border-purple-100' },
-  rose:   { icon: 'bg-rose-50 text-rose-600',    border: 'border-rose-100' },
-  teal:   { icon: 'bg-teal-50 text-teal-600',    border: 'border-teal-100' },
+  green:  { icon: 'bg-success-50 text-success-600' },
+  blue:   { icon: 'bg-info-50 text-info-600' },
+  amber:  { icon: 'bg-warning-50 text-warning-600' },
+  purple: { icon: 'bg-purple-50 text-purple-600' },
+  rose:   { icon: 'bg-error-50 text-error-600' },
+  teal:   { icon: 'bg-primary-50 text-primary-500' },
 };
 
-export function StatCard({ label, value, icon, trend, accent = 'green', className = '' }: StatCardProps) {
+export function StatCard({ label, value, icon, trend, accent = 'teal', className = '' }: StatCardProps) {
   const { icon: iconCls } = accentMap[accent];
   return (
-    <div className={`bg-white rounded-2xl border border-gray-100 shadow-sm p-6 ${className}`}>
+    <div className={`bg-white rounded-lg border border-slate-200 shadow-sm p-5 ${className}`}>
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</p>
-          <p className="mt-1.5 text-2xl font-bold text-gray-900">{value}</p>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</p>
+          <p className="mt-1.5 text-2xl font-bold text-slate-900 tabular-nums">{value}</p>
           {trend && (
-            <p className={`text-xs mt-1 font-medium ${trend.positive ? 'text-green-600' : 'text-red-500'}`}>
+            <p className={`text-xs mt-1 font-medium ${trend.positive ? 'text-success-600' : 'text-error-500'}`}>
               {trend.positive ? '↑' : '↓'} {trend.value}
             </p>
           )}
         </div>
         {icon && (
-          <div className={`p-2.5 rounded-xl ${iconCls}`}>
+          <div className={`p-2.5 rounded-md ${iconCls}`}>
             {icon}
           </div>
         )}
