@@ -9,7 +9,6 @@
     "./verifyToken": "./src/verifyToken.ts"
   },
   "scripts": {
-    "lint": "eslint src"
   },
   "dependencies": {
     "firebase": "^10.11.0",
