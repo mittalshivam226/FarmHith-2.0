@@ -2,11 +2,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
-import { DataTable, type Column, StatusBadge, SectionHeader } from '@farmhith/ui';
+import { DataTable, type Column, StatusBadge, SectionHeader, QueryState } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import type { SoilTestBooking } from '@farmhith/types';
 import { useLabInbox } from '@farmhith/hooks';
-import { Loader2 } from 'lucide-react';
+// Removing unused Loader2
 
 const columns: Column<SoilTestBooking>[] = [
   {
@@ -43,7 +43,7 @@ const STATUS_TABS = ['ALL', 'PENDING', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', '
 export default function LabBookingsPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = React.useState<typeof STATUS_TABS[number]>('ALL');
-  const { data: bookings, loading } = useLabInbox(user?.id);
+  const { data: bookings, loading, error } = useLabInbox(user?.id);
 
   const filtered = activeTab === 'ALL'
     ? bookings
@@ -73,11 +73,15 @@ export default function LabBookingsPage() {
         ))}
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-gray-400" />
-        </div>
-      ) : (
+      <QueryState
+        loading={loading}
+        error={error}
+        empty={bookings.length === 0}
+        emptyProps={{
+          title: "No bookings",
+          description: `No ${activeTab.toLowerCase()} bookings found.`
+        }}
+      >
         <DataTable
           columns={columns}
           data={filtered}
@@ -85,7 +89,7 @@ export default function LabBookingsPage() {
           emptyTitle="No bookings"
           emptyDescription={`No ${activeTab.toLowerCase()} bookings found.`}
         />
-      )}
+      </QueryState>
     </div>
   );
 }
