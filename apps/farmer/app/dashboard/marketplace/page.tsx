@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
-import { Card, SectionHeader, StatusBadge, Badge, Modal } from '@farmhith/ui';
+import { Card, SectionHeader, StatusBadge, Badge, Modal, EmptyState, CardSkeleton, Alert, QueryState } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { useMyCropListings, useFarmerOrders } from '@farmhith/hooks';
 import { db } from '@farmhith/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
-import { Plus, Weight, MapPin, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Plus, Weight, MapPin, Clock, CheckCircle, AlertCircle, FileText, TrendingUp } from 'lucide-react';
 
 export default function MarketplacePage() {
   const { user } = useAuth();
@@ -15,8 +15,8 @@ export default function MarketplacePage() {
   const [declineModal, setDeclineModal] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  const { data: listings, loading: loadingListings } = useMyCropListings(user?.id);
-  const { data: orders, loading: loadingOrders } = useFarmerOrders(user?.id);
+  const { data: listings, loading: loadingListings, error: errorListings } = useMyCropListings(user?.id);
+  const { data: orders, loading: loadingOrders, error: errorOrders } = useFarmerOrders(user?.id);
 
   async function handleConfirm() {
     if (!confirmModal) return;
@@ -56,13 +56,18 @@ export default function MarketplacePage() {
       {/* My listings */}
       <div>
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">My Listings</h2>
-        {loadingListings ? (
-          <div className="flex justify-center py-8"><Loader2 size={20} className="animate-spin text-gray-400" /></div>
-        ) : listings.length === 0 ? (
-          <div className="text-center py-10 text-gray-400">
-            <p>No listings yet. Create your first listing!</p>
-          </div>
-        ) : (
+        <QueryState
+          loading={loadingListings}
+          error={errorListings}
+          empty={listings.length === 0}
+          emptyProps={{
+            title: "No active listings",
+            description: "Create your first crop residue listing to start selling.",
+            icon: <FileText size={24} />,
+            action: <Link href="/dashboard/marketplace/list" className="text-sm font-semibold text-primary-600 hover:underline">Create Listing</Link>
+          }}
+          loadingFallback={<div className="grid sm:grid-cols-2 gap-4"><CardSkeleton /><CardSkeleton /></div>}
+        >
           <div className="grid sm:grid-cols-2 gap-4">
             {listings.map(listing => (
               <Card key={listing.id}>
@@ -99,17 +104,22 @@ export default function MarketplacePage() {
               </Card>
             ))}
           </div>
-        )}
+        </QueryState>
       </div>
 
       {/* Incoming orders */}
       <div>
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Incoming Orders</h2>
-        {loadingOrders ? (
-          <div className="flex justify-center py-6"><Loader2 size={20} className="animate-spin text-gray-400" /></div>
-        ) : orders.length === 0 ? (
-          <p className="text-sm text-gray-500 py-6 text-center">No incoming orders yet.</p>
-        ) : (
+        <QueryState
+          loading={loadingOrders}
+          error={errorOrders}
+          empty={orders.length === 0}
+          emptyProps={{
+            title: "No incoming orders",
+            description: "When buyers are interested in your residue, their orders will appear here.",
+            icon: <TrendingUp size={24} />
+          }}
+        >
           <div className="space-y-3">
             {orders.map(order => (
               <Card key={order.id}>
@@ -145,7 +155,7 @@ export default function MarketplacePage() {
               </Card>
             ))}
           </div>
-        )}
+        </QueryState>
       </div>
 
       {/* Confirm modal */}
@@ -161,7 +171,7 @@ export default function MarketplacePage() {
               disabled={updating}
               className="px-5 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-60"
             >
-              {updating ? 'Confirming…' : 'Yes, Confirm'}
+              {updating ? 'Confirming Order…' : 'Confirm Order'}
             </button>
           </>
         }
@@ -181,12 +191,17 @@ export default function MarketplacePage() {
               disabled={updating}
               className="px-5 py-2 text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors disabled:opacity-60"
             >
-              {updating ? 'Declining…' : 'Decline Order'}
+              {updating ? 'Declining Order…' : 'Decline Order'}
             </button>
           </>
         }
       >
-        <p className="text-sm text-gray-600">Are you sure you want to decline this order? The plant will be notified that their request was not accepted.</p>
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">Are you sure you want to decline this order?</p>
+          <Alert variant="warning" title="Irreversible Action">
+            <p className="text-sm">The buyer will be notified immediately that their request was rejected. This action cannot be undone.</p>
+          </Alert>
+        </div>
       </Modal>
     </div>
   );
