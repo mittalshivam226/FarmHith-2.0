@@ -110,40 +110,43 @@ export default function FarmerRegisterPage() {
   if (isLoading) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-amber-50 flex items-center justify-center p-4 py-12">
-      <div className="w-full max-w-lg">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-3xl bg-gradient-to-br from-green-600 to-emerald-700 shadow-lg mb-4">
-            <Sprout size={32} className="text-white" />
-          </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Join FarmHith</h1>
-          <p className="text-sm text-gray-500 mt-2">Farmer Portal Registration — किसान पोर्टल</p>
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <div className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-primary-600 mb-4 shadow-sm">
+          <Sprout size={24} className="text-white" />
         </div>
+        <h2 className="text-center text-2xl font-bold tracking-tight text-slate-900">
+          Join FarmHith
+        </h2>
+        <p className="mt-2 text-center text-sm text-slate-600">
+          Farmer Portal Registration — किसान पोर्टल
+        </p>
+      </div>
 
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+        <div className="bg-white py-8 px-4 shadow-sm border border-slate-200 sm:rounded-lg sm:px-10">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Full name + email */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Full Name *</label>
                 <input
                   type="text"
                   value={form.fullName}
                   onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                   placeholder="Ramesh Kumar"
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border px-3"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email Address *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email Address *</label>
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="farmer@example.com"
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border px-3"
                   required
                 />
               </div>
@@ -151,20 +154,20 @@ export default function FarmerRegisterPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Password *</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="Minimum 6 characters"
-                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="block w-full pr-10 sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border px-3"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -173,24 +176,24 @@ export default function FarmerRegisterPage() {
 
             {/* Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Mobile Number</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Mobile Number</label>
               <input
                 type="tel"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 placeholder="+91 98765 43210"
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border px-3"
               />
             </div>
 
             {/* State + District */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">State *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">State *</label>
                 <select
                   value={form.state}
                   onChange={(e) => setForm({ ...form, state: e.target.value })}
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border px-3 bg-white"
                   required
                 >
                   <option value="">Select State…</option>
@@ -198,21 +201,21 @@ export default function FarmerRegisterPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">District</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">District</label>
                 <input
                   type="text"
                   value={form.district}
                   onChange={(e) => setForm({ ...form, district: e.target.value })}
                   placeholder="e.g. Ludhiana"
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border px-3"
                 />
               </div>
             </div>
 
             {/* Land + Crop */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Total Land (Acres)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Total Land (Acres)</label>
                 <input
                   type="number"
                   min="0"
@@ -220,15 +223,15 @@ export default function FarmerRegisterPage() {
                   value={form.totalLandAcres}
                   onChange={(e) => setForm({ ...form, totalLandAcres: e.target.value })}
                   placeholder="e.g. 10.5"
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border px-3"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Primary Crop</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Primary Crop</label>
                 <select
                   value={form.primaryCrop}
                   onChange={(e) => setForm({ ...form, primaryCrop: e.target.value })}
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                  className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border px-3 bg-white"
                 >
                   <option value="">Select Crop…</option>
                   {PRIMARY_CROPS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -236,27 +239,29 @@ export default function FarmerRegisterPage() {
               </div>
             </div>
 
-            {/* Aadhaar (optional) */}
+            {/* Aadhaar */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Aadhaar Number (optional)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Aadhaar Number (optional)</label>
               <input
                 type="text"
                 value={form.aadhaarNumber}
                 onChange={(e) => setForm({ ...form, aadhaarNumber: e.target.value })}
                 placeholder="0000 0000 0000"
                 maxLength={14}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="block w-full sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border px-3"
               />
             </div>
 
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+              <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-md text-sm">
+                {error}
+              </div>
             )}
 
             <button
               type="submit"
               disabled={loading || !form.fullName || !form.email || !form.password || !form.state}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+              className="w-full flex items-center justify-center gap-2 bg-primary-600 text-white font-medium py-2.5 px-4 rounded-md shadow-sm hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> Creating Account…</>
@@ -265,13 +270,14 @@ export default function FarmerRegisterPage() {
               )}
             </button>
 
-            <div className="text-center pt-2">
+            <div className="mt-4 text-center text-sm">
+              <span className="text-slate-600">Already have an account? </span>
               <button
                 type="button"
                 onClick={() => router.push('/login')}
-                className="text-sm text-green-700 font-medium hover:text-green-800 transition-colors"
+                className="font-medium text-primary-600 hover:text-primary-500"
               >
-                Already have an account? Login here
+                Login here
               </button>
             </div>
           </form>
