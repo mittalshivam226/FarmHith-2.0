@@ -2,17 +2,17 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
-import { StatCard, StatusBadge, Card, SectionHeader, Badge } from '@farmhith/ui';
+import { StatCard, StatusBadge, Card, SectionHeader, Badge, QueryState, CardSkeleton } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { useAllCropListings, usePlantOrders } from '@farmhith/hooks';
-import { Search, ShoppingCart, TrendingUp, Leaf, ArrowRight, MapPin, Weight, Loader2 } from 'lucide-react';
+import { Search, ShoppingCart, TrendingUp, Leaf, ArrowRight, MapPin, Weight } from 'lucide-react';
 
 export default function BiopelletDashboard() {
   const { user } = useAuth();
   const plantId = user?.id;
 
-  const { data: allListings, loading: loadingListings } = useAllCropListings();
-  const { data: orders, loading: loadingOrders } = usePlantOrders(plantId);
+  const { data: allListings, loading: loadingListings, error: errorListings } = useAllCropListings();
+  const { data: orders, loading: loadingOrders, error: errorOrders } = usePlantOrders(plantId);
 
   const activeListings  = allListings.filter(l => l.status === 'ACTIVE');
   const pendingOrders   = orders.filter(o => o.status === 'INTERESTED').length;
@@ -46,13 +46,16 @@ export default function BiopelletDashboard() {
             </Link>
           }
         />
-        {loadingListings ? (
-          <div className="flex justify-center py-8">
-            <Loader2 size={20} className="animate-spin text-gray-400" />
-          </div>
-        ) : activeListings.length === 0 ? (
-          <p className="text-sm text-gray-500 py-8 text-center">No active listings available right now. Check back soon.</p>
-        ) : (
+        <QueryState
+          loading={loadingListings}
+          error={errorListings}
+          empty={activeListings.length === 0}
+          emptyProps={{
+            title: "No active listings",
+            description: "No active listings available right now. Check back soon."
+          }}
+          loadingFallback={<div className="grid sm:grid-cols-2 gap-3"><CardSkeleton /><CardSkeleton /></div>}
+        >
           <div className="grid sm:grid-cols-2 gap-3">
             {activeListings.slice(0, 4).map(listing => (
               <Link
@@ -81,7 +84,7 @@ export default function BiopelletDashboard() {
               </Link>
             ))}
           </div>
-        )}
+        </QueryState>
       </Card>
 
       {/* Recent orders */}
@@ -90,16 +93,18 @@ export default function BiopelletDashboard() {
           title="My Orders"
           action={<Link href="/dashboard/orders" className="text-xs text-green-600 hover:underline flex items-center gap-1">View all <ArrowRight size={12} /></Link>}
         />
-        {loadingOrders ? (
-          <div className="flex justify-center py-6">
-            <Loader2 size={20} className="animate-spin text-gray-400" />
-          </div>
-        ) : orders.length === 0 ? (
-          <p className="text-sm text-gray-500 py-6 text-center">No orders placed yet. Browse listings to start procuring.</p>
-        ) : (
+        <QueryState
+          loading={loadingOrders}
+          error={errorOrders}
+          empty={orders.length === 0}
+          emptyProps={{
+            title: "No orders placed yet",
+            description: "Browse listings to start procuring."
+          }}
+        >
           <div className="space-y-3">
             {orders.map(order => (
-              <div key={order.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+              <div key={order.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
                 <div>
                   <p className="text-sm font-medium text-gray-900">{order.farmerName}</p>
                   <p className="text-xs text-gray-500">{order.listingResidueType} · {order.finalQuantityTons} tons</p>
@@ -111,7 +116,7 @@ export default function BiopelletDashboard() {
               </div>
             ))}
           </div>
-        )}
+        </QueryState>
       </Card>
     </div>
   );
