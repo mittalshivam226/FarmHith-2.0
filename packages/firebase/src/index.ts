@@ -14,12 +14,6 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-D8LP47R14W"
 };
 
-console.log("Firebase Config in shared package:", {
-  hasApiKey: !!firebaseConfig.apiKey,
-  apiKeyLength: firebaseConfig.apiKey ? firebaseConfig.apiKey.length : 0,
-  projectId: firebaseConfig.projectId
-});
-
 // Initialize Firebase securely (avoiding double initialization in Next.js hot reloads)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
