@@ -2,11 +2,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
-import { StatusBadge, SectionHeader, DataTable, type Column } from '@farmhith/ui';
+import { StatusBadge, SectionHeader, DataTable, type Column, QueryState } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import type { MitraBooking } from '@farmhith/types';
 import { useMitraSchedule } from '@farmhith/hooks';
-import { Loader2 } from 'lucide-react';
+// Removed Loader2
 
 const columns: Column<MitraBooking>[] = [
   {
@@ -44,7 +44,7 @@ const TABS = ['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'] as const;
 export default function SoilmitraSessionsPage() {
   const { user } = useAuth();
   const [tab, setTab] = React.useState<typeof TABS[number]>('ALL');
-  const { data: sessions, loading } = useMitraSchedule(user?.id);
+  const { data: sessions, loading, error } = useMitraSchedule(user?.id);
 
   const filtered = tab === 'ALL' ? sessions : sessions.filter(s => s.status === tab);
 
@@ -69,11 +69,15 @@ export default function SoilmitraSessionsPage() {
         ))}
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-gray-400" />
-        </div>
-      ) : (
+      <QueryState
+        loading={loading}
+        error={error}
+        empty={sessions.length === 0}
+        emptyProps={{
+          title: "No sessions",
+          description: "No sessions found for this filter."
+        }}
+      >
         <DataTable
           columns={columns}
           data={filtered}
@@ -81,7 +85,7 @@ export default function SoilmitraSessionsPage() {
           emptyTitle="No sessions"
           emptyDescription="No sessions found for this filter."
         />
-      )}
+      </QueryState>
     </div>
   );
 }
