@@ -2,10 +2,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
-import { Card, StatusBadge, SectionHeader, Badge } from '@farmhith/ui';
+import { Card, StatusBadge, SectionHeader, Badge, QueryState, CardSkeleton } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { useAllCropListings } from '@farmhith/hooks';
-import { MapPin, Weight, Loader2 } from 'lucide-react';
+import { MapPin, Weight } from 'lucide-react';
 
 const RESIDUE_TYPES = ['All', 'Paddy Straw', 'Wheat Straw', 'Sugarcane Bagasse', 'Cotton Stalks', 'Maize Stalks'];
 
@@ -13,7 +13,7 @@ export default function BiopelletListingsPage() {
   const { user } = useAuth();
   const [filter, setFilter] = React.useState('All');
   const [districtFilter, setDistrictFilter] = React.useState('');
-  const { data: listings, loading } = useAllCropListings();
+  const { data: listings, loading, error } = useAllCropListings();
 
   const filtered = listings.filter(l => {
     const matchesResidue = filter === 'All' || l.residueType === filter;
@@ -58,15 +58,16 @@ export default function BiopelletListingsPage() {
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-gray-400" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          <p>No listings found{filter !== 'All' ? ` for ${filter}` : ''}.</p>
-        </div>
-      ) : (
+      <QueryState
+        loading={loading}
+        error={error}
+        empty={filtered.length === 0}
+        emptyProps={{
+          title: filter !== 'All' ? `No ${filter} listings found` : "No listings found",
+          description: "Check back later for new crop residue listings."
+        }}
+        loadingFallback={<div className="grid sm:grid-cols-2 gap-4"><CardSkeleton /><CardSkeleton /></div>}
+      >
         <div className="grid sm:grid-cols-2 gap-4">
           {filtered.map(listing => (
             <Link key={listing.id} href={`/dashboard/listings/${listing.id}`}>
@@ -97,7 +98,7 @@ export default function BiopelletListingsPage() {
             </Link>
           ))}
         </div>
-      )}
+      </QueryState>
     </div>
   );
 }
