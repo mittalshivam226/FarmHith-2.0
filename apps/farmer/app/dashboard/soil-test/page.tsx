@@ -2,15 +2,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
-import { Card, StatusBadge, SectionHeader, Badge } from '@farmhith/ui';
+import { Card, StatusBadge, SectionHeader, Badge, QueryState, CardSkeleton } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { useMyBookings, useAvailableLabs } from '@farmhith/hooks';
-import { FlaskConical, MapPin, Plus, Loader2 } from 'lucide-react';
+import { FlaskConical, MapPin, Plus } from 'lucide-react';
 
 export default function SoilTestPage() {
   const { user } = useAuth();
-  const { data: bookings, loading: loadingBookings } = useMyBookings(user?.id);
-  const { data: labs, loading: loadingLabs } = useAvailableLabs();
+  const { data: bookings, loading: loadingBookings, error: errorBookings } = useMyBookings(user?.id);
+  const { data: labs, loading: loadingLabs, error: errorLabs } = useAvailableLabs();
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -30,14 +30,16 @@ export default function SoilTestPage() {
       {/* My bookings */}
       <div>
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">My Bookings</h2>
-        {loadingBookings ? (
-          <div className="flex justify-center py-10"><Loader2 size={20} className="animate-spin text-gray-400" /></div>
-        ) : bookings.length === 0 ? (
-          <div className="text-center py-10 text-gray-400">
-            <FlaskConical size={32} className="mx-auto mb-3 opacity-30" />
-            <p>No soil tests booked yet.</p>
-          </div>
-        ) : (
+        <QueryState
+          loading={loadingBookings}
+          error={errorBookings}
+          empty={bookings.length === 0}
+          emptyProps={{
+            icon: <FlaskConical size={24} />,
+            title: "No soil tests booked yet",
+            description: "Book a test with a verified lab to understand your soil health."
+          }}
+        >
           <div className="space-y-3">
             {bookings.map(booking => (
               <Link key={booking.id} href={`/dashboard/soil-test/${booking.id}`} className="block">
@@ -78,17 +80,22 @@ export default function SoilTestPage() {
               </Link>
             ))}
           </div>
-        )}
+        </QueryState>
       </div>
 
       {/* Browse labs */}
       <div>
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Verified Labs Near You</h2>
-        {loadingLabs ? (
-          <div className="flex justify-center py-6"><Loader2 size={20} className="animate-spin text-gray-400" /></div>
-        ) : labs.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-6">No verified labs available yet.</p>
-        ) : (
+        <QueryState
+          loading={loadingLabs}
+          error={errorLabs}
+          empty={labs.length === 0}
+          emptyProps={{
+            title: "No verified labs available yet",
+            description: "Check back later for new lab partners."
+          }}
+          loadingFallback={<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"><CardSkeleton /><CardSkeleton /><CardSkeleton /></div>}
+        >
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {labs.map(lab => (
               <Card key={lab.id} hover>
@@ -121,7 +128,7 @@ export default function SoilTestPage() {
               </Card>
             ))}
           </div>
-        )}
+        </QueryState>
       </div>
     </div>
   );
