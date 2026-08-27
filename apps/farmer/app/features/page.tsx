@@ -4,7 +4,7 @@ import WebsiteNav from '../components/WebsiteNav';
 import {
   FlaskConical, Users, ShoppingBasket, CheckCircle,
   ArrowRight, Leaf, Shield, TrendingUp, Clock,
-  MapPin, FileText, Star, Sparkles, Zap, Globe,
+  MapPin, FileText, Star, Zap, Globe,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 
@@ -76,16 +76,12 @@ const FEATURE_SECTIONS = [
 export default function FeaturesPage() {
   return (
     <div className="landing-root">
-      <div className="bg-pattern" />
-      <div className="orb orb-1" />
-      <div className="orb orb-2" />
-      <div className="orb orb-3" />
       <WebsiteNav />
 
       {/* Hero */}
       <section className="hero" style={{ paddingBottom: '4rem' }}>
         <div className="hero-badge">
-          <Sparkles size={14} />
+          <Leaf size={14} />
           <span>Platform Features</span>
         </div>
         <h1 className="hero-title">
