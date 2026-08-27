@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
-import { Card, SectionHeader, Input, Select, Button, Avatar, Badge } from '@farmhith/ui';
+import { Card, SectionHeader, Input, Select, Button, Avatar, Badge, Alert, EmptyState, Spinner } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
 import { db } from '@farmhith/firebase';
 import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
@@ -130,12 +130,17 @@ export default function BookMitraPage() {
 
   if (success) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
-          <CheckCircle2 size={32} className="text-green-600" />
-        </div>
-        <p className="text-lg font-semibold text-gray-900">Session Booked!</p>
-        <p className="text-sm text-gray-500">Redirecting to your session details…</p>
+      <div className="py-12">
+        <EmptyState
+          icon={<CheckCircle2 size={32} className="text-green-600" />}
+          title="Session Booked!"
+          description="Your consultation with the Soil-Mitra has been scheduled successfully."
+          action={
+            <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
+              <Spinner size="sm" /> Redirecting to session details...
+            </div>
+          }
+        />
       </div>
     );
   }
@@ -246,7 +251,9 @@ export default function BookMitraPage() {
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 px-3 py-2.5 rounded-lg">{error}</p>
+            <Alert variant="error" title="Booking Failed">
+              <p>{error}</p>
+            </Alert>
           )}
 
           <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
@@ -262,12 +269,10 @@ export default function BookMitraPage() {
               <Button
                 type="submit"
                 variant="primary"
+                loading={submitting}
                 disabled={submitting || !form.sessionDate || !form.sessionTime || !form.cropType}
               >
-                {submitting
-                  ? <><Loader2 size={14} className="animate-spin mr-1 inline" />Booking…</>
-                  : 'Confirm Booking'
-                }
+                Confirm Booking
               </Button>
             </div>
           </div>
