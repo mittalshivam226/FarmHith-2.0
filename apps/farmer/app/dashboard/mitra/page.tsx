@@ -2,15 +2,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
-import { Card, SectionHeader, RatingStars, Badge, Avatar, StatusBadge } from '@farmhith/ui';
+import { Card, SectionHeader, RatingStars, Badge, Avatar, StatusBadge, QueryState, CardSkeleton } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { useMyMitraSessions, useAvailableMitras } from '@farmhith/hooks';
-import { Users, Languages, Briefcase, Loader2 } from 'lucide-react';
+import { Users, Languages, Briefcase, CalendarDays } from 'lucide-react';
 
 export default function MitraPage() {
   const { user } = useAuth();
-  const { data: sessions, loading: loadingSessions } = useMyMitraSessions(user?.id);
-  const { data: mitras, loading: loadingMitras } = useAvailableMitras();
+  const { data: sessions, loading: loadingSessions, error: errorSessions } = useMyMitraSessions(user?.id);
+  const { data: mitras, loading: loadingMitras, error: errorMitras } = useAvailableMitras();
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -23,11 +23,16 @@ export default function MitraPage() {
       {/* My upcoming sessions */}
       <div>
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">My Sessions</h2>
-        {loadingSessions ? (
-          <div className="flex justify-center py-8"><Loader2 size={20} className="animate-spin text-gray-400" /></div>
-        ) : sessions.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-4">You have no sessions booked yet.</p>
-        ) : (
+        <QueryState
+          loading={loadingSessions}
+          error={errorSessions}
+          empty={sessions.length === 0}
+          emptyProps={{
+            icon: <CalendarDays size={24} />,
+            title: "No sessions booked yet",
+            description: "You haven't booked any Soil-Mitra consultations."
+          }}
+        >
           <div className="space-y-3">
             {sessions.map(session => (
               <Link key={session.id} href={`/dashboard/mitra/${session.id}`} className="block">
@@ -52,17 +57,23 @@ export default function MitraPage() {
               </Link>
             ))}
           </div>
-        )}
+        </QueryState>
       </div>
 
       {/* Browse Mitras */}
       <div>
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Find an Expert</h2>
-        {loadingMitras ? (
-          <div className="flex justify-center py-8"><Loader2 size={20} className="animate-spin text-gray-400" /></div>
-        ) : mitras.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-6">No verified Soil-Mitras available yet.</p>
-        ) : (
+        <QueryState
+          loading={loadingMitras}
+          error={errorMitras}
+          empty={mitras.length === 0}
+          emptyProps={{
+            icon: <Users size={24} />,
+            title: "No verified Soil-Mitras available yet",
+            description: "Check back later for new agricultural experts."
+          }}
+          loadingFallback={<div className="space-y-4"><CardSkeleton /><CardSkeleton /></div>}
+        >
           <div className="space-y-4">
             {mitras.map(mitra => (
               <Card key={mitra.id} hover>
@@ -104,7 +115,7 @@ export default function MitraPage() {
               </Card>
             ))}
           </div>
-        )}
+        </QueryState>
       </div>
     </div>
   );
