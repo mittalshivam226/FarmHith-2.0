@@ -2,7 +2,7 @@
 import React, { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
-import { Card, SectionHeader, Input, Select, Button } from '@farmhith/ui';
+import { Card, SectionHeader, Input, Select, Button, Alert, EmptyState, Spinner } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
 import { useAvailableLabs } from '@farmhith/hooks';
 import { Loader2, FlaskConical, CheckCircle2 } from 'lucide-react';
@@ -36,10 +36,10 @@ function BookSoilTestForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (!form.labId) { setError('Please select a lab'); return; }
-    if (!form.cropType.trim()) { setError('Please enter crop type'); return; }
-    if (!form.collectionDate) { setError('Please select a collection date'); return; }
-    if (!form.landParcelDetails.trim()) { setError('Please enter land parcel details'); return; }
+    if (!form.labId) { setError('Please select a testing lab from the list.'); return; }
+    if (!form.cropType.trim()) { setError('Please enter the type of crop you are growing.'); return; }
+    if (!form.collectionDate) { setError('Please select a preferred date for the sample collection.'); return; }
+    if (form.landParcelDetails.trim().length < 5) { setError('Land parcel details must be at least 5 characters long to help the collector find the location.'); return; }
 
     setError(null);
     setSubmitting(true);
@@ -78,12 +78,17 @@ function BookSoilTestForm() {
 
   if (success) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
-          <CheckCircle2 size={32} className="text-green-600" />
-        </div>
-        <p className="text-lg font-semibold text-gray-900">Booking Confirmed!</p>
-        <p className="text-sm text-gray-500">Redirecting to your booking details…</p>
+      <div className="py-12">
+        <EmptyState
+          icon={<CheckCircle2 size={32} className="text-green-600" />}
+          title="Booking Confirmed!"
+          description="Your soil test has been scheduled. The lab will contact you shortly."
+          action={
+            <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
+              <Spinner size="sm" /> Redirecting to details...
+            </div>
+          }
+        />
       </div>
     );
   }
@@ -187,7 +192,9 @@ function BookSoilTestForm() {
             </label>
 
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 px-3 py-2.5 rounded-lg">{error}</p>
+              <Alert variant="error" title="Submission Failed">
+                <p>{error}</p>
+              </Alert>
             )}
 
             <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
@@ -207,13 +214,10 @@ function BookSoilTestForm() {
                 <Button
                   type="submit"
                   variant="primary"
+                  loading={submitting}
                   disabled={submitting || !form.labId || !form.cropType || !form.collectionDate || !form.landParcelDetails}
                 >
-                  {submitting ? (
-                    <><Loader2 size={14} className="animate-spin inline mr-1" />Booking…</>
-                  ) : (
-                    'Confirm Booking'
-                  )}
+                  Confirm Booking
                 </Button>
               </div>
             </div>
