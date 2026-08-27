@@ -1,17 +1,19 @@
 'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@farmhith/auth';
-import { StatCard, StatusBadge, Card, SectionHeader } from '@farmhith/ui';
+import { StatCard, StatusBadge, Card, SectionHeader, QueryState, Button } from '@farmhith/ui';
 import { formatCurrency, formatDate } from '@farmhith/utils';
 import { useLabInbox } from '@farmhith/hooks';
-import { ClipboardList, CheckCircle, Clock, TrendingUp, Upload, ArrowRight, Loader2 } from 'lucide-react';
+import { ClipboardList, CheckCircle, Clock, TrendingUp, Upload, ArrowRight } from 'lucide-react';
 
 export default function LabDashboard() {
+  const router = useRouter();
   const { user } = useAuth();
   const labId = user?.id;
 
-  const { data: bookings, loading } = useLabInbox(labId);
+  const { data: bookings, loading, error } = useLabInbox(labId);
 
   const pendingCount   = bookings.filter(b => b.status === 'PENDING').length;
   const acceptedCount  = bookings.filter(b => b.status === 'ACCEPTED' || b.status === 'IN_PROGRESS').length;
@@ -71,19 +73,21 @@ export default function LabDashboard() {
             </Link>
           }
         />
-        <div className="space-y-3">
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 size={20} className="animate-spin text-gray-400" />
-            </div>
-          ) : bookings.length === 0 ? (
-            <p className="text-sm text-gray-500 py-8 text-center">No bookings yet. Your inbox will fill up when farmers book your lab.</p>
-          ) : (
-            bookings.slice(0, 4).map(booking => (
+        <QueryState
+          loading={loading}
+          error={error}
+          empty={bookings.length === 0}
+          emptyProps={{
+            title: "No bookings yet",
+            description: "Your inbox will fill up when farmers book your lab."
+          }}
+        >
+          <div className="space-y-3">
+            {bookings.slice(0, 4).map(booking => (
               <Link
                 key={booking.id}
                 href={`/dashboard/bookings/${booking.id}`}
-                className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-blue-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-blue-50 transition-colors"
               >
                 <div>
                   <p className="text-sm font-medium text-gray-900">{booking.farmerName}</p>
@@ -94,14 +98,14 @@ export default function LabDashboard() {
                   <StatusBadge status={booking.status} size="sm" />
                 </div>
               </Link>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        </QueryState>
       </Card>
 
       {/* Pending report uploads alert */}
       {!loading && pendingReports > 0 && (
-        <div className="flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-2xl">
+        <div className="flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
           <Upload size={18} className="text-orange-600 shrink-0" />
           <div>
             <p className="text-sm font-semibold text-orange-900">
@@ -109,9 +113,13 @@ export default function LabDashboard() {
             </p>
             <p className="text-xs text-orange-700">Upload soil test reports for completed collections.</p>
           </div>
-          <Link href="/dashboard/bookings" className="ml-auto text-xs bg-orange-600 text-white px-3 py-1.5 rounded-lg hover:bg-orange-700 transition-colors">
+          <Button 
+            size="sm" 
+            className="ml-auto bg-orange-600 text-white hover:bg-orange-700 border-transparent"
+            onClick={() => router.push('/dashboard/bookings')}
+          >
             Upload Now
-          </Link>
+          </Button>
         </div>
       )}
     </div>
