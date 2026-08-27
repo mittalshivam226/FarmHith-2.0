@@ -60,21 +60,21 @@ export function PortalSidebar({
                 transition-colors duration-100 group
                 ${
                   active
-                    ? 'bg-primary-50 text-primary-600'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20 shadow-glow-sm'
+                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
                 }
               `}
             >
               <span
                 className={`shrink-0 transition-colors ${
-                  active ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-600'
+                  active ? 'text-primary-400' : 'text-slate-500 group-hover:text-slate-300'
                 }`}
               >
                 {item.icon}
               </span>
               <span className="flex-1">{item.label}</span>
               {item.badge !== undefined && (
-                <span className="ml-auto text-xs font-semibold bg-primary-50 text-primary-600 px-2 py-0.5 rounded-sm">
+                <span className="ml-auto text-xs font-semibold bg-primary-500/20 text-primary-400 px-2 py-0.5 rounded-sm">
                   {item.badge}
                 </span>
               )}
