@@ -2,7 +2,7 @@
 import React from 'react';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline' | 'destructive';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'destructive';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   isLoading?: boolean;
@@ -12,25 +12,26 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   asChild?: boolean;
 }
 
-const variants = {
+const variants: Record<string, string> = {
   primary:
-    'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-sm hover:shadow-md focus-visible:ring-primary-500',
+    'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 focus-visible:ring-primary-400',
   secondary:
-    'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 focus-visible:ring-slate-400',
+    'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 focus-visible:ring-slate-300',
   ghost:
-    'bg-transparent text-slate-600 hover:bg-slate-100 focus-visible:ring-slate-400',
-  danger:
-    'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm focus-visible:ring-red-500',
-  destructive:
-    'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm focus-visible:ring-red-500',
+    'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-800 focus-visible:ring-slate-300',
   outline:
-    'bg-transparent text-primary-700 border border-primary-300 hover:bg-primary-50 focus-visible:ring-primary-500',
+    'bg-transparent text-primary-600 border border-primary-200 hover:bg-primary-50 focus-visible:ring-primary-400',
+  destructive:
+    'bg-error-600 text-white hover:bg-error-700 active:bg-error-700 focus-visible:ring-error-500',
 };
 
-const sizes = {
-  sm: 'h-8 px-3 text-sm gap-1.5 rounded-lg',
-  md: 'h-10 px-4 text-sm gap-2 rounded-xl',
-  lg: 'h-12 px-6 text-base gap-2 rounded-xl',
+/* Danger is an alias for destructive — keeps backward compat */
+(variants as Record<string, string>).danger = variants.destructive;
+
+const sizes: Record<string, string> = {
+  sm: 'h-10 md:h-8 px-3 text-sm gap-1.5',
+  md: 'h-11 md:h-10 px-4 text-sm gap-2',
+  lg: 'h-12 px-6 text-base gap-2',
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -57,10 +58,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || isActivelyLoading}
         className={[
-          'inline-flex items-center justify-center font-medium transition-all duration-150',
+          'inline-flex items-center justify-center font-semibold rounded-md',
+          'transition-colors duration-150',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-          variants[variant],
+          'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
+          variants[variant] ?? variants.primary,
           sizes[size],
           fullWidth ? 'w-full' : '',
           className,
