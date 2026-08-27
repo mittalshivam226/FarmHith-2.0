@@ -40,77 +40,99 @@ export default function FarmerLoginPage() {
   }
 
   if (isLoading) return (
-    <div className="auth-page"><div className="app-loading-spinner" /></div>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center"><Loader2 size={24} className="animate-spin text-slate-400" /></div>
   );
 
   return (
-    <div className="auth-page">
-      <div className="orb orb-1" /><div className="orb orb-2" />
-
-      {/* Back to home */}
-      <Link href="/" className="auth-back">
-        <div className="logo-icon" style={{ width: 32, height: 32, borderRadius: 8 }}><Leaf size={16} /></div>
-        <span className="logo-text">FarmHith</span>
-      </Link>
-
-      <div className="auth-card">
-        {/* Header */}
-        <div className="auth-header">
-          <div className="auth-icon-wrap"><Leaf size={22} /></div>
-          <h1 className="auth-title">Welcome back</h1>
-          <p className="auth-sub">अपने खाते में लॉगिन करें</p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleLogin} className="auth-form">
-          <div className="auth-field">
-            <label htmlFor="login-email" className="auth-label">Email Address</label>
-            <div className="auth-input-wrap">
-              <Mail size={16} className="auth-input-icon" />
-              <input
-                id="login-email"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="farmer@example.com"
-                className="auth-input"
-                required
-              />
-            </div>
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <Link href="/" className="inline-flex items-center justify-center gap-2 mb-6 text-slate-900 font-bold text-xl hover:opacity-80 transition-opacity">
+          <div className="bg-primary-600 text-white p-1.5 rounded-md">
+            <Leaf size={20} />
           </div>
-
-          <div className="auth-field">
-            <label htmlFor="login-password" className="auth-label">Password</label>
-            <div className="auth-input-wrap">
-              <Lock size={16} className="auth-input-icon" />
-              <input
-                id="login-password"
-                type={showPw ? 'text' : 'password'}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="auth-input"
-                required
-              />
-              <button type="button" className="auth-eye" onClick={() => setShowPw(v => !v)}>
-                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
-            </div>
-          </div>
-
-          {error && <div className="auth-error">{error}</div>}
-
-          <button id="login-btn" type="submit" disabled={loading} className="auth-submit">
-            {loading
-              ? <><Loader2 size={16} className="spin" /> Signing in…</>
-              : <>Sign In <ArrowRight size={16} /></>}
-          </button>
-        </form>
-
-        <p className="auth-switch">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="auth-switch-link">Create one free →</Link>
+          FarmHith
+        </Link>
+        <h2 className="mt-6 text-center text-2xl font-bold tracking-tight text-slate-900">
+          Welcome back, Farmer
+        </h2>
+        <p className="mt-2 text-center text-sm text-slate-600">
+          अपने खाते में लॉगिन करें
         </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow-sm border border-slate-200 sm:rounded-lg sm:px-10">
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label htmlFor="login-email" className="block text-sm font-medium text-slate-700">
+                Email Address
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail size={16} className="text-slate-400" />
+                </div>
+                <input
+                  id="login-email"
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="farmer@example.com"
+                  className="block w-full pl-10 sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="login-password" className="block text-sm font-medium text-slate-700">
+                Password
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock size={16} className="text-slate-400" />
+                </div>
+                <input
+                  id="login-password"
+                  type={showPw ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="block w-full pl-10 pr-10 sm:text-sm border-slate-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 py-2.5 border"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                  onClick={() => setShowPw(!showPw)}
+                >
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-md text-sm">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-colors"
+            >
+              {loading ? <Loader2 size={18} className="animate-spin mr-2" /> : null}
+              Sign In
+            </button>
+          </form>
+
+          <div className="mt-6 text-center text-sm">
+            <span className="text-slate-600">Don't have an account? </span>
+            <Link href="/register" className="font-medium text-primary-600 hover:text-primary-500">
+              Create one free &rarr;
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
