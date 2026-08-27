@@ -16,8 +16,6 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    console.log("API KEY CHECK:", process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? "EXISTS" : "MISSING");
-    console.log('Auth config:', auth.app.options);
     if (!isLoading && firebaseUser) {
       if (user?.role === 'ADMIN') {
         router.push('/dashboard');
@@ -48,31 +46,37 @@ export default function AdminLoginPage() {
   if (isLoading) return null;
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-3xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30 mb-4">
-            <ShieldCheck size={30} className="text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">FarmHith Admin</h1>
-          <p className="text-slate-400 mt-1">Restricted Access — Platform Administration</p>
+    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <div className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-emerald-600 mb-4 shadow-sm">
+          <ShieldCheck size={24} className="text-white" />
         </div>
+        <h2 className="text-center text-2xl font-bold tracking-tight text-white">
+          FarmHith Admin
+        </h2>
+        <p className="mt-2 text-center text-sm text-slate-400">
+          Restricted Access — Platform Administration
+        </p>
+      </div>
 
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         {/* Warning banner */}
-        <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-2xl px-4 py-3 mb-6">
-          <AlertTriangle size={16} className="text-amber-400 shrink-0" />
-          <p className="text-xs text-amber-400">This portal is for FarmHith administrators only. Unauthorized access is prohibited.</p>
+        <div className="flex items-center gap-2 bg-amber-900/30 border border-amber-700/50 rounded-md px-4 py-3 mb-6 mx-4 sm:mx-0">
+          <AlertTriangle size={16} className="text-amber-500 flex-shrink-0" />
+          <p className="text-xs text-amber-200">This portal is for FarmHith administrators only. Unauthorized access is prohibited.</p>
         </div>
 
-        <div className="bg-slate-800 rounded-3xl shadow-2xl border border-slate-700 p-8">
+        <div className="bg-slate-800 py-8 px-4 shadow-sm border border-slate-700 sm:rounded-lg sm:px-10 mx-4 sm:mx-0">
           <h2 className="text-xl font-semibold text-white mb-1">Admin Sign In</h2>
           <p className="text-sm text-slate-400 mb-6">Enter your administrator credentials</p>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1.5">Admin Email</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300">
+                Admin Email
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail size={16} className="text-slate-500" />
                 </div>
                 <input
@@ -81,15 +85,18 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@farmhith.in"
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  className="block w-full pl-10 sm:text-sm border-slate-600 rounded-md shadow-sm bg-slate-900 text-white placeholder-slate-500 focus:ring-emerald-500 focus:border-emerald-500 py-2.5 border px-3"
+                  required
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300">
+                Password
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock size={16} className="text-slate-500" />
                 </div>
                 <input
@@ -98,20 +105,26 @@ export default function AdminLoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  className="block w-full pl-10 pr-10 sm:text-sm border-slate-600 rounded-md shadow-sm bg-slate-900 text-white placeholder-slate-500 focus:ring-emerald-500 focus:border-emerald-500 py-2.5 border px-3"
+                  required
                 />
               </div>
             </div>
 
-            {error && <p className="text-sm text-red-400 bg-red-900/30 px-3 py-2 rounded-lg">{error}</p>}
+            {error && (
+              <div className="bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-md text-sm">
+                {error}
+              </div>
+            )}
 
             <button
               id="admin-login-btn"
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-green-500/20"
+              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 transition-colors"
             >
-              {loading ? <><Loader2 size={16} className="animate-spin" /> Authenticating…</> : <>Access Admin Panel <ArrowRight size={16} /></>}
+              {loading ? <Loader2 size={18} className="animate-spin mr-2" /> : null}
+              Access Admin Panel
             </button>
           </form>
         </div>
