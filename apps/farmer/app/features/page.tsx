@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import WebsiteNav from '../components/WebsiteNav';
@@ -6,19 +8,17 @@ import {
   ArrowRight, Leaf, Shield, TrendingUp, Clock,
   MapPin, FileText, Star, Zap, Globe,
 } from 'lucide-react';
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Features — FarmHith',
-  description: 'Explore FarmHith\'s precision soil testing, expert Soil-Mitra consultations, and crop residue marketplace.',
-};
+import { CursorGlow } from '../components/CursorGlow';
+import { FadeIn, SlideIn, ZoomIn, StaggerText } from '../components/Animations';
+import { motion } from 'framer-motion';
 
 const FEATURE_SECTIONS = [
   {
     tag: 'Soil Testing',
     icon: <FlaskConical size={28} />,
-    color: '#059669',
-    shadow: 'rgba(5,150,105,0.15)',
+    color: 'text-success-400',
+    bgColor: 'bg-success-500/10',
+    borderColor: 'border-success-500/30',
     title: 'Precision Soil Testing — Decoded.',
     sub: 'No more guesswork. Get lab-certified, crop-specific soil analysis in days, not weeks.',
     points: [
@@ -31,13 +31,14 @@ const FEATURE_SECTIONS = [
     ],
     cta: '/register',
     ctaText: 'Book Your First Test',
-    image: 'https://images.unsplash.com/photo-1530836369250-ef71a3f5e48d?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?q=80&w=1000&auto=format&fit=crop', // Dark lab test image
   },
   {
     tag: 'Soil-Mitra Consultations',
     icon: <Users size={28} />,
-    color: '#eab308',
-    shadow: 'rgba(234,179,8,0.15)',
+    color: 'text-warning-400',
+    bgColor: 'bg-warning-500/10',
+    borderColor: 'border-warning-500/30',
     title: 'Expert Guidance — On Demand.',
     sub: 'Talk to a verified agricultural expert whenever you need help. No waiting rooms. No travel.',
     points: [
@@ -55,8 +56,9 @@ const FEATURE_SECTIONS = [
   {
     tag: 'Residue Marketplace',
     icon: <ShoppingBasket size={28} />,
-    color: '#0284c7',
-    shadow: 'rgba(2,132,199,0.15)',
+    color: 'text-info-400',
+    bgColor: 'bg-info-500/10',
+    borderColor: 'border-info-500/30',
     title: 'Turn Stubble Into Income.',
     sub: 'Stop burning. Start earning. Connect with bio-pellet plants that want exactly what your field produces.',
     points: [
@@ -69,70 +71,110 @@ const FEATURE_SECTIONS = [
     ],
     cta: '/register',
     ctaText: 'Start Selling',
-    image: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=1000&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=1000&auto=format&fit=crop',
   },
 ];
 
 export default function FeaturesPage() {
   return (
-    <div className="landing-root">
+    <div className="landing-root bg-slate-950 text-slate-100 min-h-screen">
+      <CursorGlow />
       <WebsiteNav />
 
       {/* Hero */}
-      <section className="hero" style={{ paddingBottom: '4rem' }}>
-        <div className="hero-badge">
-          <Leaf size={14} />
-          <span>Platform Features</span>
+      <section className="relative pt-32 pb-16 px-6 text-center overflow-hidden border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+        <div className="cyber-grid opacity-20" />
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <FadeIn>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-400 text-sm font-semibold tracking-wide uppercase shadow-glow-sm mb-8">
+              <Leaf size={14} />
+              <span>Platform Features</span>
+            </div>
+          </FadeIn>
+          <StaggerText 
+            text="Built for the Modern Indian Farmer." 
+            className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight" 
+            delay={0.1}
+          />
+          <FadeIn delay={0.4}>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+              Three deeply integrated services — each solving a real problem, together transforming how India farms.
+            </p>
+          </FadeIn>
         </div>
-        <h1 className="hero-title">
-          Built for the <br /><span className="text-emerald">Modern Indian Farmer.</span>
-        </h1>
-        <p className="hero-sub" style={{ maxWidth: '800px', margin: '1.5rem auto' }}>
-          Three deeply integrated services — each solving a real problem, together transforming how India farms.
-        </p>
       </section>
 
       {/* Feature Sections */}
       {FEATURE_SECTIONS.map((f, i) => (
-        <section key={f.tag} className="section" style={{ background: i % 2 === 1 ? '#f8fafc' : 'transparent', borderTop: i % 2 === 1 ? '1px solid #f1f5f9' : 'none', borderBottom: i % 2 === 1 ? '1px solid #f1f5f9' : 'none' }}>
-          <div className={`split-section ${i % 2 === 1 ? 'reverse' : ''}`} style={{ flexDirection: i % 2 === 1 ? 'row-reverse' : 'row' }}>
-            <div className="split-image">
-                <img src={f.image} alt={f.tag} />
-            </div>
-            <div className="split-content">
-                <div className="section-label" style={{ color: f.color, borderColor: `${f.color}40`, background: `${f.color}10` }}>
-                    <span style={{ color: f.color }}>{f.icon}</span> {f.tag}
+        <section key={f.tag} className={`py-24 px-6 border-b border-slate-800 ${i % 2 === 1 ? 'bg-slate-900/50' : 'bg-slate-950'}`}>
+          <div className={`max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
+            
+            {/* Image Side */}
+            <div className="flex-1 w-full">
+              <ZoomIn>
+                <div className="relative rounded-2xl overflow-hidden aspect-video lg:aspect-square border border-slate-700 shadow-2xl group">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" 
+                    style={{ backgroundImage: `url(${f.image})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                  <div className={`absolute inset-0 ${f.bgColor} mix-blend-overlay`} />
                 </div>
-                <h2 className="section-title">{f.title}</h2>
-                <p className="section-sub">{f.sub}</p>
-                <div className="features-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
-                  {f.points.map(p => (
-                    <div key={p.title} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: f.color, fontWeight: 600 }}>
+              </ZoomIn>
+            </div>
+
+            {/* Content Side */}
+            <div className="flex-1 space-y-8">
+              <SlideIn direction={i % 2 === 1 ? 'right' : 'left'}>
+                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border ${f.borderColor} ${f.bgColor} ${f.color} text-sm font-semibold tracking-wider mb-2`}>
+                  {f.icon} {f.tag}
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">{f.title}</h2>
+              </SlideIn>
+              
+              <SlideIn direction={i % 2 === 1 ? 'right' : 'left'} delay={0.2}>
+                <p className="text-lg text-slate-400 leading-relaxed">{f.sub}</p>
+              </SlideIn>
+
+              <div className="grid sm:grid-cols-2 gap-6 mt-8">
+                {f.points.map((p, idx) => (
+                  <FadeIn key={p.title} delay={0.3 + (idx * 0.1)}>
+                    <div className="flex flex-col gap-2">
+                      <div className={`flex items-center gap-2 font-bold ${f.color}`}>
                         {p.icon}
                         <span>{p.title}</span>
                       </div>
-                      <p style={{ color: '#475569', fontSize: '0.9rem', lineHeight: '1.5' }}>{p.desc}</p>
+                      <p className="text-slate-400 text-sm leading-relaxed">{p.desc}</p>
                     </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: '2rem' }}>
-                    <Link href={f.cta} className="btn-primary-sm" style={{ display: 'inline-flex', padding: '0.75rem 1.5rem', fontSize: '1rem', background: f.color, borderColor: f.color }}>
-                        {f.ctaText} <ArrowRight size={16} />
-                    </Link>
-                </div>
+                  </FadeIn>
+                ))}
+              </div>
+
+              <SlideIn direction={i % 2 === 1 ? 'right' : 'left'} delay={0.6}>
+                <Link href={f.cta} className={`inline-flex items-center gap-2 px-6 py-3 mt-4 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-colors border border-slate-700 hover:border-slate-600 shadow-glow-sm`}>
+                  {f.ctaText} <ArrowRight size={18} />
+                </Link>
+              </SlideIn>
             </div>
+
           </div>
         </section>
       ))}
 
       {/* Comparison strip */}
-      <section className="section" style={{ background: '#020617', color: '#ffffff', borderRadius: '2rem', margin: '4rem 1rem', padding: '4rem 2rem' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-            <div className="section-label" style={{ background: 'transparent', borderColor: '#334155', color: '#94a3b8' }}><Zap size={14} /> Why FarmHith</div>
-            <h2 className="section-title" style={{ color: '#ffffff' }}>The old way vs. <span className="text-emerald">the FarmHith way.</span></h2>
-            
-            <div style={{ display: 'grid', gap: '1.5rem', marginTop: '3rem' }}>
+      <section className="py-24 px-6 relative overflow-hidden bg-slate-900">
+        <div className="absolute inset-0 bg-primary-500/5 mix-blend-screen pointer-events-none" />
+        <div className="max-w-5xl mx-auto relative z-10">
+          <FadeIn className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-sm font-semibold uppercase tracking-wider mb-4 border border-slate-700">
+              <Zap size={14} className="text-primary-400" /> Why FarmHith
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-white">
+              The old way vs. <span className="text-primary-400">the FarmHith way.</span>
+            </h2>
+          </FadeIn>
+          
+          <div className="space-y-4">
             {[
                 { old: 'Travel 30 km to a government lab', new: 'Book online, get sample collected at your field' },
                 { old: 'Wait 6–8 weeks for test results', new: 'Digital report delivered in 5 days' },
@@ -141,62 +183,82 @@ export default function FeaturesPage() {
                 { old: 'No record of your farm history', new: 'Full digital history on your dashboard' },
                 { old: 'Payment delays for crop transactions', new: 'Bank transfer within 7 days' },
             ].map((c, i) => (
-                <div key={i} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', background: '#0f172a', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #1e293b', alignItems: 'center' }}>
-                    <div style={{ flex: 1, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <span style={{ color: '#ef4444' }}>❌</span> 
-                        <span style={{ textDecoration: 'line-through' }}>{c.old}</span>
+              <SlideIn key={i} direction={i % 2 === 0 ? 'left' : 'right'} delay={i * 0.1}>
+                <div className="flex flex-col sm:flex-row gap-4 bg-slate-950 p-6 rounded-xl border border-slate-800 items-center justify-between hud-element hover:border-primary-500/30 transition-colors">
+                    <div className="flex-1 text-slate-500 flex items-center gap-3">
+                        <span className="text-error-500">❌</span> 
+                        <span className="line-through">{c.old}</span>
                     </div>
-                    <div style={{ flex: 1, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500 }}>
-                        <CheckCircle size={20} style={{ color: '#10b981', flexShrink: 0 }} /> 
+                    <div className="flex-1 text-slate-100 flex items-center gap-3 font-semibold">
+                        <CheckCircle size={20} className="text-success-500 shrink-0" /> 
                         {c.new}
                     </div>
                 </div>
+              </SlideIn>
             ))}
-            </div>
+          </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="cta-section">
-        <div className="cta-inner">
-          <div className="cta-glow" />
-          <div className="section-label" style={{ background: '#ffffff', color: '#059669', borderColor: '#d1fae5' }}><Leaf size={14} /> Get Started</div>
-          <h2 className="cta-title">Ready to farm smarter?<br /><span className="text-emerald">It&apos;s free to join.</span></h2>
-          <div className="hero-actions">
-            <Link href="/register" className="btn-primary-lg">Create Free Account <ArrowRight size={18} /></Link>
-            <Link href="/login" className="btn-outline-lg">Already a member? Log in</Link>
-          </div>
+      <section className="py-32 px-6 relative overflow-hidden text-center bg-slate-950">
+        <div className="cyber-grid opacity-20" />
+        <div className="relative z-10 max-w-3xl mx-auto">
+          <FadeIn>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-sm font-semibold uppercase tracking-wider mb-4 border border-slate-700">
+              <Leaf size={14} className="text-primary-400" /> Get Started
+            </div>
+            <h2 className="text-5xl font-black text-white mb-8">
+              Ready to farm smarter?<br /><span className="text-primary-400">It&apos;s free to join.</span>
+            </h2>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link href="/register" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-primary-500 text-slate-950 font-bold text-lg hover:bg-primary-400 transition-all shadow-glow-md">
+                Create Free Account <ArrowRight size={18} />
+              </Link>
+              <Link href="/login" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-slate-800/80 backdrop-blur-md border border-slate-700 text-white font-bold text-lg hover:bg-slate-700 transition-all">
+                Already a member? Log in
+              </Link>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="footer-inner">
-          <div className="footer-brand">
-            <div className="logo"><div className="logo-icon"><Leaf size={20} /></div><span className="logo-text">FarmHith</span></div>
-            <p className="footer-tagline">Empowering Indian farmers with technology, expertise, and fair markets.</p>
+      <footer className="border-t border-slate-800 bg-slate-950 py-16 px-6 relative z-10">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-12">
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2 text-white font-bold text-xl mb-4">
+              <Leaf className="text-primary-400" /> FarmHith
+            </div>
+            <p className="text-slate-500 text-sm">Empowering Indian farmers with technology, expertise, and fair markets.</p>
           </div>
-          <div className="footer-links">
-            <div>
-              <p className="footer-heading">Services</p>
-              <Link href="/dashboard/soil-test" className="footer-link">Soil Testing</Link>
-              <Link href="/dashboard/mitra" className="footer-link">Soil-Mitra</Link>
-              <Link href="/dashboard/marketplace" className="footer-link">Residue Market</Link>
+          <div>
+            <h4 className="text-white font-semibold mb-4">Services</h4>
+            <div className="space-y-2 flex flex-col text-sm">
+              <Link href="/dashboard/soil-test" className="text-slate-400 hover:text-primary-400 transition-colors">Soil Testing</Link>
+              <Link href="/dashboard/mitra" className="text-slate-400 hover:text-primary-400 transition-colors">Soil-Mitra</Link>
+              <Link href="/dashboard/marketplace" className="text-slate-400 hover:text-primary-400 transition-colors">Residue Market</Link>
             </div>
-            <div>
-              <p className="footer-heading">Company</p>
-              <Link href="/about" className="footer-link">About Us</Link>
-              <Link href="/features" className="footer-link">Features</Link>
-              <a href="#testimonials" className="footer-link">Farmer Stories</a>
+          </div>
+          <div>
+            <h4 className="text-white font-semibold mb-4">Company</h4>
+            <div className="space-y-2 flex flex-col text-sm">
+              <Link href="/about" className="text-slate-400 hover:text-primary-400 transition-colors">About Us</Link>
+              <Link href="/features" className="text-slate-400 hover:text-primary-400 transition-colors">Features</Link>
+              <Link href="/blog" className="text-slate-400 hover:text-primary-400 transition-colors">Blog</Link>
             </div>
-            <div>
-              <p className="footer-heading">Account</p>
-              <Link href="/register" className="footer-link">Register</Link>
-              <Link href="/login" className="footer-link">Login</Link>
+          </div>
+          <div>
+            <h4 className="text-white font-semibold mb-4">Legal</h4>
+            <div className="space-y-2 flex flex-col text-sm">
+              <Link href="/privacy" className="text-slate-400 hover:text-primary-400 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="text-slate-400 hover:text-primary-400 transition-colors">Terms of Service</Link>
             </div>
           </div>
         </div>
-        <div className="footer-bottom"><p>© {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd.</p></div>
+        <div className="max-w-7xl mx-auto pt-8 border-t border-slate-800 text-center text-slate-600 text-sm">
+          &copy; {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.
+        </div>
       </footer>
     </div>
   );
