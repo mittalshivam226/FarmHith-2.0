@@ -6,6 +6,8 @@ import { PageShell, PortalSidebar, TopBar, PageLoader } from '@farmhith/ui';
 import {
   LayoutDashboard, FlaskConical, Users, ShoppingBasket, History, Leaf
 } from 'lucide-react';
+import { CursorGlow } from '../components/CursorGlow';
+import { FadeIn } from '../components/Animations';
 
 const navItems = [
   { label: 'Dashboard',   href: '/dashboard',             icon: <LayoutDashboard size={18} /> },
@@ -65,7 +67,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         />
       }
     >
-      {children}
+      <CursorGlow />
+      <FadeIn delay={0.1} duration={0.4}>
+        {children}
+      </FadeIn>
     </PageShell>
   );
 }
