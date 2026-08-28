@@ -1,38 +1,18 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
 import {
-  FlaskConical, Users, ShoppingBasket, ArrowRight,
+  FlaskConical, Users, ArrowRight,
   Leaf, Shield, TrendingUp, Star, ChevronRight,
-  CheckCircle, Video, FileText, Award
+  CheckCircle, Award
 } from 'lucide-react';
 import WebsiteNav from './components/WebsiteNav';
+import { CursorGlow } from './components/CursorGlow';
+import { FadeIn, SlideIn, ZoomIn, StaggerText } from './components/Animations';
+import { motion } from 'framer-motion';
 
-/* ─── Animated counter ─────────────────────────────────────── */
-function Counter({ target, suffix = '' }: { target: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      observer.disconnect();
-      let start = 0;
-      const step = Math.ceil(target / 60);
-      const id = setInterval(() => {
-        start += step;
-        if (start >= target) { setCount(target); clearInterval(id); }
-        else setCount(start);
-      }, 20);
-    });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [target]);
-  return <span ref={ref}>{count.toLocaleString('en-IN')}{suffix}</span>;
-}
-
-/* ─── Main page ─────────────────────────────────────────────── */
 export default function LandingPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
@@ -45,306 +25,286 @@ export default function LandingPage() {
 
   const testimonials = [
     {
-      name: 'Ramesh Kumar',
-      location: 'Ludhiana, Punjab',
-      crop: 'Wheat & Paddy',
-      stars: 5,
+      name: 'Ramesh Kumar', location: 'Ludhiana, Punjab', crop: 'Wheat & Paddy', stars: 5,
       text: 'Maine paddy straw se ₹18,000 kamaye jo pehle main jala deta tha. FarmHith ne meri soch badal di.',
       avatar: 'RK',
     },
     {
-      name: 'Sunita Devi',
-      location: 'Nashik, Maharashtra',
-      crop: 'Sugarcane',
-      stars: 5,
+      name: 'Sunita Devi', location: 'Nashik, Maharashtra', crop: 'Sugarcane', stars: 5,
       text: 'Soil-Mitra se baat ki, unhone exact fertiliser bataya. Is season yield 40% badh gayi. Bahut shukriya!',
       avatar: 'SD',
     },
     {
-      name: 'Gurpreet Singh',
-      location: 'Amritsar, Punjab',
-      crop: 'Cotton',
-      stars: 5,
+      name: 'Gurpreet Singh', location: 'Amritsar, Punjab', crop: 'Cotton', stars: 5,
       text: 'Soil test report se pata chala ki mere khet mein zinc ki kami hai. Lab report was so detailed and helpful.',
       avatar: 'GS',
     },
     {
-      name: 'Vikram Patel',
-      location: 'Surat, Gujarat',
-      crop: 'Groundnut',
-      stars: 5,
+      name: 'Vikram Patel', location: 'Surat, Gujarat', crop: 'Groundnut', stars: 5,
       text: 'FarmHith has completely digitized how I manage my soil. The Mitras are very knowledgeable.',
       avatar: 'VP',
     }
   ];
 
   return (
-    <div className="landing-root">
-      {/* ═══════════════ NAVBAR ══════════════════════════════ */}
+    <div className="landing-root bg-slate-950 text-slate-100 min-h-screen selection:bg-primary-500/30 selection:text-primary-100 relative">
+      <CursorGlow />
       <WebsiteNav />
 
-      {/* ═══════════════ HERO ════════════════════════════════ */}
-      <section className="hero data-flow-bg relative overflow-hidden">\n        <div className="cyber-grid" />\n        <div className="digital-overlay" />\n        <div className="relative z-10 w-full flex flex-col items-center">
-        <div className="hero-badge">
-          <Leaf size={14} />
-          <span>Trusted by 50,000+ Indian Farmers</span>
-        </div>
+      {/* HERO SECTION */}
+      <section className="relative overflow-hidden min-h-screen flex items-center justify-center pt-24 pb-16 px-6">
+        {/* Cinematic Background */}
+        <motion.div 
+          className="absolute inset-0 z-0"
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 10, ease: 'easeOut' }}
+        >
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center" />
+          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
+          <div className="cyber-grid opacity-30" />
+        </motion.div>
 
-        <h1 className="hero-title">
-          Test your soil.<br />
-          <span className="text-emerald">Consult experts.</span><br />
-          Sell residue.
-        </h1>
-
-        <p className="hero-sub">
-          Book certified lab tests, get 1-on-1 guidance from Soil-Mitras, and
-          earn from crop residue — one platform for Indian farmers.
-        </p>
-
-        <div className="hero-actions">
-          <Link href="/register" className="btn-primary-lg">
-            Start for Free <ArrowRight size={18} />
-          </Link>
-          <a href="#how-it-works" className="btn-outline-lg">
-            See how it works
-          </a>
-        </div>
-
-        {/* Triple Block Layout (Inspiration from Wix) */}
-        <div className="w-full max-w-6xl mx-auto mt-16 grid grid-cols-1 md:grid-cols-3 gap-6" style={{ animation: 'heroFadeUp 1s 0.5s ease both' }}>
-          
-          {/* Block 1: Laboratory */}
-          <div className="relative rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-end p-8 shadow-lg group">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90" />
-            <div className="relative z-10 text-left">
-              <h3 className="text-white text-2xl font-bold mb-2">About Our Laboratory</h3>
-              <p className="text-gray-200 text-sm mb-4">NABL certified facilities ensuring maximum accuracy.</p>
-              <Link href="/about" className="inline-flex items-center gap-2 text-white font-semibold hover:text-primary-400 transition-colors">
-                Learn More <ArrowRight size={16} />
-              </Link>
+        <div className="relative z-10 max-w-6xl w-full mx-auto text-center flex flex-col items-center">
+          <FadeIn delay={0.2}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-400 text-sm font-semibold tracking-wide uppercase shadow-glow-sm mb-8 backdrop-blur-md">
+              <Leaf size={16} />
+              <span>The Future of Indian Agriculture</span>
             </div>
-          </div>
+          </FadeIn>
 
-          {/* Block 2: Soil Services (Tan Block) */}
-          <div className="relative rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-center p-10 shadow-lg bg-slate-800/80 backdrop-blur-md text-slate-100 border border-slate-700 shadow-glow-sm group">
-            <div className="relative z-10 text-center">
-              <FlaskConical size={48} className="mx-auto mb-6 opacity-80" />
-              <h3 className="text-3xl font-extrabold mb-4">Soil Testing Services</h3>
-              <p className="text-slate-300 text-base mb-8 font-medium">Dedicated to providing accurate soil testing to help you optimize yields and make informed decisions.</p>
-              <Link href="/dashboard/soil-test" className="btn-primary-sm justify-center py-3 text-lg">
-                Get Started
-              </Link>
-            </div>
-          </div>
+          <StaggerText 
+            text="Farming upgraded for the digital age." 
+            className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-white mb-6 leading-tight max-w-5xl" 
+            delay={0.1}
+          />
 
-          {/* Block 3: Educational Resources */}
-          <div className="relative rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-end p-8 shadow-lg group">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90" />
-            <div className="relative z-10 text-left">
-              <h3 className="text-white text-2xl font-bold mb-2">Educational Resources</h3>
-              <p className="text-gray-200 text-sm mb-4">Enhance your understanding of soil management.</p>
-              <Link href="/features" className="inline-flex items-center gap-2 text-white font-semibold hover:text-primary-400 transition-colors">
-                Explore Resources <ArrowRight size={16} />
-              </Link>
-            </div>
-          </div>
-          
-        </div>
-      \n        </div></section>
-
-      {/* ═══════════════ STATS STRIP ════════════════════════ */}
-      <section className="stats-strip">
-        {[
-          { label: 'Farmers Registered', value: 50000, suffix: '+' },
-          { label: 'Soil Tests Done', value: 124000, suffix: '+' },
-          { label: 'Crop Residue Sold (Tons)', value: 84000, suffix: '+' },
-          { label: 'States Covered', value: 18, suffix: '' },
-        ].map((s) => (
-          <div key={s.label} className="stat-item">
-            <p className="stat-value">
-              <Counter target={s.value} suffix={s.suffix} />
+          <FadeIn delay={0.6}>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Transform your field into a living data interface. Book certified soil tests, consult with expert Soil-Mitras, and sell crop residue effortlessly.
             </p>
-            <p className="stat-label">{s.label}</p>
-          </div>
-        ))}
+          </FadeIn>
+
+          <FadeIn delay={0.8} className="flex flex-col sm:flex-row gap-4">
+            <Link href="/register" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-primary-500 text-slate-950 font-bold text-lg hover:bg-primary-400 transition-all shadow-glow-md hover:shadow-glow-lg group">
+              Enter Platform <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <a href="#how-it-works" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-slate-800/80 backdrop-blur-md border border-slate-700 text-white font-bold text-lg hover:bg-slate-700 hover:border-slate-600 transition-all">
+              Discover Features
+            </a>
+          </FadeIn>
+        </div>
       </section>
 
-      {/* ═══════════════ FEATURES ════════════════════════════ */}
-      <section id="features" className="section">
-        <div className="section-label">Core Services</div>
-        <h2 className="section-title">Everything your farm needs,<br /><span className="text-emerald">in one place.</span></h2>
-        <p className="section-sub">Three powerful services designed to maximise your farm&apos;s potential.</p>
-
-        <div className="features-grid">
+      {/* STATS STRIP */}
+      <section className="relative z-10 border-y border-slate-800 bg-slate-950/50 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-slate-800">
           {[
-            {
-              icon: <FlaskConical size={32} />,
-              tag: 'Soil Excellence',
-              title: 'Precision Soil Testing',
-              desc: 'Book certified lab tests for your fields. Get detailed NPK reports, pH analysis, and personalised crop recommendations — all in your language.',
-              bullets: ['NABL-certified labs', 'Reports in 5 days', 'Multilingual results'],
-              cta: '/dashboard/soil-test',
-              ctaText: 'Book a Test',
-            },
-            {
-              icon: <Video size={32} />,
-              tag: 'Expert Guidance',
-              title: 'Your Soil-Mitra Awaits',
-              desc: 'Connect with verified agricultural experts for 1-on-1 video consultations. Solve crop diseases, soil problems, and yield challenges — live.',
-              bullets: ['Video & voice calls', 'Share your soil reports', 'Rated & verified experts'],
-              cta: '/dashboard/mitra',
-              ctaText: 'Find a Mitra',
-            },
-            {
-              icon: <ShoppingBasket size={32} />,
-              tag: 'Waste to Wealth',
-              title: 'Sell Crop Residue',
-              desc: 'Stop burning stubble. List your paddy straw, wheat straw, and other crop residue on the marketplace and earn from bio-pellet plants.',
-              bullets: ['FarmHith assured prices', 'Free pickup logistics', 'Same-week payment'],
-              cta: '/dashboard/marketplace',
-              ctaText: 'List Your Residue',
-            },
-          ].map((f) => (
-            <div key={f.title} className="feature-card hud-element">
-              <div className="feature-icon-wrap">
-                {f.icon}
-              </div>
-              <div className="feature-tag">{f.tag}</div>
-              <h3 className="feature-title">{f.title}</h3>
-              <p className="feature-desc">{f.desc}</p>
-              <ul className="feature-bullets">
-                {f.bullets.map(b => (
-                  <li key={b}><CheckCircle size={16} />{b}</li>
-                ))}
-              </ul>
-              <Link href={f.cta} className="feature-cta">
-                {f.ctaText} <ChevronRight size={16} />
-              </Link>
-            </div>
-          ))}
-        </div>
-
-        <div className="split-section">
-            <div className="split-image">
-                <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1000&auto=format&fit=crop" alt="Smart Farming" />
-            </div>
-            <div className="split-content">
-                <div className="section-label"><Award size={14} /> Premium Quality</div>
-                <h2 className="section-title">Farming upgraded for the digital age.</h2>
-                <p className="section-sub">We combine traditional agricultural wisdom with modern technology to deliver the best results for your farm. Easy to use, fully transparent, and always focused on your growth.</p>
-                <ul className="feature-bullets" style={{ fontSize: '1.1rem', gap: '1rem' }}>
-                    <li><CheckCircle size={20} /> Real-time tracking of soil test reports</li>
-                    <li><CheckCircle size={20} /> Transparent pricing for crop residue</li>
-                    <li><CheckCircle size={20} /> Verified network of expert Soil-Mitras</li>
-                </ul>
-                <div style={{ marginTop: '2rem' }}>
-                    <Link href="/features" className="btn-primary-sm" style={{ display: 'inline-flex', padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
-                        Explore All Features <ArrowRight size={16} />
-                    </Link>
-                </div>
-            </div>
-        </div>
-
-      </section>
-
-      {/* ═══════════════ HOW IT WORKS ════════════════════════ */}
-      <section id="how-it-works" className="section how-section">
-        <div className="section-label">How It Works</div>
-        <h2 className="section-title">From field to results<br /><span className="text-gold">in 3 easy steps.</span></h2>
-
-        <div className="steps-grid">
-          {[
-            { num: '01', title: 'Create Your Account', desc: 'Register in under 2 minutes — just your name, village, and primary crop. No complex forms.', icon: <Shield size={32} /> },
-            { num: '02', title: 'Choose Your Service', desc: 'Book a soil test, find a Mitra expert, or list your crop residue for sale. Everything in one dashboard.', icon: <Leaf size={32} /> },
-            { num: '03', title: 'Grow & Earn More', desc: 'Act on expert recommendations, get paid for your residue, and watch your farm thrive season after season.', icon: <TrendingUp size={32} /> },
-          ].map((step, i) => (
-            <div key={step.num} className="step-card hud-element">
-              <div className="step-num">{step.num}</div>
-              <div className="step-icon">{step.icon}</div>
-              <h3 className="step-title">{step.title}</h3>
-              <p className="step-desc">{step.desc}</p>
-            </div>
+            { value: '50K+', label: 'Active Farmers' },
+            { value: '120+', label: 'NABL Certified Labs' },
+            { value: '₹4.2Cr', label: 'Residue Traded' },
+            { value: '98%', label: 'Success Rate' },
+          ].map((stat, i) => (
+            <FadeIn key={i} delay={i * 0.1} className="p-8 text-center hud-element">
+              <div className="text-4xl md:text-5xl font-black text-primary-400 mb-2 tracking-tight">{stat.value}</div>
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">{stat.label}</div>
+            </FadeIn>
           ))}
         </div>
       </section>
 
-      {/* ═══════════════ TESTIMONIALS ════════════════════════ */}
-      <section id="testimonials" className="section" style={{ backgroundColor: 'var(--color-surface)' }}>
-        <div className="section-label"><Star size={14} /> Farmer Stories</div>
-        <h2 className="section-title">Real farmers.<br /><span className="text-emerald">Real results.</span></h2>
+      {/* HOW IT WORKS */}
+      <section id="how-it-works" className="py-24 px-6 relative">
+        <div className="max-w-7xl mx-auto">
+          <FadeIn className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Precision Workflow</h2>
+            <p className="text-lg text-slate-400 max-w-2xl mx-auto">Data-driven agriculture made simple in three seamless steps.</p>
+          </FadeIn>
 
-        <div className="testimonials-wrapper mt-10">
-          <div className="testimonials-track">
-            {[...testimonials, ...testimonials].map((t, idx) => (
-              <div key={`${t.name}-${idx}`} className="testimonial-card">
-                <div className="testimonial-stars">
-                  {Array(t.stars).fill(0).map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
-                </div>
-                <p className="testimonial-text">&ldquo;{t.text}&rdquo;</p>
-                <div className="testimonial-author">
-                  <div className="testimonial-avatar">{t.avatar}</div>
-                  <div>
-                    <p className="testimonial-name">{t.name}</p>
-                    <p className="testimonial-meta">{t.crop} · {t.location}</p>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { num: '01', title: 'Connect', desc: 'Create your digital profile in under 2 minutes.', icon: <Shield size={32} /> },
+              { num: '02', title: 'Analyze', desc: 'Book a soil test or find an expert for precise insights.', icon: <FlaskConical size={32} /> },
+              { num: '03', title: 'Optimize', desc: 'Act on data to increase yield and monetize crop residue.', icon: <TrendingUp size={32} /> },
+            ].map((step, i) => (
+              <SlideIn key={step.num} delay={i * 0.2} direction="left" className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-b from-primary-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                <div className="relative bg-slate-900/50 backdrop-blur-sm border border-slate-800 p-8 rounded-2xl hover:border-primary-500/30 transition-all duration-300 hud-element h-full">
+                  <div className="text-primary-500/20 font-black text-6xl absolute top-4 right-6 group-hover:text-primary-500/40 transition-colors">
+                    {step.num}
                   </div>
+                  <div className="text-primary-400 mb-6 bg-primary-500/10 w-16 h-16 rounded-xl flex items-center justify-center border border-primary-500/20 shadow-glow-sm">
+                    {step.icon}
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">{step.title}</h3>
+                  <p className="text-slate-400 leading-relaxed">{step.desc}</p>
                 </div>
-              </div>
+              </SlideIn>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══════════════ FINAL CTA ═══════════════════════════ */}
-      <section className="cta-section">
-        <div className="cta-inner">
-          <div className="section-label" style={{ background: 'transparent', color: 'var(--color-primary)', borderColor: 'var(--color-primary-dark)' }}>Get Started</div>
-          <h2 className="cta-title">Join FarmHith today.<br /><span className="text-emerald">It&apos;s free.</span></h2>
-          <p className="cta-sub">No hidden fees. Trusted by farmers across 18 states.</p>
-          <div className="hero-actions">
-            <Link href="/register" className="btn-primary-lg">
-              Create Free Account <ArrowRight size={18} />
-            </Link>
-            <Link href="/login" className="btn-outline-lg">Already a member? Log in</Link>
+      {/* FEATURE SHOWCASE */}
+      <section className="py-24 px-6 bg-slate-900 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary-500/5 rounded-full blur-[120px] mix-blend-screen pointer-events-none" />
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <ZoomIn>
+              <div className="relative rounded-2xl overflow-hidden aspect-square lg:aspect-auto lg:h-[600px] border border-slate-700 shadow-2xl group">
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                <div className="absolute inset-0 bg-primary-500/10 mix-blend-overlay" />
+                <div className="absolute bottom-0 left-0 right-0 p-8">
+                  <div className="bg-slate-900/80 backdrop-blur-md border border-slate-700 rounded-xl p-6 shadow-glow-sm">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-success-500/20 flex items-center justify-center border border-success-500/30">
+                        <CheckCircle className="text-success-400" size={24} />
+                      </div>
+                      <div>
+                        <div className="text-white font-bold">Soil Analysis Complete</div>
+                        <div className="text-slate-400 text-sm">Nitrogen levels optimal</div>
+                      </div>
+                    </div>
+                    <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        whileInView={{ width: '85%' }}
+                        transition={{ duration: 1.5, delay: 0.5 }}
+                        className="h-full bg-primary-500 shadow-glow-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ZoomIn>
+            
+            <div className="space-y-8">
+              <FadeIn>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-sm font-semibold uppercase tracking-wider mb-2">
+                  <Award size={14} className="text-primary-400" /> Premium Quality
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+                  Intelligent insights for <br/><span className="text-primary-400">maximum yield.</span>
+                </h2>
+              </FadeIn>
+              
+              <FadeIn delay={0.2}>
+                <p className="text-lg text-slate-400 leading-relaxed">
+                  We combine traditional agricultural wisdom with modern technology to deliver the best results for your farm. Easy to use, fully transparent, and always focused on your growth.
+                </p>
+              </FadeIn>
+
+              <div className="space-y-4">
+                {[
+                  'Real-time tracking of soil test reports',
+                  'Transparent pricing for crop residue',
+                  'Verified network of expert Soil-Mitras'
+                ].map((item, i) => (
+                  <SlideIn key={i} delay={0.3 + (i * 0.1)} direction="right" className="flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full bg-primary-500/10 flex items-center justify-center border border-primary-500/20">
+                      <CheckCircle size={16} className="text-primary-400" />
+                    </div>
+                    <span className="text-white font-medium">{item}</span>
+                  </SlideIn>
+                ))}
+              </div>
+
+              <FadeIn delay={0.6}>
+                <Link href="/features" className="inline-flex items-center gap-2 px-6 py-3 mt-4 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-colors border border-slate-700 hover:border-slate-600">
+                  Explore All Features <ArrowRight size={18} />
+                </Link>
+              </FadeIn>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ═══════════════ FOOTER ══════════════════════════════ */}
-      <footer className="footer">
-        <div className="footer-inner">
-          <div className="footer-brand">
-            <div className="logo">
-              <div className="logo-icon"><Leaf size={20} /></div>
-              <span className="logo-text">FarmHith</span>
-            </div>
-            <p className="footer-tagline">Empowering Indian farmers with technology, expertise, and fair markets.</p>
+      {/* TESTIMONIALS */}
+      <section className="py-24 px-6 border-y border-slate-800 bg-slate-950/50 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto">
+          <FadeIn className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Farmer Stories</h2>
+            <p className="text-lg text-slate-400">Real results from across the nation.</p>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {testimonials.map((t, idx) => (
+              <ZoomIn key={idx} delay={idx * 0.15}>
+                <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl h-full flex flex-col hover:border-primary-500/30 hover:shadow-glow-sm transition-all duration-300">
+                  <div className="flex gap-1 mb-4 text-secondary-400">
+                    {Array(t.stars).fill(0).map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
+                  </div>
+                  <p className="text-slate-300 italic mb-6 flex-1">&ldquo;{t.text}&rdquo;</p>
+                  <div className="flex items-center gap-4 pt-4 border-t border-slate-800">
+                    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-primary-400 font-bold border border-slate-700">
+                      {t.avatar}
+                    </div>
+                    <div>
+                      <div className="text-white font-semibold text-sm">{t.name}</div>
+                      <div className="text-slate-500 text-xs">{t.crop} &bull; {t.location}</div>
+                    </div>
+                  </div>
+                </div>
+              </ZoomIn>
+            ))}
           </div>
-          <div className="footer-links">
-            <div>
-              <p className="footer-heading">Services</p>
-              <Link href="/dashboard/soil-test" className="footer-link">Soil Testing</Link>
-              <Link href="/dashboard/mitra" className="footer-link">Soil-Mitra</Link>
-              <Link href="/dashboard/marketplace" className="footer-link">Residue Market</Link>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-32 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-primary-500/5" />
+        <div className="cyber-grid opacity-20" />
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <FadeIn>
+            <h2 className="text-5xl md:text-6xl font-black text-white mb-6">Initialize Your Digital Farm</h2>
+            <p className="text-xl text-slate-400 mb-10">Join thousands of farmers maximizing their yield with data-driven insights.</p>
+          </FadeIn>
+          <FadeIn delay={0.2} className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/register" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-primary-500 text-slate-950 font-bold text-lg hover:bg-primary-400 transition-all shadow-glow-md">
+              Create Free Account <ArrowRight size={20} />
+            </Link>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-slate-800 bg-slate-950 py-16 px-6 relative z-10">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-12">
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2 text-white font-bold text-xl mb-4">
+              <Leaf className="text-primary-400" /> FarmHith
             </div>
-            <div>
-              <p className="footer-heading">Company</p>
-              <Link href="/about" className="footer-link">About Us</Link>
-              <Link href="/features" className="footer-link">Features</Link>
-              <Link href="/blog" className="footer-link">Blog & Resources</Link>
-              <Link href="/faq" className="footer-link">FAQs</Link>
-              <Link href="/contact" className="footer-link">Contact Us</Link>
+            <p className="text-slate-500 text-sm">Empowering Indian farmers with technology, expertise, and fair markets.</p>
+          </div>
+          <div>
+            <h4 className="text-white font-semibold mb-4">Services</h4>
+            <div className="space-y-2 flex flex-col text-sm">
+              <Link href="/dashboard/soil-test" className="text-slate-400 hover:text-primary-400 transition-colors">Soil Testing</Link>
+              <Link href="/dashboard/mitra" className="text-slate-400 hover:text-primary-400 transition-colors">Soil-Mitra</Link>
+              <Link href="/dashboard/marketplace" className="text-slate-400 hover:text-primary-400 transition-colors">Residue Market</Link>
             </div>
-            <div>
-              <p className="footer-heading">Account</p>
-              <Link href="/register" className="footer-link">Register</Link>
-              <Link href="/login" className="footer-link">Login</Link>
+          </div>
+          <div>
+            <h4 className="text-white font-semibold mb-4">Company</h4>
+            <div className="space-y-2 flex flex-col text-sm">
+              <Link href="/about" className="text-slate-400 hover:text-primary-400 transition-colors">About Us</Link>
+              <Link href="/features" className="text-slate-400 hover:text-primary-400 transition-colors">Features</Link>
+              <Link href="/blog" className="text-slate-400 hover:text-primary-400 transition-colors">Blog</Link>
+            </div>
+          </div>
+          <div>
+            <h4 className="text-white font-semibold mb-4">Legal</h4>
+            <div className="space-y-2 flex flex-col text-sm">
+              <Link href="/privacy" className="text-slate-400 hover:text-primary-400 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="text-slate-400 hover:text-primary-400 transition-colors">Terms of Service</Link>
             </div>
           </div>
         </div>
-        <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.</p>
+        <div className="max-w-7xl mx-auto pt-8 border-t border-slate-800 text-center text-slate-600 text-sm">
+          &copy; {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.
         </div>
       </footer>
     </div>
