@@ -1,8 +1,9 @@
 'use client';
 import React from 'react';
-import Link from 'next/link';
-import { BookOpen, ArrowRight, Clock, User } from 'lucide-react';
+import { BookOpen, Clock, User, ArrowRight } from 'lucide-react';
 import WebsiteNav from '../components/WebsiteNav';
+import { CursorGlow } from '../components/CursorGlow';
+import { FadeIn, SlideIn, ZoomIn, StaggerText } from '../components/Animations';
 
 export default function BlogPage() {
   const posts = [
@@ -36,46 +37,66 @@ export default function BlogPage() {
   ];
 
   return (
-    <div className="landing-root">
-      <div className="bg-pattern" />
+    <div className="landing-root bg-slate-950 text-slate-100 min-h-screen">
+      <CursorGlow />
       <WebsiteNav />
 
-      <section className="section" style={{ paddingTop: '12rem', paddingBottom: '4rem' }}>
-        <div className="section-label"><BookOpen size={14} /> Educational Resources</div>
-        <h1 className="section-title">FarmHith <span className="text-emerald">Insights</span></h1>
-        <p className="section-sub">Expert advice, farming tips, and platform updates to help you grow better.</p>
-
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-left mt-10">
-          {posts.map((post, i) => (
-            <div key={i} className="bg-white rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex flex-col group cursor-pointer">
-              <div className="relative h-56 overflow-hidden">
-                <img src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute top-4 left-4 bg-[#f2f0eb] text-[#006064] font-bold text-xs uppercase tracking-wider px-3 py-1 rounded-full border border-[#D2B48C]">
-                  {post.category}
-                </div>
-              </div>
-              <div className="p-6 flex flex-col flex-1">
-                <h3 className="text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-[#00838F] transition-colors">{post.title}</h3>
-                <p className="text-gray-600 font-medium mb-6 line-clamp-3 leading-relaxed">{post.excerpt}</p>
-                
-                <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between text-sm font-medium text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <User size={14} /> {post.author}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={14} /> {post.readTime}
-                  </div>
-                </div>
-              </div>
+      <section className="relative pt-40 pb-20 px-6 text-center overflow-hidden border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+        <div className="cyber-grid opacity-20" />
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <FadeIn>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-400 text-sm font-semibold tracking-wide uppercase shadow-glow-sm mb-8">
+              <BookOpen size={14} />
+              <span>Educational Resources</span>
             </div>
+          </FadeIn>
+          <StaggerText 
+            text="FarmHith Insights" 
+            className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight" 
+            delay={0.1}
+          />
+          <FadeIn delay={0.4}>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+              Expert advice, farming tips, and platform updates to help you grow better.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
+
+      <section className="py-24 px-6 bg-slate-900/50">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+          {posts.map((post, i) => (
+            <ZoomIn key={i} delay={i * 0.15}>
+              <div className="bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-glow-sm hover:border-primary-500/30 transition-all flex flex-col group cursor-pointer h-full hud-element">
+                <div className="relative h-64 overflow-hidden bg-slate-900">
+                  <img src={post.image} alt={post.title} className="w-full h-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105 group-hover:opacity-100" />
+                  <div className="absolute top-4 left-4 bg-slate-950/80 backdrop-blur-md text-primary-400 font-bold text-xs uppercase tracking-wider px-3 py-1.5 rounded-lg border border-primary-500/30 shadow-glow-sm">
+                    {post.category}
+                  </div>
+                </div>
+                <div className="p-8 flex flex-col flex-1">
+                  <h3 className="text-2xl font-bold text-white mb-4 leading-snug group-hover:text-primary-400 transition-colors">{post.title}</h3>
+                  <p className="text-slate-400 font-medium mb-8 line-clamp-3 leading-relaxed">{post.excerpt}</p>
+                  
+                  <div className="mt-auto pt-6 border-t border-slate-800 flex items-center justify-between text-sm font-bold text-slate-500 uppercase tracking-wider">
+                    <div className="flex items-center gap-2">
+                      <User size={14} className="text-primary-400" /> {post.author}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock size={14} className="text-primary-400" /> {post.readTime}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ZoomIn>
           ))}
         </div>
 
-        <div className="mt-16 text-center">
-          <button onClick={() => alert('More articles are currently being written. Check back soon!')} className="btn-outline-lg inline-flex justify-center text-lg">
-            Load More Articles
+        <FadeIn delay={0.6} className="mt-20 text-center">
+          <button onClick={() => alert('More articles are currently being written. Check back soon!')} className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-slate-800/80 backdrop-blur-md border border-slate-700 text-white font-bold text-lg hover:bg-slate-700 transition-all shadow-glow-sm">
+            Load More Articles <ArrowRight size={18} />
           </button>
-        </div>
+        </FadeIn>
       </section>
     </div>
   );
