@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@farmhith/auth';
 import { Card, SectionHeader, Input, Select, Button, useToast, Checkbox, Alert } from '@farmhith/ui';
 import { formatCurrency } from '@farmhith/utils';
-import { ShieldCheck, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, Sparkles, Weight, IndianRupee, MapPin, Calendar } from 'lucide-react';
 
 const PRICING_MODEL: Record<string, number> = {
   'Paddy Straw': 2500,
@@ -26,7 +26,7 @@ export default function CreateListingPage() {
     quantityTons: '',
     location: '',
     availableFrom: '',
-    termsAccepted: false,
+    termsAccepted: true,
   });
 
   const pricePerTon = form.residueType ? (PRICING_MODEL[form.residueType] ?? 0) : 0;
@@ -69,8 +69,8 @@ export default function CreateListingPage() {
       const data = await res.json();
 
       toast.show({
-        title: 'Listing Created',
-        message: `Your crop residue is now visible to bio-pellet plants. FarmHith price: ${formatCurrency(data.farmhithPricePerTon)}/ton`,
+        title: 'Listing Published!',
+        message: `Your lot is now live for buyers. Assured rate: ${formatCurrency(data.farmhithPricePerTon)}/ton`,
         type: 'success',
       });
       router.push('/dashboard/marketplace');
@@ -83,31 +83,31 @@ export default function CreateListingPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6 text-slate-800">
       <SectionHeader
-        title="Create Marketplace Listing"
-        description="Sell your crop residue to verified bio-pellet manufacturing plants."
+        title="List Crop Residue for Sale"
+        description="Sell harvest biomass directly to verified bio-pellet plants at assured FarmHith rates."
         action={
-          <Button variant="outline" onClick={() => router.back()} className="gap-2">
-            <ArrowLeft size={16} /> Back
+          <Button variant="outline" onClick={() => router.back()} className="gap-1.5">
+            <ArrowLeft size={16} /> Back to Marketplace
           </Button>
         }
       />
 
-      <Card>
+      <Card className="bg-white border-slate-200/90 shadow-card">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <Select
-              label="Crop Residue Type"
+              label="Select Crop Residue Type *"
               value={form.residueType}
               onChange={(val) => setForm({ ...form, residueType: val })}
               options={[
-                { label: 'Select residue type...', value: '' },
-                { label: 'Paddy Straw (₹2,500/ton)', value: 'Paddy Straw' },
-                { label: 'Wheat Straw (₹2,200/ton)', value: 'Wheat Straw' },
-                { label: 'Sugarcane Bagasse (₹1,800/ton)', value: 'Sugarcane Bagasse' },
-                { label: 'Cotton Stalks (₹1,600/ton)', value: 'Cotton Stalks' },
-                { label: 'Maize Stalks (₹1,400/ton)', value: 'Maize Stalks' },
+                { label: 'Select residue type…', value: '' },
+                { label: 'Paddy Straw (₹2,500 / Ton Assured)', value: 'Paddy Straw' },
+                { label: 'Wheat Straw (₹2,200 / Ton Assured)', value: 'Wheat Straw' },
+                { label: 'Sugarcane Bagasse (₹1,800 / Ton Assured)', value: 'Sugarcane Bagasse' },
+                { label: 'Cotton Stalks (₹1,600 / Ton Assured)', value: 'Cotton Stalks' },
+                { label: 'Maize Stalks (₹1,400 / Ton Assured)', value: 'Maize Stalks' },
               ]}
               required
             />
@@ -115,15 +115,15 @@ export default function CreateListingPage() {
             <div className="grid sm:grid-cols-2 gap-4">
               <Input
                 type="number"
-                label="Estimated Quantity (Tons)"
-                placeholder="e.g. 5.5"
+                label="Approximate Quantity (Tons) *"
+                placeholder="e.g. 8.5"
                 value={form.quantityTons}
                 onChange={(e) => setForm({ ...form, quantityTons: e.target.value })}
                 required
               />
               <Input
                 type="date"
-                label="Available For Pickup From"
+                label="Available For Pickup Date *"
                 value={form.availableFrom}
                 onChange={(e) => setForm({ ...form, availableFrom: e.target.value })}
                 required
@@ -131,48 +131,51 @@ export default function CreateListingPage() {
             </div>
 
             <Input
-              label="Pickup Location / Village"
-              placeholder="e.g. Ludhiana, Punjab"
+              label="Field Pickup Location / Village Landmark *"
+              placeholder="e.g. North Canal Road, Village Samana, Patiala"
               value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })}
               required
             />
           </div>
 
-          {/* Price summary */}
-          <div className="bg-green-50 border border-green-100 p-4 rounded-xl space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-gray-900">FarmHith Assured Rate</span>
+          {/* Real-Time Revenue Calculator */}
+          <div className="bg-gradient-to-r from-emerald-50 via-primary-50 to-teal-50 border border-primary-200/80 p-5 rounded-2xl space-y-3 shadow-xs">
+            <div className="flex items-center justify-between text-xs sm:text-sm">
+              <span className="font-bold text-slate-700">FarmHith Assured Rate</span>
               {form.residueType ? (
-                <span className="text-sm font-medium text-green-700">{formatCurrency(pricePerTon)} / ton</span>
+                <span className="font-extrabold text-primary-800">{formatCurrency(pricePerTon)} / Ton</span>
               ) : (
-                <span className="text-xs text-gray-400">Select residue type</span>
+                <span className="text-xs text-slate-400">Select residue type above</span>
               )}
             </div>
-            <div className="flex items-center justify-between pt-2 border-t border-green-200/50 text-base">
-              <span className="font-semibold text-gray-900">Estimated Total Value</span>
-              <span className="font-bold text-lg text-green-700">{formatCurrency(estimatedPrice)}</span>
+            <div className="flex items-center justify-between pt-2.5 border-t border-primary-200/60">
+              <div>
+                <p className="text-xs font-bold text-slate-900">Estimated Total Farmer Revenue</p>
+                <p className="text-[11px] text-slate-500">Paid directly to your bank upon weighing</p>
+              </div>
+              <span className="text-2xl font-black text-primary-700">{formatCurrency(estimatedPrice)}</span>
             </div>
           </div>
 
-          {/* Terms */}
-          <div className="flex items-start gap-3 p-4 border border-gray-100 rounded-xl bg-gray-50">
-            <div className="mt-0.5">
-              <Checkbox
-                checked={form.termsAccepted}
-                onChange={(checked) => setForm({ ...form, termsAccepted: checked as boolean })}
-              />
-            </div>
-            <div className="text-sm text-gray-600">
-              <p className="font-medium text-gray-900 flex items-center gap-1.5 mb-1">
-                <ShieldCheck size={16} className="text-green-600" /> Platform Guarantee
+          {/* Guarantee & Terms */}
+          <label className="flex items-start gap-3 p-4 rounded-2xl border border-primary-100 bg-primary-50/40 hover:bg-primary-50 transition-colors cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.termsAccepted}
+              onChange={(e) => setForm({ ...form, termsAccepted: e.target.checked })}
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-primary-700 focus:ring-primary-500"
+            />
+            <div className="text-xs sm:text-sm text-slate-600">
+              <p className="font-bold text-slate-900 flex items-center gap-1.5 mb-0.5">
+                <ShieldCheck size={16} className="text-primary-700" /> Guaranteed Fair Weighing & Logistics Support
               </p>
-              I confirm the quality and approximate quantity of the residue. I understand FarmHith will arrange logistics and payment upon successful collection.
+              I confirm the approximate weight and dry quality of this residue. FarmHith coordinates verified weighbridge pickups and prompt payment upon collection.
             </div>
-          </div>
+          </label>
 
           {error && (
-            <Alert variant="error" title="Validation Error">
+            <Alert variant="error" title="Input Issue">
               <p>{error}</p>
             </Alert>
           )}
@@ -185,7 +188,7 @@ export default function CreateListingPage() {
               loading={submitting}
               disabled={submitting || !form.residueType || !form.quantityTons || !form.availableFrom || !form.location || !form.termsAccepted}
             >
-              Publish Listing
+              Publish Marketplace Listing
             </Button>
           </div>
         </form>
@@ -193,3 +196,4 @@ export default function CreateListingPage() {
     </div>
   );
 }
+

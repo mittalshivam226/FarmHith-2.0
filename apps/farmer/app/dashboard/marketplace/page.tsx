@@ -7,7 +7,7 @@ import { formatCurrency, formatDate } from '@farmhith/utils';
 import { useMyCropListings, useFarmerOrders } from '@farmhith/hooks';
 import { db } from '@farmhith/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
-import { Plus, Weight, MapPin, Clock, CheckCircle, AlertCircle, FileText, TrendingUp } from 'lucide-react';
+import { Plus, Weight, MapPin, Clock, CheckCircle2, AlertCircle, FileText, TrendingUp, Sparkles, Building2, ArrowRight } from 'lucide-react';
 import { FadeIn, SlideIn, ZoomIn } from '../../components/Animations';
 
 export default function MarketplacePage() {
@@ -40,81 +40,109 @@ export default function MarketplacePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 text-slate-100">
+    <div className="max-w-5xl mx-auto space-y-8 text-slate-800">
       <SlideIn direction="left">
-        <div className="[&_h2]:!text-white [&_p]:!text-slate-400">
-          <SectionHeader
-            title="Marketplace"
-            description="List your crop residues and manage procurement orders"
-            action={
-              <Link
-                href="/dashboard/marketplace/list"
-                className="flex items-center gap-2 bg-primary-500 hover:bg-primary-400 text-slate-950 text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-glow-sm"
-              >
-                <Plus size={16} /> New Listing
-              </Link>
-            }
-          />
-        </div>
+        <SectionHeader
+          title="Crop Residue Marketplace"
+          description="Monetize crop stubble directly to verified biopellet & energy plants at assured FarmHith rates"
+          action={
+            <Link
+              href="/dashboard/marketplace/list"
+              className="inline-flex items-center gap-2 bg-primary-700 hover:bg-primary-800 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-sm active:scale-95"
+            >
+              <Plus size={16} /> List Crop Residue
+            </Link>
+          }
+        />
       </SlideIn>
 
-      {/* My listings */}
+      {/* ── Value Prop Banner ── */}
+      <FadeIn delay={0.05}>
+        <div className="bg-gradient-to-r from-emerald-50 via-emerald-100/50 to-teal-50 border border-emerald-200/80 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2.5 bg-primary-700 text-white rounded-xl shrink-0 mt-0.5 shadow-xs">
+              <Sparkles size={22} />
+            </div>
+            <div>
+              <h3 className="font-bold text-emerald-950 text-sm sm:text-base">
+                Zero Stubble Burning · 100% Monetized Harvest Waste
+              </h3>
+              <p className="text-xs sm:text-sm text-emerald-800/90 mt-0.5">
+                FarmHith connects your post-harvest biomass directly with industrial buyers. Guaranteed pickup & transparent digital weighing.
+              </p>
+            </div>
+          </div>
+        </div>
+      </FadeIn>
+
+      {/* ── Active Listings ── */}
       <div>
         <FadeIn delay={0.1}>
-          <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">My Listings</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider">My Active Listings</h2>
+            {listings.length > 0 && (
+              <span className="text-xs font-semibold text-slate-500">{listings.length} Active Lots</span>
+            )}
+          </div>
         </FadeIn>
+
         <QueryState
           loading={loadingListings}
           error={errorListings}
           empty={listings.length === 0}
           emptyProps={{
-            title: "No active listings",
-            description: "Create your first crop residue listing to start selling.",
-            icon: <FileText size={24} className="text-slate-500" />,
-            action: <Link href="/dashboard/marketplace/list" className="text-sm font-bold text-primary-400 hover:underline">Create Listing</Link>
+            title: "No Active Crop Residue Listings",
+            description: "List your paddy straw, wheat stubble, or bagasse to connect with buyers.",
+            icon: <FileText size={28} className="text-slate-400" />,
+            action: (
+              <Link href="/dashboard/marketplace/list" className="inline-flex items-center gap-1.5 text-sm font-bold text-primary-700 bg-primary-50 px-4 py-2 rounded-xl hover:bg-primary-100 transition-colors mt-2">
+                <Plus size={16} /> Create Your First Listing
+              </Link>
+            )
           }}
           loadingFallback={<div className="grid sm:grid-cols-2 gap-6"><CardSkeleton /><CardSkeleton /></div>}
         >
           <div className="grid sm:grid-cols-2 gap-6">
             {listings.map((listing, i) => (
-              <ZoomIn key={listing.id} delay={0.2 + (i * 0.1)}>
-                <Card className="bg-slate-900 border-slate-800 hud-element hover:border-slate-700 transition-colors h-full flex flex-col">
-                  <div className="flex items-start justify-between mb-4">
-                    <Badge variant={listing.status === 'ACTIVE' ? 'success' : 'default'} className={listing.status === 'ACTIVE' ? 'bg-success-500/10 text-success-400 border border-success-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'}>
-                      {listing.residueType}
-                    </Badge>
-                    <StatusBadge status={listing.status} size="sm" />
+              <ZoomIn key={listing.id} delay={0.15 + (i * 0.05)}>
+                <Card hover className="bg-white border-slate-200/90 shadow-card h-full flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className="h-8 w-8 rounded-lg bg-primary-50 text-primary-700 flex items-center justify-center font-bold text-xs">
+                          🌾
+                        </span>
+                        <h3 className="font-bold text-slate-900 text-lg capitalize">{listing.residueType}</h3>
+                      </div>
+                      <StatusBadge status={listing.status} size="sm" />
+                    </div>
+
+                    <div className="space-y-2.5 mb-5 text-xs sm:text-sm">
+                      <div className="flex items-center gap-2.5 text-slate-700 font-semibold bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                        <Weight size={16} className="text-primary-700" />
+                        <span>Available Quantity: <strong className="text-slate-900 font-extrabold text-base">{listing.quantityTons} Tons</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-slate-600 px-1">
+                        <MapPin size={15} className="text-slate-400 shrink-0" />
+                        <span>{(listing as any).location ?? listing.farmerDistrict ?? 'District Field'}</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-slate-500 px-1">
+                        <Clock size={15} className="text-slate-400 shrink-0" />
+                        <span>Available from: {listing.availableFrom ? formatDate(listing.availableFrom) : 'Immediate'}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-3 mb-6 flex-1">
-                    <div className="flex items-center gap-3 text-sm text-slate-300">
-                      <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
-                        <Weight size={14} className="text-primary-400" />
-                      </div>
-                      <span className="font-bold text-lg">{listing.quantityTons} <span className="text-slate-500 font-normal">tons</span></span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-slate-400">
-                      <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
-                        <MapPin size={14} className="text-primary-400" />
-                      </div>
-                      {(listing as any).location ?? listing.farmerDistrict ?? 'Location not set'}
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-slate-400">
-                      <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
-                        <Clock size={14} className="text-primary-400" />
-                      </div>
-                      Available from {listing.availableFrom ? formatDate(listing.availableFrom) : '—'}
-                    </div>
-                  </div>
-                  <div className="mt-auto pt-4 border-t border-slate-800 flex items-center justify-between">
+
+                  <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">FarmHith Price</p>
-                      <p className="text-xl font-black text-primary-400">
-                        {formatCurrency(listing.farmhithPricePerTon)}<span className="text-xs font-normal text-slate-500">/ton</span>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">FarmHith Assured Rate</p>
+                      <p className="text-lg font-black text-primary-700">
+                        {formatCurrency(listing.farmhithPricePerTon)}<span className="text-xs font-normal text-slate-400">/ton</span>
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total value</p>
-                      <p className="text-lg font-bold text-slate-100">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Est. Revenue</p>
+                      <p className="text-base font-extrabold text-slate-900">
                         {formatCurrency(listing.farmhithPricePerTon * listing.quantityTons)}
                       </p>
                     </div>
@@ -126,56 +154,69 @@ export default function MarketplacePage() {
         </QueryState>
       </div>
 
-      {/* Incoming orders */}
-      <div className="pt-4">
-        <FadeIn delay={0.4}>
-          <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Incoming Orders</h2>
+      {/* ── Incoming Buyer Orders ── */}
+      <div className="pt-2">
+        <FadeIn delay={0.3}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider">Incoming Buyer Orders & Interest</h2>
+              <p className="text-xs text-slate-500">Orders submitted by bio-pellet manufacturing plants and aggregators</p>
+            </div>
+          </div>
         </FadeIn>
+
         <QueryState
           loading={loadingOrders}
           error={errorOrders}
           empty={orders.length === 0}
           emptyProps={{
-            title: "No incoming orders",
-            description: "When buyers are interested in your residue, their orders will appear here.",
-            icon: <TrendingUp size={24} className="text-slate-500" />
+            title: "No Incoming Buyer Orders Currently",
+            description: "When buyers express interest in your listed residue, their purchase requests will appear here.",
+            icon: <TrendingUp size={28} className="text-slate-400" />
           }}
         >
           <div className="space-y-4">
             {orders.map((order, i) => (
-              <SlideIn key={order.id} delay={0.5 + (i * 0.1)} direction="right">
-                <Card className="bg-slate-900 border-slate-800 hud-element hover:border-slate-700 transition-colors">
+              <SlideIn key={order.id} delay={0.35 + (i * 0.08)} direction="right">
+                <Card hover className="bg-white border-slate-200/90 shadow-card">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-2xl bg-info-500/10 border border-info-500/20 flex items-center justify-center shrink-0 shadow-glow-sm">
-                        <TrendingUp size={20} className="text-info-400" />
+                    <div className="flex items-start sm:items-center gap-4">
+                      <div className="h-12 w-12 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-700 shrink-0 shadow-xs">
+                        <Building2 size={22} />
                       </div>
                       <div>
-                        <p className="font-bold text-slate-100 text-lg mb-1">{order.plantName}</p>
-                        <p className="text-sm text-slate-400 font-medium">
-                          {(order as any).residueType ?? (order as any).listingResidueType ?? 'Crop Residue'} · {order.finalQuantityTons} tons
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <p className="font-bold text-slate-900 text-base sm:text-lg">{order.plantName}</p>
+                          <StatusBadge status={order.status} size="sm" />
+                        </div>
+                        <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                          Residue: <strong className="text-slate-800 capitalize">{(order as any).residueType ?? (order as any).listingResidueType ?? 'Crop Residue'}</strong> · Quantity: <strong className="text-slate-800">{order.finalQuantityTons} Tons</strong>
                         </p>
-                        <p className="text-xs text-slate-500 mt-1">Received {order.createdAt ? formatDate(order.createdAt) : '—'}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          Received {order.createdAt ? formatDate(order.createdAt) : 'Recently'}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2">
-                      <p className="text-2xl font-black text-primary-400">{formatCurrency(order.totalAmount)}</p>
-                      <StatusBadge status={order.status} size="sm" />
+
+                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center pt-3 sm:pt-0 border-t sm:border-t-0 gap-1">
+                      <span className="text-xs text-slate-400">Total Purchase Value</span>
+                      <p className="text-xl sm:text-2xl font-black text-primary-700">{formatCurrency(order.totalAmount)}</p>
                     </div>
                   </div>
+
                   {order.status === 'INTERESTED' && (
-                    <div className="mt-6 pt-6 border-t border-slate-800 flex flex-col sm:flex-row gap-4">
+                    <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
                       <button
                         onClick={() => setConfirmModal(order.id)}
-                        className="flex-1 flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-400 text-slate-950 text-sm font-bold py-3 rounded-xl transition-all shadow-glow-sm"
+                        className="flex-1 inline-flex items-center justify-center gap-2 bg-primary-700 hover:bg-primary-800 text-white text-xs sm:text-sm font-bold py-2.5 rounded-xl transition-all shadow-xs active:scale-95"
                       >
-                        <CheckCircle size={16} /> Confirm Order
+                        <CheckCircle2 size={16} /> Confirm Order & Schedule Pickup
                       </button>
                       <button
                         onClick={() => setDeclineModal(order.id)}
-                        className="flex-1 flex items-center justify-center gap-2 border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white text-sm font-bold py-3 rounded-xl transition-colors"
+                        className="inline-flex items-center justify-center gap-2 border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-red-600 text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
                       >
-                        <AlertCircle size={16} /> Decline
+                        <AlertCircle size={15} /> Decline
                       </button>
                     </div>
                   )}
@@ -186,52 +227,68 @@ export default function MarketplacePage() {
         </QueryState>
       </div>
 
-      {/* Confirm modal */}
+      {/* ── Confirm Order Modal ── */}
       <Modal
         open={!!confirmModal}
         onClose={() => setConfirmModal(null)}
-        title="Confirm Order"
+        title="Confirm Biomass Procurement Order"
         footer={
           <>
-            <button onClick={() => setConfirmModal(null)} className="px-5 py-2.5 text-sm font-bold text-slate-400 hover:text-slate-100 transition-colors">Cancel</button>
+            <button
+              onClick={() => setConfirmModal(null)}
+              className="px-4 py-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
+            >
+              Cancel
+            </button>
             <button
               onClick={handleConfirm}
               disabled={updating}
-              className="px-6 py-2.5 text-sm font-bold bg-primary-500 text-slate-950 rounded-xl hover:bg-primary-400 transition-all shadow-glow-sm disabled:opacity-60"
+              className="px-5 py-2 text-xs sm:text-sm font-bold bg-primary-700 text-white rounded-xl hover:bg-primary-800 transition-all shadow-xs disabled:opacity-60"
             >
-              {updating ? 'Confirming Order…' : 'Confirm Order'}
+              {updating ? 'Confirming Order…' : 'Yes, Confirm Sale'}
             </button>
           </>
         }
       >
-        <p className="text-sm text-slate-400 leading-relaxed">Are you sure you want to confirm this procurement order? The bio-pellet plant will be notified and you will be committed to the sale.</p>
+        <p className="text-sm text-slate-600 leading-relaxed">
+          Are you sure you want to accept this procurement order? The buyer will be notified to dispatch weighing transport to your field on the available date.
+        </p>
       </Modal>
 
+      {/* ── Decline Order Modal ── */}
       <Modal
         open={!!declineModal}
         onClose={() => setDeclineModal(null)}
-        title="Decline Order"
+        title="Decline Procurement Order"
         footer={
           <>
-            <button onClick={() => setDeclineModal(null)} className="px-5 py-2.5 text-sm font-bold text-slate-400 hover:text-slate-100 transition-colors">Cancel</button>
+            <button
+              onClick={() => setDeclineModal(null)}
+              className="px-4 py-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
+            >
+              Cancel
+            </button>
             <button
               onClick={handleDecline}
               disabled={updating}
-              className="px-6 py-2.5 text-sm font-bold bg-red-500 text-white rounded-xl hover:bg-red-400 transition-colors disabled:opacity-60"
+              className="px-5 py-2 text-xs sm:text-sm font-bold bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors disabled:opacity-60"
             >
               {updating ? 'Declining Order…' : 'Decline Order'}
             </button>
           </>
         }
       >
-        <div className="space-y-4">
-          <p className="text-sm text-slate-400">Are you sure you want to decline this order?</p>
-          <div className="p-4 rounded-xl border border-warning-500/30 bg-warning-500/10 text-warning-400 text-sm">
-            <div className="font-bold flex items-center gap-2 mb-1"><AlertCircle size={16} /> Irreversible Action</div>
-            <p className="text-warning-400/80">The buyer will be notified immediately that their request was rejected. This action cannot be undone.</p>
+        <div className="space-y-3">
+          <p className="text-sm text-slate-600">
+            Are you sure you want to decline this procurement request from the buyer?
+          </p>
+          <div className="p-3.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 text-xs">
+            <div className="font-bold flex items-center gap-1.5 mb-1"><AlertCircle size={14} /> Note</div>
+            <p>The buyer will be informed and the listing will remain open to other interested plants.</p>
           </div>
         </div>
       </Modal>
     </div>
   );
 }
+
