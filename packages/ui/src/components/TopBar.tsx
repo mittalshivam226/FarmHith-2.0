@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { Bell, ChevronDown, LogOut, User } from 'lucide-react';
 import { Avatar } from './Avatar';
 import { Breadcrumbs, type BreadcrumbItem } from './Breadcrumbs';
@@ -47,17 +48,23 @@ export function TopBar({
       </div>
 
       {/* Right side: Actions & User */}
-      <div className="flex items-center gap-2 md:gap-4">
+      <div className="flex items-center gap-2 md:gap-3">
         {/* Notifications */}
-        <button aria-label="Notifications" className="relative p-1.5 md:p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-full transition-colors shrink-0">
-          <Bell size={18} className="md:w-5 md:h-5" />
+        <Link
+          href="/dashboard/notifications"
+          aria-label="Notifications"
+          className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors shrink-0 border border-slate-200/80"
+        >
+          <Bell size={18} />
           {unreadNotifications > 0 && (
-            <span className="absolute top-1 right-1 md:top-1.5 md:right-1.5 h-2 w-2 rounded-full bg-error-500 ring-2 ring-slate-800" />
+            <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-red-500 text-[9px] font-bold text-white flex items-center justify-center ring-2 ring-white">
+              {unreadNotifications > 9 ? '9+' : unreadNotifications}
+            </span>
           )}
-        </button>
+        </Link>
 
         {/* Vertical divider */}
-        <div className="h-6 w-px bg-slate-700" />
+        <div className="h-6 w-px bg-slate-200" />
 
         {/* User Dropdown */}
         {user && (
@@ -66,20 +73,20 @@ export function TopBar({
               onClick={() => setProfileOpen(!profileOpen)}
               aria-label="User menu"
               aria-expanded={profileOpen}
-              className="flex items-center gap-2 md:gap-2.5 p-1 pr-1.5 md:pr-2 rounded-full hover:bg-slate-700 transition-colors shrink-0"
+              className="flex items-center gap-2.5 p-1 pr-2 rounded-xl hover:bg-slate-100 transition-colors shrink-0 border border-transparent hover:border-slate-200"
             >
               <Avatar name={user.name} src={user.avatar} size="sm" />
               <div className="hidden md:block text-left mr-1">
-                <p className="text-sm font-semibold text-slate-200 leading-tight">
+                <p className="text-sm font-bold text-slate-800 leading-tight">
                   {user.name.split(' ')[0]}
                 </p>
-                <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider leading-tight">
-                  {user.role}
+                <p className="text-[10px] font-semibold text-primary-700 uppercase tracking-wider leading-tight">
+                  {user.role === 'FARMER' ? 'Kisan (Farmer)' : user.role}
                 </p>
               </div>
               <ChevronDown
                 size={14}
-                className={`text-slate-400 transition-transform duration-200 hidden md:block ${
+                className={`text-slate-500 transition-transform duration-200 hidden md:block ${
                   profileOpen ? 'rotate-180' : ''
                 }`}
               />
@@ -87,11 +94,11 @@ export function TopBar({
 
             {/* Dropdown Menu */}
             {profileOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-slate-800 rounded-lg shadow-xl border border-slate-700 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                <div className="px-4 py-3 border-b border-slate-700">
-                  <p className="text-sm font-semibold text-slate-100 truncate">{user.name}</p>
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="px-4 py-3 border-b border-slate-100">
+                  <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
                   {user.email && (
-                    <p className="text-xs text-slate-400 truncate mt-0.5">{user.email}</p>
+                    <p className="text-xs text-slate-500 truncate mt-0.5">{user.email}</p>
                   )}
                 </div>
                 <div className="py-1">
@@ -101,7 +108,7 @@ export function TopBar({
                         setProfileOpen(false);
                         onProfileClick();
                       }}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
                     >
                       <User size={16} className="text-slate-400" />
                       My Profile
@@ -113,9 +120,9 @@ export function TopBar({
                         setProfileOpen(false);
                         onLogout();
                       }}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-error-600 hover:bg-error-50 transition-colors"
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
                     >
-                      <LogOut size={16} className="text-error-500" />
+                      <LogOut size={16} className="text-red-500" />
                       Log out
                     </button>
                   )}
@@ -128,3 +135,4 @@ export function TopBar({
     </div>
   );
 }
+

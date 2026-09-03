@@ -4,63 +4,63 @@ module.exports = {
   theme: {
     extend: {
       /* ──────────────────────────────────────────────────────────────────────
-       * COLORS — FarmHith Design System (Cinematic Agritech Dark Mode)
+       * COLORS — FarmHith Design System (Authentic Agricultural Palette)
        * ──────────────────────────────────────────────────────────────────── */
       colors: {
-        // Primary — HUD Neon Green
+        // Primary — Forest Green (Core Brand)
         primary: {
-          50:  '#ecfdf5',
-          100: '#d1fae5',
-          200: '#a7f3d0',
-          300: '#6ee7b7',
-          400: '#34d399',
-          500: '#10b981',  // ← Main HUD glow
-          600: '#059669',
-          700: '#047857',
-          800: '#065f46',
-          900: '#064e3b',
-          950: '#022c22',
+          50:  '#e8f5e9',
+          100: '#c8e6c9',
+          200: '#a5d6a7',
+          300: '#81c784',
+          400: '#66bb6a',  // Leaf Green accent
+          500: '#4caf50',
+          600: '#388e3c',
+          700: '#2e7d32',  // Forest Green main brand color
+          800: '#1b5e20',
+          900: '#144617',
+          950: '#0a230c',
         },
-        // Secondary — Amber/Gold for contrast
+        // Secondary / Harvest — Harvest Yellow / Gold / Warm Amber
         secondary: {
-          50:  '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
+          50:  '#fffde7',
+          100: '#fff9c4',
+          200: '#fff59d',
+          300: '#fff176',
+          400: '#ffee58',
+          500: '#f9a825',  // Harvest Yellow
+          600: '#f57f17',
+          700: '#e65100',
+          800: '#bf360c',
           900: '#78350f',
         },
-        // Slate — Dark Agritech Neutrals (Greens/Blacks)
+        // Stone & Slate — Clean, warm neutrals & crisp charcoal
         slate: {
-          50:  '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
+          50:  '#f8faf5',  // Warm Off-White background
+          100: '#f1f5f0',
+          200: '#e2e8e0',  // Subtle borders
+          300: '#cbd5c8',
+          400: '#94a398',
           500: '#64748b',
           600: '#475569',
-          700: '#223D2E',  // Dark green borders
-          800: '#12221A',  // Surface / Cards
-          900: '#0A140F',  // Backgrounds
-          950: '#050B08',  // Deepest background
+          700: '#37474f',  // Deep charcoal secondary
+          800: '#263238',  // Charcoal primary text
+          900: '#1a2327',
+          950: '#0f1719',
         },
 
         /* ── Semantic aliases ── */
         success: {
-          50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d',
+          50: '#e8f5e9', 100: '#c8e6c9', 500: '#2e7d32', 600: '#1b5e20', 700: '#144617',
         },
         warning: {
-          50: '#fffbeb', 100: '#fef3c7', 500: '#f59e0b', 600: '#d97706', 700: '#b45309',
+          50: '#fffde7', 100: '#fff9c4', 500: '#f9a825', 600: '#f57f17', 700: '#d97706',
         },
         error: {
           50: '#fef2f2', 100: '#fee2e2', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c',
         },
         info: {
-          50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+          50: '#eff6ff', 100: '#dbeafe', 500: '#0284c7', 600: '#0369a1', 700: '#075985',
         },
       },
 
@@ -84,41 +84,37 @@ module.exports = {
         'stat':       ['2rem', { lineHeight: '1.1', letterSpacing: '-0.03em', fontWeight: '800' }],
       },
 
-      /* ── Spacing ── */
-      // Using Tailwind default 4px scale. No arbitrary values needed.
-
-      /* ── Border Radius — Restrained ── */
+      /* ── Border Radius ── */
       borderRadius: {
-        'sm':   '4px',    // subtle rounding: badges, small chips
-        'DEFAULT': '6px', // inputs, buttons
-        'md':   '8px',    // cards, dropdowns
-        'lg':   '12px',   // modals, larger panels
-        'xl':   '16px',   // hero cards, page sections
-        'full': '9999px', // avatars, pills (used sparingly)
+        'sm':   '6px',
+        'DEFAULT': '8px',
+        'md':   '10px',
+        'lg':   '14px',
+        'xl':   '18px',
+        '2xl':  '24px',
+        'full': '9999px',
       },
 
-      /* ── Shadows — Dark mode HUD glows ── */
+      /* ── Shadows — Natural & Crisp ── */
       boxShadow: {
-        'xs':     '0 1px 2px 0 rgb(0 0 0 / 0.5)',
-        'sm':     '0 1px 3px 0 rgb(0 0 0 / 0.6), 0 1px 2px -1px rgb(0 0 0 / 0.6)',
-        'DEFAULT': '0 2px 6px -1px rgb(0 0 0 / 0.7), 0 1px 4px -2px rgb(0 0 0 / 0.5)',
-        'md':     '0 4px 8px -2px rgb(0 0 0 / 0.8), 0 2px 4px -2px rgb(0 0 0 / 0.4)',
-        'lg':     '0 10px 20px -4px rgb(0 0 0 / 0.9), 0 4px 6px -4px rgb(0 0 0 / 0.5)',
-        'xl':     '0 16px 40px -6px rgb(0 0 0 / 0.95), 0 8px 16px -6px rgb(0 0 0 / 0.6)',
-        'inner':  'inset 0 1px 2px 0 rgb(0 0 0 / 0.5)',
+        'xs':     '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        'sm':     '0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07)',
+        'DEFAULT': '0 2px 6px -1px rgb(0 0 0 / 0.08), 0 1px 4px -2px rgb(0 0 0 / 0.05)',
+        'md':     '0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 6px -2px rgb(0 0 0 / 0.04)',
+        'lg':     '0 10px 24px -4px rgb(0 0 0 / 0.08), 0 4px 8px -4px rgb(0 0 0 / 0.03)',
+        'xl':     '0 16px 36px -6px rgb(0 0 0 / 0.1), 0 8px 16px -6px rgb(0 0 0 / 0.05)',
+        'card':   '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        'card-hover': '0 8px 24px -4px rgba(46, 125, 50, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.04)',
+        'inner':  'inset 0 1px 2px 0 rgb(0 0 0 / 0.05)',
         'none':   '0 0 #0000',
-        'glow-sm': '0 0 10px rgba(16, 185, 129, 0.2), inset 0 0 5px rgba(16, 185, 129, 0.1)',
-        'glow-md': '0 0 20px rgba(16, 185, 129, 0.3), inset 0 0 10px rgba(16, 185, 129, 0.2)',
-        'glow-primary': '0 0 15px rgba(16, 185, 129, 0.4)',
       },
 
-      /* ── Animations — Only purposeful transitions ── */
+      /* ── Animations ── */
       animation: {
         'fade-in':     'fadeIn 0.2s ease-out',
         'slide-up':    'slideUp 0.25s ease-out',
         'slide-down':  'slideDown 0.2s ease-out',
         'scale-in':    'scaleIn 0.2s ease-out',
-        'shimmer':     'shimmer 1.5s linear infinite',
         'spin':        'spin 0.8s linear infinite',
       },
       keyframes: {
@@ -138,16 +134,8 @@ module.exports = {
           '0%':   { opacity: '0', transform: 'scale(0.97)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
         },
-        shimmer: {
-          '0%':   { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
       },
 
-      /* ── Misc ── */
-      backgroundImage: {
-        'shimmer-gradient': 'linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.4) 50%, transparent 75%)',
-      },
       maxWidth: {
         'page': '1280px',
       },

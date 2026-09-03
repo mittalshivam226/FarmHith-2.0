@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 
-type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'purple';
+type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'purple' | 'harvest';
 
 interface BadgeProps {
   children: React.ReactNode;
@@ -11,20 +11,21 @@ interface BadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  default: 'bg-slate-800 border border-slate-700 text-slate-300 shadow-sm',
-  success: 'bg-success-500/10 text-success-400 border border-success-500/20 shadow-glow-sm',
-  warning: 'bg-warning-500/10 text-warning-400 border border-warning-500/20 shadow-glow-sm',
-  error:   'bg-error-500/10 text-error-400 border border-error-500/20 shadow-glow-sm',
-  info:    'bg-info-500/10 text-info-400 border border-info-500/20 shadow-glow-sm',
-  purple:  'bg-purple-500/10 text-purple-400 border border-purple-500/20 shadow-glow-sm',
+  default: 'bg-slate-100 text-slate-700 border border-slate-200/80',
+  success: 'bg-primary-50 text-primary-700 border border-primary-200/80 font-semibold',
+  harvest: 'bg-amber-50 text-amber-800 border border-amber-200/80 font-semibold',
+  warning: 'bg-amber-50 text-amber-800 border border-amber-200/80 font-semibold',
+  error:   'bg-red-50 text-red-700 border border-red-200/80 font-semibold',
+  info:    'bg-sky-50 text-sky-700 border border-sky-200/80 font-semibold',
+  purple:  'bg-purple-50 text-purple-700 border border-purple-200/80 font-semibold',
 };
 
 export function Badge({ children, variant = 'default', size = 'md', className = '' }: BadgeProps) {
   return (
     <span
       className={`
-        inline-flex items-center font-semibold rounded-sm
-        ${size === 'sm' ? 'px-1.5 py-0.5 text-[10px] leading-tight' : 'px-2 py-0.5 text-xs'}
+        inline-flex items-center font-medium rounded-full
+        ${size === 'sm' ? 'px-2 py-0.5 text-[11px] leading-tight' : 'px-3 py-1 text-xs'}
         ${variantClasses[variant]}
         ${className}
       `}
@@ -48,35 +49,35 @@ const statusMap: Record<string, BadgeVariant> = {
   IN_PROGRESS: 'info',
   COMPLETED: 'success',
   CANCELLED: 'error',
-  INTERESTED: 'purple',
+  INTERESTED: 'harvest',
   CONFIRMED: 'info',
   ACTIVE: 'success',
   MATCHED: 'info',
   SOLD: 'default',
   EXPIRED: 'default',
   SETTLED: 'success',
-  CAPTURED: 'info',
+  CAPTURED: 'success',
   FARMER: 'success',
   LAB: 'info',
-  SOILMITRA: 'default',
+  SOILMITRA: 'harvest',
   BIOPELLET: 'purple',
   ADMIN: 'error',
 };
 
 const statusLabel: Record<string, string> = {
-  PENDING: 'Pending',
-  ACCEPTED: 'Accepted',
-  IN_PROGRESS: 'In Progress',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-  INTERESTED: 'Interested',
-  CONFIRMED: 'Confirmed',
-  ACTIVE: 'Active',
-  MATCHED: 'Matched',
-  SOLD: 'Sold',
+  PENDING: '⏳ Pending',
+  ACCEPTED: '✓ Accepted by Lab',
+  IN_PROGRESS: '🔬 In Analysis',
+  COMPLETED: '✓ Completed',
+  CANCELLED: '✕ Cancelled',
+  INTERESTED: '🟡 Buyer Interested',
+  CONFIRMED: '🟢 Order Confirmed',
+  ACTIVE: '🟢 Active Listing',
+  MATCHED: '🤝 Matched',
+  SOLD: '✓ Sold',
   EXPIRED: 'Expired',
-  SETTLED: 'Settled',
-  CAPTURED: 'Captured',
+  SETTLED: '✓ Payment Settled',
+  CAPTURED: '✓ Paid',
   FARMER: 'Farmer',
   LAB: 'Lab',
   SOILMITRA: 'Soil-Mitra',
@@ -94,3 +95,4 @@ export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
   const label = statusLabel[status] ?? status;
   return <Badge variant={variant} size={size}>{label}</Badge>;
 }
+
