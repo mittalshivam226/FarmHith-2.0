@@ -23,7 +23,7 @@ function BookSoilTestForm() {
     cropType: '',
     landParcelDetails: '',
     collectionDate: '',
-    reportConsentToMitra: false,
+    reportConsentToMitra: true,
   });
 
   const selectedLab = labs.find(l => l.id === form.labId);
@@ -39,7 +39,7 @@ function BookSoilTestForm() {
     if (!form.labId) { setError('Please select a testing lab from the list.'); return; }
     if (!form.cropType.trim()) { setError('Please enter the type of crop you are growing.'); return; }
     if (!form.collectionDate) { setError('Please select a preferred date for the sample collection.'); return; }
-    if (form.landParcelDetails.trim().length < 5) { setError('Land parcel details must be at least 5 characters long to help the collector find the location.'); return; }
+    if (form.landParcelDetails.trim().length < 5) { setError('Land parcel details must be at least 5 characters long to help the collector locate your field.'); return; }
 
     setError(null);
     setSubmitting(true);
@@ -53,7 +53,7 @@ function BookSoilTestForm() {
           ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
         },
         body: JSON.stringify({
-          labId:                form.labId,   // lab.id === labProfile doc ID === userId
+          labId:                form.labId,
           cropType:             form.cropType.trim(),
           landParcelDetails:    form.landParcelDetails.trim(),
           collectionDate:       form.collectionDate,
@@ -80,12 +80,12 @@ function BookSoilTestForm() {
     return (
       <div className="py-12">
         <EmptyState
-          icon={<CheckCircle2 size={32} className="text-green-600" />}
-          title="Booking Confirmed!"
-          description="Your soil test has been scheduled. The lab will contact you shortly."
+          icon={<CheckCircle2 size={36} className="text-primary-700" />}
+          title="Soil Test Scheduled Successfully!"
+          description="Your sample pickup has been confirmed with the testing laboratory."
           action={
-            <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
-              <Spinner size="sm" /> Redirecting to details...
+            <div className="flex items-center gap-2 text-sm text-slate-500 mt-2">
+              <Spinner size="sm" /> Redirecting to booking tracking...
             </div>
           }
         />
@@ -94,33 +94,51 @@ function BookSoilTestForm() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6 text-slate-800">
       <SectionHeader
-        title="Book Soil Test"
-        description="Schedule a soil sample collection with a verified lab near you."
+        title="Book Certified Soil Test"
+        description="Schedule a doorstep soil sample collection with a verified testing lab."
       />
 
-      <Card>
+      {/* Step Indicator */}
+      <div className="flex items-center justify-between px-2 py-3 bg-white rounded-2xl border border-slate-200/80 shadow-xs text-xs font-semibold">
+        <div className="flex items-center gap-2 text-primary-800">
+          <span className="h-5 w-5 rounded-full bg-primary-700 text-white flex items-center justify-center text-[10px]">1</span>
+          <span>Choose Lab</span>
+        </div>
+        <span className="text-slate-300">→</span>
+        <div className="flex items-center gap-2 text-primary-800">
+          <span className="h-5 w-5 rounded-full bg-primary-700 text-white flex items-center justify-center text-[10px]">2</span>
+          <span>Farm Details</span>
+        </div>
+        <span className="text-slate-300">→</span>
+        <div className="flex items-center gap-2 text-slate-500">
+          <span className="h-5 w-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px]">3</span>
+          <span>Doorstep Pickup</span>
+        </div>
+      </div>
+
+      <Card className="bg-white border-slate-200/90 shadow-card">
         {loadingLabs ? (
           <div className="flex justify-center py-10">
-            <Loader2 size={22} className="animate-spin text-gray-400" />
+            <Loader2 size={24} className="animate-spin text-primary-700" />
           </div>
         ) : labs.length === 0 ? (
-          <div className="text-center py-10 text-gray-400">
-            <FlaskConical size={32} className="mx-auto mb-3 opacity-30" />
-            <p>No verified labs available yet.</p>
-            <p className="text-sm mt-1">Check back later or contact admin.</p>
+          <div className="text-center py-10 text-slate-400">
+            <FlaskConical size={36} className="mx-auto mb-3 opacity-30" />
+            <p className="font-semibold text-slate-700">No verified labs available right now.</p>
+            <p className="text-xs mt-1">Please check back shortly or contact FarmHith support.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <Select
-              label="Select Lab *"
+              label="Select Testing Laboratory *"
               value={form.labId}
               onChange={(val) => setForm({ ...form, labId: val })}
               options={[
-                { label: 'Select a lab…', value: '' },
+                { label: 'Select a certified lab…', value: '' },
                 ...labs.map(lab => ({
-                  label: `${lab.labName} — ${formatCurrency(lab.perTestPrice)}/test (${lab.district ?? ''})`,
+                  label: `${lab.labName} — ${formatCurrency(lab.perTestPrice)}/test (${lab.district ?? 'Local'})`,
                   value: lab.id,
                 })),
               ]}
@@ -128,17 +146,17 @@ function BookSoilTestForm() {
             />
 
             {selectedLab && (
-              <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm">
+              <div className="p-4 bg-primary-50/70 border border-primary-100 rounded-2xl text-sm">
                 <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center shrink-0">
-                    <FlaskConical size={16} className="text-white" />
+                  <div className="h-10 w-10 rounded-xl bg-primary-700 flex items-center justify-center shrink-0 text-white shadow-xs">
+                    <FlaskConical size={18} />
                   </div>
                   <div>
-                    <p className="font-semibold text-blue-900">{selectedLab.labName}</p>
-                    <p className="text-xs text-blue-700 mt-0.5">{selectedLab.address}</p>
+                    <p className="font-bold text-slate-900">{selectedLab.labName}</p>
+                    <p className="text-xs text-slate-600 mt-0.5">{selectedLab.address || `${selectedLab.district ?? ''}, ${selectedLab.state ?? ''}`}</p>
                     <div className="flex items-center gap-4 mt-2">
-                      <span className="text-blue-700 font-bold">{formatCurrency(selectedLab.perTestPrice)} per test</span>
-                      <span className="text-xs text-blue-500">Capacity: {selectedLab.dailyCapacity}/day</span>
+                      <span className="text-primary-800 font-extrabold text-sm">{formatCurrency(selectedLab.perTestPrice)} per sample</span>
+                      <span className="text-xs text-slate-500">Daily Capacity: {selectedLab.dailyCapacity} tests</span>
                     </div>
                   </div>
                 </div>
@@ -146,65 +164,66 @@ function BookSoilTestForm() {
             )}
 
             <Input
-              label="Crop Type *"
-              placeholder="e.g. Wheat, Paddy, Sugarcane"
+              label="Primary Crop Growing *"
+              placeholder="e.g. Paddy (Basmati), Wheat, Cotton, Sugarcane"
               value={form.cropType}
               onChange={(e) => setForm({ ...form, cropType: e.target.value })}
               required
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Land Parcel Details *
+              <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+                Land Parcel Details & Field Location *
               </label>
               <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-gray-900 resize-none"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm text-slate-900 resize-none shadow-xs"
                 rows={3}
-                placeholder="e.g. 5 Acres, North Field near village pond"
+                placeholder="e.g. 4.5 Acres, East side near village canal pump"
                 value={form.landParcelDetails}
                 onChange={(e) => setForm({ ...form, landParcelDetails: e.target.value })}
                 required
               />
+              <p className="text-[11px] text-slate-400 mt-1">Provide clear landmarks to help the technician collect the sample.</p>
             </div>
 
             <Input
               type="date"
-              label="Preferred Collection Date *"
+              label="Preferred Sample Collection Date *"
               value={form.collectionDate}
               onChange={(e) => setForm({ ...form, collectionDate: e.target.value })}
               min={minDate}
               required
             />
 
-            <label className="flex items-start gap-3 cursor-pointer p-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors">
+            <label className="flex items-start gap-3 cursor-pointer p-4 rounded-2xl border border-primary-100 bg-primary-50/50 hover:bg-primary-50 transition-colors">
               <input
                 type="checkbox"
                 checked={form.reportConsentToMitra}
                 onChange={(e) => setForm({ ...form, reportConsentToMitra: e.target.checked })}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-primary-700 focus:ring-primary-500"
               />
               <div>
-                <p className="text-sm font-medium text-gray-900">Share report with Soil-Mitra</p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Allow my Soil-Mitra to view this soil report for consultation purposes.
+                <p className="text-sm font-bold text-slate-900">Share Report with Soil-Mitra (Recommended)</p>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Allows agricultural experts to automatically inspect your soil parameters when you book consultations.
                 </p>
               </div>
             </label>
 
             {error && (
-              <Alert variant="error" title="Submission Failed">
+              <Alert variant="error" title="Submission Issue">
                 <p>{error}</p>
               </Alert>
             )}
 
-            <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
               <div>
                 {selectedLab && (
-                  <>
-                    <p className="text-xs text-gray-500">Booking fee</p>
-                    <p className="text-xl font-bold text-green-700">{formatCurrency(selectedLab.perTestPrice)}</p>
-                    <p className="text-xs text-gray-400">Payment collected on sample collection</p>
-                  </>
+                  <div>
+                    <p className="text-xs text-slate-500">Assured Testing Fee</p>
+                    <p className="text-2xl font-extrabold text-primary-700">{formatCurrency(selectedLab.perTestPrice)}</p>
+                    <p className="text-[11px] text-slate-400">Payment collected on doorstep sample collection</p>
+                  </div>
                 )}
               </div>
               <div className="flex gap-3">
@@ -217,7 +236,7 @@ function BookSoilTestForm() {
                   loading={submitting}
                   disabled={submitting || !form.labId || !form.cropType || !form.collectionDate || !form.landParcelDetails}
                 >
-                  Confirm Booking
+                  Confirm & Schedule Pickup
                 </Button>
               </div>
             </div>
