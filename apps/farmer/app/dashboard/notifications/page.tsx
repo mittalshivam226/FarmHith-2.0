@@ -1,19 +1,19 @@
 'use client';
 import React from 'react';
 import { useAuth } from '@farmhith/auth';
-import { SectionHeader, QueryState, CardSkeleton } from '@farmhith/ui';
+import { SectionHeader, QueryState, CardSkeleton, Badge } from '@farmhith/ui';
 import { formatRelativeTime } from '@farmhith/utils';
 import { useNotifications, type Notification } from '@farmhith/hooks';
 import { db } from '@farmhith/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
-import { Bell, CheckCheck, CheckCircle, AlertTriangle, XCircle, Info } from 'lucide-react';
+import { Bell, CheckCheck, CheckCircle2, AlertTriangle, XCircle, Info } from 'lucide-react';
 import { FadeIn, SlideIn, ZoomIn } from '../../components/Animations';
 
 const TYPE_ICONS: Record<string, React.ReactNode> = {
-  success: <CheckCircle size={18} className="text-success-400 shrink-0 mt-0.5" />,
-  info: <Info size={18} className="text-info-400 shrink-0 mt-0.5" />,
-  warning: <AlertTriangle size={18} className="text-warning-400 shrink-0 mt-0.5" />,
-  error: <XCircle size={18} className="text-red-400 shrink-0 mt-0.5" />,
+  success: <CheckCircle2 size={18} className="text-primary-700 shrink-0 mt-0.5" />,
+  info: <Info size={18} className="text-sky-700 shrink-0 mt-0.5" />,
+  warning: <AlertTriangle size={18} className="text-amber-700 shrink-0 mt-0.5" />,
+  error: <XCircle size={18} className="text-red-700 shrink-0 mt-0.5" />,
 };
 
 export default function NotificationsPage() {
@@ -39,24 +39,22 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 text-slate-100">
+    <div className="max-w-2xl mx-auto space-y-6 text-slate-800">
       <SlideIn direction="left">
-        <div className="[&_h2]:!text-white [&_p]:!text-slate-400">
-          <SectionHeader
-            title="Notifications"
-            description={loading ? 'Loading…' : unread > 0 ? `${unread} unread` : 'All caught up!'}
-            action={
-              unread > 0 ? (
-                <button
-                  onClick={markAllRead}
-                  className="flex items-center gap-1.5 text-xs text-primary-400 hover:text-primary-300 font-bold bg-primary-500/10 border border-primary-500/20 px-3 py-1.5 rounded-lg transition-colors"
-                >
-                  <CheckCheck size={14} /> Mark all read
-                </button>
-              ) : null
-            }
-          />
-        </div>
+        <SectionHeader
+          title="Notifications"
+          description={loading ? 'Checking for updates…' : unread > 0 ? `You have ${unread} unread notifications` : 'You are all caught up!'}
+          action={
+            unread > 0 ? (
+              <button
+                onClick={markAllRead}
+                className="inline-flex items-center gap-1.5 text-xs text-primary-700 hover:text-primary-800 font-bold bg-primary-50 border border-primary-200 px-3.5 py-2 rounded-xl transition-colors shadow-xs"
+              >
+                <CheckCheck size={14} /> Mark all as read
+              </button>
+            ) : null
+          }
+        />
       </SlideIn>
 
       <FadeIn delay={0.1}>
@@ -65,33 +63,39 @@ export default function NotificationsPage() {
           error={error}
           empty={notifications.length === 0}
           emptyProps={{
-            icon: <Bell size={24} className="text-slate-500" />,
-            title: "No notifications yet",
-            description: "We'll let you know when something important happens."
+            icon: <Bell size={28} className="text-slate-400" />,
+            title: "No Notifications Yet",
+            description: "Updates regarding your soil tests, agronomist sessions, and crop residue buyer orders will appear here."
           }}
           loadingFallback={<div className="space-y-3"><CardSkeleton /><CardSkeleton /><CardSkeleton /></div>}
         >
           <div className="space-y-3">
             {notifications.map((notification, i) => (
-              <ZoomIn key={notification.id} delay={0.2 + (i * 0.05)}>
+              <ZoomIn key={notification.id} delay={0.1 + (i * 0.04)}>
                 <button
-                  className={`w-full text-left flex items-start gap-4 p-5 rounded-xl border transition-all hud-element ${
+                  className={`w-full text-left flex items-start gap-4 p-4 sm:p-5 rounded-2xl border transition-all ${
                     notification.read
-                      ? 'bg-slate-900 border-slate-800 opacity-60 hover:opacity-100'
-                      : 'bg-slate-950 border-primary-500/30 shadow-glow-sm hover:border-primary-500/50'
+                      ? 'bg-white border-slate-200/80 hover:border-slate-300 opacity-75 hover:opacity-100 shadow-xs'
+                      : 'bg-primary-50/40 border-primary-200 hover:border-primary-300 shadow-card'
                   }`}
                   onClick={() => markRead(notification.id)}
                 >
-                  <span className="shrink-0 mt-0.5">{TYPE_ICONS[notification.type] ?? <Info size={18} className="text-slate-500" />}</span>
+                  <span className="shrink-0 mt-0.5">
+                    {TYPE_ICONS[notification.type] ?? <Info size={18} className="text-slate-500" />}
+                  </span>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-bold ${notification.read ? 'text-slate-300' : 'text-slate-100'}`}>
+                    <p className={`text-sm font-bold ${notification.read ? 'text-slate-800' : 'text-slate-950'}`}>
                       {notification.title}
                     </p>
-                    <p className={`text-sm mt-0.5 ${notification.read ? 'text-slate-500' : 'text-slate-400'}`}>{notification.message}</p>
-                    <p className="text-xs text-slate-500 mt-2 font-semibold uppercase tracking-wider">{formatRelativeTime(notification.createdAt)}</p>
+                    <p className={`text-xs sm:text-sm mt-0.5 ${notification.read ? 'text-slate-500' : 'text-slate-700'}`}>
+                      {notification.message}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-2 font-semibold">
+                      {formatRelativeTime(notification.createdAt)}
+                    </p>
                   </div>
                   {!notification.read && (
-                    <span className="h-2.5 w-2.5 rounded-full bg-primary-500 mt-1.5 shrink-0 shadow-glow-sm" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-primary-700 mt-1.5 shrink-0" />
                   )}
                 </button>
               </ZoomIn>
@@ -102,3 +106,4 @@ export default function NotificationsPage() {
     </div>
   );
 }
+
