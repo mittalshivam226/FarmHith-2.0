@@ -1,34 +1,34 @@
 'use client';
+
 import React from 'react';
-import { BookOpen, Clock, User, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { BookOpen, Clock, User, ArrowRight, Sparkles, Leaf, Tag } from 'lucide-react';
 import WebsiteNav from '../components/WebsiteNav';
-import { CursorGlow } from '../components/CursorGlow';
-import { FadeIn, SlideIn, ZoomIn, StaggerText } from '../components/Animations';
 
 export default function BlogPage() {
   const posts = [
     {
       title: 'The Real Value of Crop Residue: Stop Burning, Start Earning',
-      excerpt: 'Discover how selling your paddy straw to Bio-Pellet plants through FarmHith can increase your seasonal earnings and protect the environment.',
+      excerpt: 'Discover how selling your paddy and wheat straw to bio-pellet plants through FarmHith can add tens of thousands to seasonal farm income while combating smog.',
       category: 'Marketplace',
       readTime: '5 min read',
-      author: 'FarmHith Team',
+      author: 'FarmHith Agronomy Desk',
       date: 'May 12, 2024',
       image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=800&auto=format&fit=crop'
     },
     {
-      title: 'Understanding Your Soil Test Report: A Beginner\'s Guide',
-      excerpt: 'NPK? pH? Organic Carbon? We break down exactly what your laboratory soil test means and how to apply the recommended fertilisers.',
+      title: 'Understanding Your Soil Test Report: A Farmer\'s Guide to NPK & pH',
+      excerpt: 'Nitrogen, Phosphorus, Potassium, Organic Carbon, and Micronutrients explained in simple terms with precise guidance on avoiding fertilizer wastage.',
       category: 'Soil Testing',
       readTime: '8 min read',
-      author: 'Dr. Amit Sharma',
+      author: 'Dr. Amit Sharma (Senior Agronomist)',
       date: 'April 28, 2024',
       image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=800&auto=format&fit=crop'
     },
     {
-      title: 'Meet the Soil-Mitras: Revolutionizing Digital Agriculture',
-      excerpt: 'Learn how verified agricultural experts are using video consultations to solve real-time farm crises across India.',
-      category: 'Expert Advice',
+      title: 'Meet the Soil-Mitras: How Tele-Agronomy Solves Crop Crises',
+      excerpt: 'How certified agriculture officers use live video calls and historical diagnostic reports to stop pest outbreaks before they destroy harvest yields.',
+      category: 'Expert Advisory',
       readTime: '4 min read',
       author: 'Neha Verma',
       date: 'April 15, 2024',
@@ -37,67 +37,120 @@ export default function BlogPage() {
   ];
 
   return (
-    <div className="landing-root bg-slate-950 text-slate-100 min-h-screen">
-      <CursorGlow />
+    <div className="landing-root">
+      <div className="bg-pattern" />
       <WebsiteNav />
 
-      <section className="relative pt-40 pb-20 px-6 text-center overflow-hidden border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
-        <div className="cyber-grid opacity-20" />
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <FadeIn>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-400 text-sm font-semibold tracking-wide uppercase shadow-glow-sm mb-8">
-              <BookOpen size={14} />
-              <span>Educational Resources</span>
-            </div>
-          </FadeIn>
-          <StaggerText 
-            text="FarmHith Insights" 
-            className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight" 
-            delay={0.1}
-          />
-          <FadeIn delay={0.4}>
-            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-              Expert advice, farming tips, and platform updates to help you grow better.
-            </p>
-          </FadeIn>
+      {/* ═══════════════ HERO ════════════════════════════════ */}
+      <section className="relative pt-36 pb-20 px-6 text-center border-b border-slate-200 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="section-label mb-6">
+            <Sparkles size={14} />
+            <span>Educational Resources</span>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 leading-tight tracking-tight">
+            FarmHith Agronomy & <br />
+            <span className="text-emerald">Market Insights.</span>
+          </h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Practical agricultural guides, residue monetization strategies, and seasonal advice from certified crop doctors.
+          </p>
         </div>
       </section>
 
-      <section className="py-24 px-6 bg-slate-900/50">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          {posts.map((post, i) => (
-            <ZoomIn key={i} delay={i * 0.15}>
-              <div className="bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-glow-sm hover:border-primary-500/30 transition-all flex flex-col group cursor-pointer h-full hud-element">
-                <div className="relative h-64 overflow-hidden bg-slate-900">
-                  <img src={post.image} alt={post.title} className="w-full h-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105 group-hover:opacity-100" />
-                  <div className="absolute top-4 left-4 bg-slate-950/80 backdrop-blur-md text-primary-400 font-bold text-xs uppercase tracking-wider px-3 py-1.5 rounded-lg border border-primary-500/30 shadow-glow-sm">
-                    {post.category}
-                  </div>
+      {/* ═══════════════ BLOG GRID ═══════════════════════════ */}
+      <section className="py-20 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {posts.map((post) => (
+            <article
+              key={post.title}
+              className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md hover:border-primary-300 transition-all flex flex-col group"
+            >
+              <div className="relative h-56 overflow-hidden bg-slate-100">
+                <img
+                  src={post.image}
+                  alt={post.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-primary-800 font-bold text-xs uppercase tracking-wider px-3 py-1 rounded-md border border-primary-200 shadow-sm flex items-center gap-1">
+                  <Tag size={12} /> {post.category}
                 </div>
-                <div className="p-8 flex flex-col flex-1">
-                  <h3 className="text-2xl font-bold text-white mb-4 leading-snug group-hover:text-primary-400 transition-colors">{post.title}</h3>
-                  <p className="text-slate-400 font-medium mb-8 line-clamp-3 leading-relaxed">{post.excerpt}</p>
-                  
-                  <div className="mt-auto pt-6 border-t border-slate-800 flex items-center justify-between text-sm font-bold text-slate-500 uppercase tracking-wider">
-                    <div className="flex items-center gap-2">
-                      <User size={14} className="text-primary-400" /> {post.author}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock size={14} className="text-primary-400" /> {post.readTime}
-                    </div>
+              </div>
+
+              <div className="p-6 flex flex-col flex-1">
+                <h2 className="text-xl font-bold text-slate-900 mb-3 leading-snug group-hover:text-primary-700 transition-colors">
+                  {post.title}
+                </h2>
+                <p className="text-sm text-slate-600 mb-6 line-clamp-3 leading-relaxed">
+                  {post.excerpt}
+                </p>
+
+                <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+                  <div className="flex items-center gap-1.5 truncate max-w-[170px]">
+                    <User size={14} className="text-primary-600 shrink-0" />
+                    <span className="truncate">{post.author}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Clock size={14} className="text-primary-600" />
+                    <span>{post.readTime}</span>
                   </div>
                 </div>
               </div>
-            </ZoomIn>
+            </article>
           ))}
         </div>
 
-        <FadeIn delay={0.6} className="mt-20 text-center">
-          <button onClick={() => alert('More articles are currently being written. Check back soon!')} className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-slate-800/80 backdrop-blur-md border border-slate-700 text-white font-bold text-lg hover:bg-slate-700 transition-all shadow-glow-sm">
-            Load More Articles <ArrowRight size={18} />
-          </button>
-        </FadeIn>
+        {/* Newsletter / Registration Prompt */}
+        <div className="mt-16 bg-white border border-slate-200 rounded-3xl p-8 md:p-12 text-center shadow-sm max-w-3xl mx-auto">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-primary-50 border border-primary-200 flex items-center justify-center text-primary-700 mb-5">
+            <BookOpen size={28} />
+          </div>
+          <h3 className="text-2xl font-bold text-slate-900 mb-2">Want new farming guides sent to your phone?</h3>
+          <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-6">
+            Register your farmer account today to receive seasonal pest alerts, crop advisories, and updated residue market prices.
+          </p>
+          <Link href="/register" className="btn-primary-sm" style={{ display: 'inline-flex', padding: '0.75rem 1.75rem' }}>
+            Join FarmHith Free <ArrowRight size={16} />
+          </Link>
+        </div>
       </section>
+
+      {/* ═══════════════ FOOTER ══════════════════════════════ */}
+      <footer className="footer">
+        <div className="footer-inner">
+          <div className="footer-brand">
+            <div className="logo">
+              <div className="logo-icon"><Leaf size={20} /></div>
+              <span className="logo-text">FarmHith</span>
+            </div>
+            <p className="footer-tagline">Empowering Indian farmers with scientific precision, expert advisory, and sustainable biomass revenue.</p>
+          </div>
+          <div className="footer-links">
+            <div>
+              <p className="footer-heading">Services</p>
+              <Link href="/register" className="footer-link">Soil Testing</Link>
+              <Link href="/register" className="footer-link">Soil-Mitra Advisory</Link>
+              <Link href="/register" className="footer-link">Residue Marketplace</Link>
+            </div>
+            <div>
+              <p className="footer-heading">Company</p>
+              <Link href="/about" className="footer-link">About Us</Link>
+              <Link href="/features" className="footer-link">Features</Link>
+              <Link href="/blog" className="footer-link">Blog</Link>
+              <Link href="/faq" className="footer-link">FAQs</Link>
+              <Link href="/contact" className="footer-link">Contact</Link>
+            </div>
+            <div>
+              <p className="footer-heading">Account</p>
+              <Link href="/register" className="footer-link">Register</Link>
+              <Link href="/login" className="footer-link">Login</Link>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>© {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
