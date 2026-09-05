@@ -1,207 +1,180 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import WebsiteNav from '../components/WebsiteNav';
 import {
-  FlaskConical, Users, ShoppingBasket, CheckCircle,
+  FlaskConical, Users, ShoppingBasket, CheckCircle2,
   ArrowRight, Leaf, Shield, TrendingUp, Clock,
-  MapPin, FileText, Star, Sparkles, Globe
+  MapPin, FileText, Star, Sparkles, Globe, Award
 } from 'lucide-react';
 
-const FEATURE_SECTIONS = [
+const TABS = [
   {
-    tag: 'Soil Testing',
-    icon: <FlaskConical size={26} className="text-primary-700" />,
-    badgeBg: 'bg-primary-50 text-primary-800 border-primary-200',
-    title: 'Precision Soil Testing — Decoded.',
-    sub: 'Stop guessing fertiliser amounts. Get certified laboratory soil diagnostics delivered to your phone in 5 days.',
+    id: 'soil-test',
+    label: 'Soil Testing Network',
+    icon: <FlaskConical size={18} />,
+    title: 'Precision Laboratory Diagnostics in 5 Days.',
+    sub: 'Stop applying random fertiliser amounts. Get empirical NPK and micronutrient diagnostics with geo-tagged sample collection and crop-specific dosing.',
     points: [
-      { icon: <MapPin size={18} className="text-primary-600" />, title: 'Nearest NABL Partner Lab', desc: 'Matched automatically to certified district testing facilities with sample pickup.' },
-      { icon: <FileText size={18} className="text-primary-600" />, title: 'Detailed NPK & pH Metrics', desc: 'Accurate Nitrogen, Phosphorus, Potassium, Organic Carbon, and Micronutrient levels.' },
-      { icon: <Globe size={18} className="text-primary-600" />, title: 'Multilingual Digital Reports', desc: 'Read your diagnostic report in Hindi, Punjabi, Marathi, Telugu, or English.' },
-      { icon: <Clock size={18} className="text-primary-600" />, title: 'Guaranteed 5-Day SLA', desc: 'From sample collection to digital dashboard notification in 5 business days.' },
-      { icon: <TrendingUp size={18} className="text-primary-600" />, title: 'Crop-Specific Dosing', desc: 'Tailored fertiliser schedule to optimize root absorption and prevent soil toxicity.' },
-      { icon: <Shield size={18} className="text-primary-600" />, title: 'Accredited Quality Standard', desc: 'Standardized protocols ensuring reliable accuracy for every tested acre.' },
+      { title: '600+ Partner NABL Labs', desc: 'ISO/IEC 17025 accredited district testing centers.' },
+      { title: 'Full 14-Parameter Panel', desc: 'pH, EC, Organic Carbon, Nitrogen, Phosphorus, Potassium, Zinc, Iron, and Copper.' },
+      { title: '5-Day Guaranteed SLA', desc: 'SMS alert and PDF report on your phone within 5 business days.' },
+      { title: 'Multilingual Recommendations', desc: 'Easy-to-follow fertiliser prescriptions in Punjabi, Hindi, Marathi, and Telugu.' },
     ],
+    image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?q=80&w=1200&auto=format&fit=crop',
+    cta: '/register',
     ctaText: 'Book a Soil Test',
-    image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?q=80&w=1000&auto=format&fit=crop',
-    imageAlt: 'Agricultural Soil Laboratory Testing',
-    reverse: false,
   },
   {
-    tag: 'Soil-Mitra Advisory',
-    icon: <Users size={26} className="text-amber-700" />,
-    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200',
-    title: 'Expert Agronomist Guidance — On Demand.',
-    sub: 'Connect with verified agricultural officers and crop scientists whenever you face disease, pests, or nutrient deficiency.',
+    id: 'mitra',
+    label: 'Soil-Mitra Advisory',
+    icon: <Users size={18} />,
+    title: '1-on-1 Tele-Agronomy with Certified Experts.',
+    sub: 'Direct video consultations with university agronomists, crop scientists, and retired agriculture officers whenever pest infestations or disease strike.',
     points: [
-      { icon: <Users size={18} className="text-amber-600" />, title: '1-on-1 Video Consultations', desc: 'Private video sessions directly from your field with verified crop doctors.' },
-      { icon: <FileText size={18} className="text-amber-600" />, title: 'Live Report Sharing', desc: 'Share your soil test history inside the call for instant data-driven advice.' },
-      { icon: <Star size={18} className="text-amber-600" />, title: 'Verified & Rated Experts', desc: 'Browse credentials, specializations, degrees, and community ratings.' },
-      { icon: <Globe size={18} className="text-amber-600" />, title: 'Regional Dialects', desc: 'Speak to agronomists who understand your local soil and climate nuances.' },
-      { icon: <Clock size={18} className="text-amber-600" />, title: 'Flexible Scheduling', desc: 'Book morning, afternoon, or evening slots fitting your farming routine.' },
-      { icon: <Shield size={18} className="text-amber-600" />, title: 'Follow-Up Treatment Plans', desc: 'Receive structured treatment summaries after each completed consultation.' },
+      { title: 'Verified Degrees & Certifications', desc: 'All Mitras hold B.Sc, M.Sc, or Ph.D in Agricultural Sciences.' },
+      { title: 'Live Report Sharing in Video Room', desc: 'Review historical soil test results live during the consultation call.' },
+      { title: 'Regional Dialect Matching', desc: 'Consult in your native language with zero communication friction.' },
+      { title: 'Follow-Up Dosage Prescriptions', desc: 'Download structured post-call treatment plans directly to your dashboard.' },
     ],
-    ctaText: 'Consult an Expert',
-    image: 'https://images.unsplash.com/photo-1595804368593-cc43ba2986f3?q=80&w=1000&auto=format&fit=crop',
-    imageAlt: 'Expert Farmer Video Consultation',
-    reverse: true,
+    image: 'https://images.unsplash.com/photo-1595804368593-cc43ba2986f3?q=80&w=1200&auto=format&fit=crop',
+    cta: '/register',
+    ctaText: 'Find an Expert',
   },
   {
-    tag: 'Residue Marketplace',
-    icon: <ShoppingBasket size={26} className="text-emerald-700" />,
-    badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-    title: 'Turn Stubble Into Guaranteed Income.',
-    sub: 'Stop burning crop residue. Sell paddy straw, wheat straw, and sugarcane bagasse to certified bio-pellet plants.',
+    id: 'marketplace',
+    label: 'Residue Marketplace',
+    icon: <ShoppingBasket size={18} />,
+    title: 'Guaranteed Stubble Buyback & Zero-Burning.',
+    sub: 'Turn paddy straw, wheat straw, and sugarcane trash into seasonal revenue with assured floor prices, digital weight slips, and direct bank payouts.',
     points: [
-      { icon: <TrendingUp size={18} className="text-emerald-600" />, title: 'Fair Market Index Pricing', desc: 'Transparent rate models guarantee competitive returns for every metric ton.' },
-      { icon: <MapPin size={18} className="text-emerald-600" />, title: 'Doorstep Pickup Logistics', desc: 'Industrial buyers coordinate transport directly from your farm perimeter.' },
-      { icon: <Clock size={18} className="text-emerald-600" />, title: 'Direct Bank Settlement', desc: 'Secure payouts credited directly to your bank account within 7 days of pickup.' },
-      { icon: <FileText size={18} className="text-emerald-600" />, title: 'All Biomass Types Supported', desc: 'Paddy straw, wheat straw, mustard husk, sugarcane trash, and cotton stalk.' },
-      { icon: <Shield size={18} className="text-emerald-600" />, title: 'Digital Procurement Slips', desc: 'Every transaction is digitally authenticated with weight slips and receipts.' },
-      { icon: <Globe size={18} className="text-emerald-600" />, title: 'Clean Air & Carbon Savings', desc: 'Prevent air pollution and receive verified certificates for clean farm practices.' },
+      { title: 'Guaranteed Floor Index Price', desc: 'Transparent rate models indexed against industrial bio-pellet demand.' },
+      { title: 'Free Doorstep Field Pickup', desc: 'Transport and baling logistics managed directly by verified buyers.' },
+      { title: 'Direct NEFT / UPI Payouts', desc: 'Full settlement credited within 7 business days of pickup.' },
+      { title: 'Verified Carbon Offset Credits', desc: 'Earn clean farming badges for diverting hazardous smoke and smog.' },
     ],
-    ctaText: 'List Residue For Sale',
-    image: 'https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=1000&auto=format&fit=crop',
-    imageAlt: 'Biomass and Crop Residue Management',
-    reverse: false,
+    image: 'https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=1200&auto=format&fit=crop',
+    cta: '/register',
+    ctaText: 'List Crop Residue',
   },
 ];
 
 export default function FeaturesPage() {
+  const [activeTab, setActiveTab] = useState(0);
+
   return (
-    <div className="landing-root">
-      <div className="bg-pattern" />
+    <div className="landing-root bg-[#fbfdfa] text-slate-900">
       <WebsiteNav />
 
+      {/* Ambient background light */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-emerald-100/35 blur-[140px]" />
+      </div>
+
       {/* ═══════════════ HERO ════════════════════════════════ */}
-      <section className="relative pt-36 pb-20 px-6 text-center border-b border-slate-200 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="section-label mb-6">
-            <Sparkles size={14} />
-            <span>Platform Capabilities</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 leading-tight tracking-tight">
-            Built for the Modern <br />
-            <span className="text-emerald">Indian Farmer.</span>
-          </h1>
-          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Every feature on FarmHith is designed to eliminate uncertainty, protect your soil health, and maximize seasonal agricultural profitability.
-          </p>
+      <section className="relative z-10 pt-36 pb-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
+          <Sparkles size={14} /> Comprehensive Agri-Platform
+        </div>
+        <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6">
+          Every tool you need to <br />
+          <span className="text-gradient-emerald">maximize your farm&apos;s output.</span>
+        </h1>
+        <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto font-medium leading-relaxed">
+          From empirical soil chemistry to real-time tele-agronomy and biomass monetization, FarmHith delivers an end-to-end digital infrastructure for modern Indian farmers.
+        </p>
+
+        {/* Tab Switcher Pills */}
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-12 bg-white/80 backdrop-blur-xl p-2 rounded-2xl border border-slate-200 shadow-sm max-w-2xl mx-auto">
+          {TABS.map((tab, idx) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(idx)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                activeTab === idx
+                  ? 'bg-primary-700 text-white shadow-md'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+            </button>
+          ))}
         </div>
       </section>
 
-      {/* ═══════════════ FEATURE BREAKDOWN ════════════════════ */}
-      <div className="max-w-7xl mx-auto px-6 py-20 space-y-24">
-        {FEATURE_SECTIONS.map((sec) => (
-          <section
-            key={sec.tag}
-            className={`grid lg:grid-cols-2 gap-12 lg:gap-16 items-center ${sec.reverse ? 'lg:grid-flow-dense' : ''}`}
-          >
-            {/* Image Column */}
-            <div className={`relative ${sec.reverse ? 'lg:col-start-2' : ''}`}>
-              <div className="rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-slate-100">
-                <img
-                  src={sec.image}
-                  alt={sec.imageAlt}
-                  className="w-full h-[400px] object-cover"
-                />
-              </div>
+      {/* ═══════════════ ACTIVE TAB CONTENT ══════════════════ */}
+      <section className="relative z-10 py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-12 shadow-xl grid lg:grid-cols-12 gap-10 items-center">
+          
+          <div className="lg:col-span-6 space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold uppercase tracking-wider text-emerald-800">
+              <Award size={14} /> Service Overview
             </div>
+            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight">
+              {TABS[activeTab].title}
+            </h2>
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
+              {TABS[activeTab].sub}
+            </p>
 
-            {/* Content Column */}
-            <div className={`space-y-6 ${sec.reverse ? 'lg:col-start-1' : ''}`}>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider bg-slate-50 border-slate-200 text-slate-700">
-                {sec.icon}
-                <span>{sec.tag}</span>
-              </div>
-
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
-                {sec.title}
-              </h2>
-
-              <p className="text-slate-600 text-base md:text-lg leading-relaxed">
-                {sec.sub}
-              </p>
-
-              <div className="grid sm:grid-cols-2 gap-4 pt-2">
-                {sec.points.map((p) => (
-                  <div key={p.title} className="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
-                    <div className="flex items-center gap-2.5 font-bold text-slate-900 text-sm mb-1.5">
-                      {p.icon}
-                      <span>{p.title}</span>
-                    </div>
-                    <p className="text-xs text-slate-600 leading-relaxed pl-7">{p.desc}</p>
+            <div className="grid sm:grid-cols-2 gap-4 pt-2">
+              {TABS[activeTab].points.map((p) => (
+                <div key={p.title} className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="font-bold text-slate-900 text-sm mb-1 flex items-center gap-2">
+                    <CheckCircle2 size={16} className="text-primary-700 shrink-0" />
+                    <span>{p.title}</span>
                   </div>
-                ))}
-              </div>
-
-              <div className="pt-4">
-                <Link
-                  href="/register"
-                  className="btn-primary-sm"
-                  style={{ display: 'inline-flex', padding: '0.75rem 1.75rem', fontSize: '0.95rem' }}
-                >
-                  {sec.ctaText} <ArrowRight size={16} />
-                </Link>
-              </div>
+                  <p className="text-xs text-slate-600 leading-relaxed pl-6">{p.desc}</p>
+                </div>
+              ))}
             </div>
-          </section>
-        ))}
-      </div>
+
+            <div className="pt-4">
+              <Link
+                href={TABS[activeTab].cta}
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-primary-700 hover:bg-primary-800 text-white font-bold text-sm shadow-md transition-all"
+              >
+                <span>{TABS[activeTab].ctaText}</span>
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+
+          <div className="lg:col-span-6">
+            <div className="rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-100 max-h-[440px]">
+              <img
+                src={TABS[activeTab].image}
+                alt={TABS[activeTab].title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+        </div>
+      </section>
 
       {/* ═══════════════ FINAL CTA ═══════════════════════════ */}
-      <section className="cta-section">
-        <div className="cta-inner">
-          <h2 className="cta-title">Ready to modernize your farm?</h2>
-          <p className="cta-sub">Create your free account today and access all certified agricultural services.</p>
-          <div className="hero-actions">
-            <Link href="/register" className="btn-primary-lg">
-              Create Free Account <ArrowRight size={20} />
-            </Link>
-            <Link href="/login" className="btn-outline-lg">
-              Already Registered? Log in
-            </Link>
-          </div>
+      <section className="relative z-10 py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        <div className="bg-gradient-to-br from-emerald-900 to-primary-900 text-white rounded-3xl p-10 sm:p-14 shadow-2xl max-w-4xl mx-auto border border-emerald-500/30">
+          <h2 className="text-3xl sm:text-4xl font-black mb-4">Start Upgrading Your Farm Today</h2>
+          <p className="text-slate-200 text-base mb-8 max-w-2xl mx-auto">
+            Join over 50,000 farmers maximizing their agricultural margins.
+          </p>
+          <Link
+            href="/register"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-white text-emerald-950 font-black text-base shadow-lg hover:bg-emerald-50 transition-all hover:scale-105"
+          >
+            <span>Create Free Account</span>
+            <ArrowRight size={18} />
+          </Link>
         </div>
       </section>
 
       {/* ═══════════════ FOOTER ══════════════════════════════ */}
-      <footer className="footer">
-        <div className="footer-inner">
-          <div className="footer-brand">
-            <div className="logo">
-              <div className="logo-icon"><Leaf size={20} /></div>
-              <span className="logo-text">FarmHith</span>
-            </div>
-            <p className="footer-tagline">Empowering Indian farmers with scientific precision, expert advisory, and sustainable biomass revenue.</p>
-          </div>
-          <div className="footer-links">
-            <div>
-              <p className="footer-heading">Services</p>
-              <Link href="/register" className="footer-link">Soil Testing</Link>
-              <Link href="/register" className="footer-link">Soil-Mitra Advisory</Link>
-              <Link href="/register" className="footer-link">Residue Marketplace</Link>
-            </div>
-            <div>
-              <p className="footer-heading">Company</p>
-              <Link href="/about" className="footer-link">About Us</Link>
-              <Link href="/features" className="footer-link">Features</Link>
-              <Link href="/blog" className="footer-link">Blog</Link>
-              <Link href="/faq" className="footer-link">FAQs</Link>
-              <Link href="/contact" className="footer-link">Contact</Link>
-            </div>
-            <div>
-              <p className="footer-heading">Account</p>
-              <Link href="/register" className="footer-link">Register</Link>
-              <Link href="/login" className="footer-link">Login</Link>
-            </div>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.</p>
-        </div>
+      <footer className="relative z-10 border-t border-slate-200 bg-white py-12 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 font-medium">
+        <p>© {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.</p>
       </footer>
     </div>
   );
