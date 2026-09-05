@@ -6,258 +6,201 @@ import WebsiteNav from '../components/WebsiteNav';
 import {
   FlaskConical, Users, ShoppingBasket, CheckCircle,
   ArrowRight, Leaf, Shield, TrendingUp, Clock,
-  MapPin, FileText, Star, Zap, Globe,
+  MapPin, FileText, Star, Sparkles, Globe
 } from 'lucide-react';
-import { CursorGlow } from '../components/CursorGlow';
-import { FadeIn, SlideIn, ZoomIn, StaggerText } from '../components/Animations';
-import { motion } from 'framer-motion';
 
 const FEATURE_SECTIONS = [
   {
     tag: 'Soil Testing',
-    icon: <FlaskConical size={28} />,
-    color: 'text-success-400',
-    bgColor: 'bg-success-500/10',
-    borderColor: 'border-success-500/30',
+    icon: <FlaskConical size={26} className="text-primary-700" />,
+    badgeBg: 'bg-primary-50 text-primary-800 border-primary-200',
     title: 'Precision Soil Testing — Decoded.',
-    sub: 'No more guesswork. Get lab-certified, crop-specific soil analysis in days, not weeks.',
+    sub: 'Stop guessing fertiliser amounts. Get certified laboratory soil diagnostics delivered to your phone in 5 days.',
     points: [
-      { icon: <MapPin size={18} />, title: 'Nearest NABL Lab', desc: 'We match you to the closest certified lab in your district — no travel needed.' },
-      { icon: <FileText size={18} />, title: 'Detailed NPK Reports', desc: 'pH, Nitrogen, Phosphorus, Potassium, micronutrients — everything in one structured report.' },
-      { icon: <Globe size={18} />, title: 'Multilingual Results', desc: 'Get your results in Hindi, Punjabi, Marathi, Telugu, or English. Your language, your way.' },
-      { icon: <Clock size={18} />, title: 'Delivered in 5 Days', desc: 'From sample collection to digital report — 5 working days, guaranteed.' },
-      { icon: <TrendingUp size={18} />, title: 'Crop Recommendations', desc: 'Every report includes a tailored fertiliser plan for your exact crop and soil profile.' },
-      { icon: <Shield size={18} />, title: 'NABL Certified Labs', desc: "All partner labs are NABL-accredited and verified by FarmHith's quality team." },
+      { icon: <MapPin size={18} className="text-primary-600" />, title: 'Nearest NABL Partner Lab', desc: 'Matched automatically to certified district testing facilities with sample pickup.' },
+      { icon: <FileText size={18} className="text-primary-600" />, title: 'Detailed NPK & pH Metrics', desc: 'Accurate Nitrogen, Phosphorus, Potassium, Organic Carbon, and Micronutrient levels.' },
+      { icon: <Globe size={18} className="text-primary-600" />, title: 'Multilingual Digital Reports', desc: 'Read your diagnostic report in Hindi, Punjabi, Marathi, Telugu, or English.' },
+      { icon: <Clock size={18} className="text-primary-600" />, title: 'Guaranteed 5-Day SLA', desc: 'From sample collection to digital dashboard notification in 5 business days.' },
+      { icon: <TrendingUp size={18} className="text-primary-600" />, title: 'Crop-Specific Dosing', desc: 'Tailored fertiliser schedule to optimize root absorption and prevent soil toxicity.' },
+      { icon: <Shield size={18} className="text-primary-600" />, title: 'Accredited Quality Standard', desc: 'Standardized protocols ensuring reliable accuracy for every tested acre.' },
     ],
-    cta: '/register',
-    ctaText: 'Book Your First Test',
-    image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?q=80&w=1000&auto=format&fit=crop', // Dark lab test image
+    ctaText: 'Book a Soil Test',
+    image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?q=80&w=1000&auto=format&fit=crop',
+    imageAlt: 'Agricultural Soil Laboratory Testing',
+    reverse: false,
   },
   {
-    tag: 'Soil-Mitra Consultations',
-    icon: <Users size={28} />,
-    color: 'text-warning-400',
-    bgColor: 'bg-warning-500/10',
-    borderColor: 'border-warning-500/30',
-    title: 'Expert Guidance — On Demand.',
-    sub: 'Talk to a verified agricultural expert whenever you need help. No waiting rooms. No travel.',
+    tag: 'Soil-Mitra Advisory',
+    icon: <Users size={26} className="text-amber-700" />,
+    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200',
+    title: 'Expert Agronomist Guidance — On Demand.',
+    sub: 'Connect with verified agricultural officers and crop scientists whenever you face disease, pests, or nutrient deficiency.',
     points: [
-      { icon: <Users size={18} />, title: '1-on-1 Video Calls', desc: 'Book private sessions with certified agronomists and agriculture officers.' },
-      { icon: <FileText size={18} />, title: 'Share Soil Reports Live', desc: 'Send your lab report directly in the session — get instant, data-backed advice.' },
-      { icon: <Star size={18} />, title: 'Verified & Rated Experts', desc: 'Every Mitra is background-checked, certified, and community-rated for quality.' },
-      { icon: <Globe size={18} />, title: 'Multilingual Sessions', desc: 'Choose your Mitra based on language expertise — no language barrier ever.' },
-      { icon: <Clock size={18} />, title: 'Flexible Scheduling', desc: 'Book morning, afternoon, or evening slots that fit your farm schedule.' },
-      { icon: <Shield size={18} />, title: 'Admin-Verified Mitras', desc: 'Every Soil-Mitra is manually verified by FarmHith admins before going live.' },
+      { icon: <Users size={18} className="text-amber-600" />, title: '1-on-1 Video Consultations', desc: 'Private video sessions directly from your field with verified crop doctors.' },
+      { icon: <FileText size={18} className="text-amber-600" />, title: 'Live Report Sharing', desc: 'Share your soil test history inside the call for instant data-driven advice.' },
+      { icon: <Star size={18} className="text-amber-600" />, title: 'Verified & Rated Experts', desc: 'Browse credentials, specializations, degrees, and community ratings.' },
+      { icon: <Globe size={18} className="text-amber-600" />, title: 'Regional Dialects', desc: 'Speak to agronomists who understand your local soil and climate nuances.' },
+      { icon: <Clock size={18} className="text-amber-600" />, title: 'Flexible Scheduling', desc: 'Book morning, afternoon, or evening slots fitting your farming routine.' },
+      { icon: <Shield size={18} className="text-amber-600" />, title: 'Follow-Up Treatment Plans', desc: 'Receive structured treatment summaries after each completed consultation.' },
     ],
-    cta: '/register',
-    ctaText: 'Find Your Mitra',
+    ctaText: 'Consult an Expert',
     image: 'https://images.unsplash.com/photo-1595804368593-cc43ba2986f3?q=80&w=1000&auto=format&fit=crop',
+    imageAlt: 'Expert Farmer Video Consultation',
+    reverse: true,
   },
   {
     tag: 'Residue Marketplace',
-    icon: <ShoppingBasket size={28} />,
-    color: 'text-info-400',
-    bgColor: 'bg-info-500/10',
-    borderColor: 'border-info-500/30',
-    title: 'Turn Stubble Into Income.',
-    sub: 'Stop burning. Start earning. Connect with bio-pellet plants that want exactly what your field produces.',
+    icon: <ShoppingBasket size={26} className="text-emerald-700" />,
+    badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    title: 'Turn Stubble Into Guaranteed Income.',
+    sub: 'Stop burning crop residue. Sell paddy straw, wheat straw, and sugarcane bagasse to certified bio-pellet plants.',
     points: [
-      { icon: <TrendingUp size={18} />, title: 'Best Market Prices', desc: 'FarmHith-assured pricing means you always get a fair, transparent rate for your residue.' },
-      { icon: <MapPin size={18} />, title: 'Free Pickup Logistics', desc: 'We coordinate pickup directly from your field — no transport costs on your end.' },
-      { icon: <Clock size={18} />, title: 'Same-Week Payment', desc: 'Funds transferred to your registered bank account within 7 days of pickup.' },
-      { icon: <FileText size={18} />, title: 'All Residue Types', desc: 'Paddy straw, wheat straw, sugarcane bagasse, cotton stalks — all welcome.' },
-      { icon: <Shield size={18} />, title: 'Secure Contracts', desc: 'Every transaction is backed by a platform agreement — no payment risk.' },
-      { icon: <Globe size={18} />, title: 'Eco Contribution', desc: 'Track your CO₂ savings and contribute to cleaner air in your region.' },
+      { icon: <TrendingUp size={18} className="text-emerald-600" />, title: 'Fair Market Index Pricing', desc: 'Transparent rate models guarantee competitive returns for every metric ton.' },
+      { icon: <MapPin size={18} className="text-emerald-600" />, title: 'Doorstep Pickup Logistics', desc: 'Industrial buyers coordinate transport directly from your farm perimeter.' },
+      { icon: <Clock size={18} className="text-emerald-600" />, title: 'Direct Bank Settlement', desc: 'Secure payouts credited directly to your bank account within 7 days of pickup.' },
+      { icon: <FileText size={18} className="text-emerald-600" />, title: 'All Biomass Types Supported', desc: 'Paddy straw, wheat straw, mustard husk, sugarcane trash, and cotton stalk.' },
+      { icon: <Shield size={18} className="text-emerald-600" />, title: 'Digital Procurement Slips', desc: 'Every transaction is digitally authenticated with weight slips and receipts.' },
+      { icon: <Globe size={18} className="text-emerald-600" />, title: 'Clean Air & Carbon Savings', desc: 'Prevent air pollution and receive verified certificates for clean farm practices.' },
     ],
-    cta: '/register',
-    ctaText: 'Start Selling',
+    ctaText: 'List Residue For Sale',
     image: 'https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=1000&auto=format&fit=crop',
+    imageAlt: 'Biomass and Crop Residue Management',
+    reverse: false,
   },
 ];
 
 export default function FeaturesPage() {
   return (
-    <div className="landing-root bg-slate-950 text-slate-100 min-h-screen">
-      <CursorGlow />
+    <div className="landing-root">
+      <div className="bg-pattern" />
       <WebsiteNav />
 
-      {/* Hero */}
-      <section className="relative pt-32 pb-16 px-6 text-center overflow-hidden border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
-        <div className="cyber-grid opacity-20" />
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <FadeIn>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-400 text-sm font-semibold tracking-wide uppercase shadow-glow-sm mb-8">
-              <Leaf size={14} />
-              <span>Platform Features</span>
-            </div>
-          </FadeIn>
-          <StaggerText 
-            text="Built for the Modern Indian Farmer." 
-            className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight" 
-            delay={0.1}
-          />
-          <FadeIn delay={0.4}>
-            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-              Three deeply integrated services — each solving a real problem, together transforming how India farms.
-            </p>
-          </FadeIn>
+      {/* ═══════════════ HERO ════════════════════════════════ */}
+      <section className="relative pt-36 pb-20 px-6 text-center border-b border-slate-200 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="section-label mb-6">
+            <Sparkles size={14} />
+            <span>Platform Capabilities</span>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 leading-tight tracking-tight">
+            Built for the Modern <br />
+            <span className="text-emerald">Indian Farmer.</span>
+          </h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Every feature on FarmHith is designed to eliminate uncertainty, protect your soil health, and maximize seasonal agricultural profitability.
+          </p>
         </div>
       </section>
 
-      {/* Feature Sections */}
-      {FEATURE_SECTIONS.map((f, i) => (
-        <section key={f.tag} className={`py-24 px-6 border-b border-slate-800 ${i % 2 === 1 ? 'bg-slate-900/50' : 'bg-slate-950'}`}>
-          <div className={`max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
-            
-            {/* Image Side */}
-            <div className="flex-1 w-full">
-              <ZoomIn>
-                <div className="relative rounded-2xl overflow-hidden aspect-video lg:aspect-square border border-slate-700 shadow-2xl group">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" 
-                    style={{ backgroundImage: `url(${f.image})` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-                  <div className={`absolute inset-0 ${f.bgColor} mix-blend-overlay`} />
-                </div>
-              </ZoomIn>
+      {/* ═══════════════ FEATURE BREAKDOWN ════════════════════ */}
+      <div className="max-w-7xl mx-auto px-6 py-20 space-y-24">
+        {FEATURE_SECTIONS.map((sec) => (
+          <section
+            key={sec.tag}
+            className={`grid lg:grid-cols-2 gap-12 lg:gap-16 items-center ${sec.reverse ? 'lg:grid-flow-dense' : ''}`}
+          >
+            {/* Image Column */}
+            <div className={`relative ${sec.reverse ? 'lg:col-start-2' : ''}`}>
+              <div className="rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-slate-100">
+                <img
+                  src={sec.image}
+                  alt={sec.imageAlt}
+                  className="w-full h-[400px] object-cover"
+                />
+              </div>
             </div>
 
-            {/* Content Side */}
-            <div className="flex-1 space-y-8">
-              <SlideIn direction={i % 2 === 1 ? 'right' : 'left'}>
-                <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border ${f.borderColor} ${f.bgColor} ${f.color} text-sm font-semibold tracking-wider mb-2`}>
-                  {f.icon} {f.tag}
-                </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">{f.title}</h2>
-              </SlideIn>
-              
-              <SlideIn direction={i % 2 === 1 ? 'right' : 'left'} delay={0.2}>
-                <p className="text-lg text-slate-400 leading-relaxed">{f.sub}</p>
-              </SlideIn>
+            {/* Content Column */}
+            <div className={`space-y-6 ${sec.reverse ? 'lg:col-start-1' : ''}`}>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider bg-slate-50 border-slate-200 text-slate-700">
+                {sec.icon}
+                <span>{sec.tag}</span>
+              </div>
 
-              <div className="grid sm:grid-cols-2 gap-6 mt-8">
-                {f.points.map((p, idx) => (
-                  <FadeIn key={p.title} delay={0.3 + (idx * 0.1)}>
-                    <div className="flex flex-col gap-2">
-                      <div className={`flex items-center gap-2 font-bold ${f.color}`}>
-                        {p.icon}
-                        <span>{p.title}</span>
-                      </div>
-                      <p className="text-slate-400 text-sm leading-relaxed">{p.desc}</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+                {sec.title}
+              </h2>
+
+              <p className="text-slate-600 text-base md:text-lg leading-relaxed">
+                {sec.sub}
+              </p>
+
+              <div className="grid sm:grid-cols-2 gap-4 pt-2">
+                {sec.points.map((p) => (
+                  <div key={p.title} className="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2.5 font-bold text-slate-900 text-sm mb-1.5">
+                      {p.icon}
+                      <span>{p.title}</span>
                     </div>
-                  </FadeIn>
+                    <p className="text-xs text-slate-600 leading-relaxed pl-7">{p.desc}</p>
+                  </div>
                 ))}
               </div>
 
-              <SlideIn direction={i % 2 === 1 ? 'right' : 'left'} delay={0.6}>
-                <Link href={f.cta} className={`inline-flex items-center gap-2 px-6 py-3 mt-4 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-colors border border-slate-700 hover:border-slate-600 shadow-glow-sm`}>
-                  {f.ctaText} <ArrowRight size={18} />
+              <div className="pt-4">
+                <Link
+                  href="/register"
+                  className="btn-primary-sm"
+                  style={{ display: 'inline-flex', padding: '0.75rem 1.75rem', fontSize: '0.95rem' }}
+                >
+                  {sec.ctaText} <ArrowRight size={16} />
                 </Link>
-              </SlideIn>
+              </div>
             </div>
+          </section>
+        ))}
+      </div>
 
-          </div>
-        </section>
-      ))}
-
-      {/* Comparison strip */}
-      <section className="py-24 px-6 relative overflow-hidden bg-slate-900">
-        <div className="absolute inset-0 bg-primary-500/5 mix-blend-screen pointer-events-none" />
-        <div className="max-w-5xl mx-auto relative z-10">
-          <FadeIn className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-sm font-semibold uppercase tracking-wider mb-4 border border-slate-700">
-              <Zap size={14} className="text-primary-400" /> Why FarmHith
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white">
-              The old way vs. <span className="text-primary-400">the FarmHith way.</span>
-            </h2>
-          </FadeIn>
-          
-          <div className="space-y-4">
-            {[
-                { old: 'Travel 30 km to a government lab', new: 'Book online, get sample collected at your field' },
-                { old: 'Wait 6–8 weeks for test results', new: 'Digital report delivered in 5 days' },
-                { old: 'Burn stubble and pay fines', new: 'Sell residue and earn money' },
-                { old: 'Hope your neighbour knows the right crop advice', new: 'Video call a verified expert in your language' },
-                { old: 'No record of your farm history', new: 'Full digital history on your dashboard' },
-                { old: 'Payment delays for crop transactions', new: 'Bank transfer within 7 days' },
-            ].map((c, i) => (
-              <SlideIn key={i} direction={i % 2 === 0 ? 'left' : 'right'} delay={i * 0.1}>
-                <div className="flex flex-col sm:flex-row gap-4 bg-slate-950 p-6 rounded-xl border border-slate-800 items-center justify-between hud-element hover:border-primary-500/30 transition-colors">
-                    <div className="flex-1 text-slate-500 flex items-center gap-3">
-                        <span className="text-error-500">❌</span> 
-                        <span className="line-through">{c.old}</span>
-                    </div>
-                    <div className="flex-1 text-slate-100 flex items-center gap-3 font-semibold">
-                        <CheckCircle size={20} className="text-success-500 shrink-0" /> 
-                        {c.new}
-                    </div>
-                </div>
-              </SlideIn>
-            ))}
+      {/* ═══════════════ FINAL CTA ═══════════════════════════ */}
+      <section className="cta-section">
+        <div className="cta-inner">
+          <h2 className="cta-title">Ready to modernize your farm?</h2>
+          <p className="cta-sub">Create your free account today and access all certified agricultural services.</p>
+          <div className="hero-actions">
+            <Link href="/register" className="btn-primary-lg">
+              Create Free Account <ArrowRight size={20} />
+            </Link>
+            <Link href="/login" className="btn-outline-lg">
+              Already Registered? Log in
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-32 px-6 relative overflow-hidden text-center bg-slate-950">
-        <div className="cyber-grid opacity-20" />
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <FadeIn>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-sm font-semibold uppercase tracking-wider mb-4 border border-slate-700">
-              <Leaf size={14} className="text-primary-400" /> Get Started
+      {/* ═══════════════ FOOTER ══════════════════════════════ */}
+      <footer className="footer">
+        <div className="footer-inner">
+          <div className="footer-brand">
+            <div className="logo">
+              <div className="logo-icon"><Leaf size={20} /></div>
+              <span className="logo-text">FarmHith</span>
             </div>
-            <h2 className="text-5xl font-black text-white mb-8">
-              Ready to farm smarter?<br /><span className="text-primary-400">It&apos;s free to join.</span>
-            </h2>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/register" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-primary-500 text-slate-950 font-bold text-lg hover:bg-primary-400 transition-all shadow-glow-md">
-                Create Free Account <ArrowRight size={18} />
-              </Link>
-              <Link href="/login" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-slate-800/80 backdrop-blur-md border border-slate-700 text-white font-bold text-lg hover:bg-slate-700 transition-all">
-                Already a member? Log in
-              </Link>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 py-16 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-12">
-          <div className="md:col-span-1">
-            <div className="flex items-center gap-2 text-white font-bold text-xl mb-4">
-              <Leaf className="text-primary-400" /> FarmHith
-            </div>
-            <p className="text-slate-500 text-sm">Empowering Indian farmers with technology, expertise, and fair markets.</p>
+            <p className="footer-tagline">Empowering Indian farmers with scientific precision, expert advisory, and sustainable biomass revenue.</p>
           </div>
-          <div>
-            <h4 className="text-white font-semibold mb-4">Services</h4>
-            <div className="space-y-2 flex flex-col text-sm">
-              <Link href="/dashboard/soil-test" className="text-slate-400 hover:text-primary-400 transition-colors">Soil Testing</Link>
-              <Link href="/dashboard/mitra" className="text-slate-400 hover:text-primary-400 transition-colors">Soil-Mitra</Link>
-              <Link href="/dashboard/marketplace" className="text-slate-400 hover:text-primary-400 transition-colors">Residue Market</Link>
+          <div className="footer-links">
+            <div>
+              <p className="footer-heading">Services</p>
+              <Link href="/register" className="footer-link">Soil Testing</Link>
+              <Link href="/register" className="footer-link">Soil-Mitra Advisory</Link>
+              <Link href="/register" className="footer-link">Residue Marketplace</Link>
             </div>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-4">Company</h4>
-            <div className="space-y-2 flex flex-col text-sm">
-              <Link href="/about" className="text-slate-400 hover:text-primary-400 transition-colors">About Us</Link>
-              <Link href="/features" className="text-slate-400 hover:text-primary-400 transition-colors">Features</Link>
-              <Link href="/blog" className="text-slate-400 hover:text-primary-400 transition-colors">Blog</Link>
+            <div>
+              <p className="footer-heading">Company</p>
+              <Link href="/about" className="footer-link">About Us</Link>
+              <Link href="/features" className="footer-link">Features</Link>
+              <Link href="/blog" className="footer-link">Blog</Link>
+              <Link href="/faq" className="footer-link">FAQs</Link>
+              <Link href="/contact" className="footer-link">Contact</Link>
             </div>
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-4">Legal</h4>
-            <div className="space-y-2 flex flex-col text-sm">
-              <Link href="/privacy" className="text-slate-400 hover:text-primary-400 transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="text-slate-400 hover:text-primary-400 transition-colors">Terms of Service</Link>
+            <div>
+              <p className="footer-heading">Account</p>
+              <Link href="/register" className="footer-link">Register</Link>
+              <Link href="/login" className="footer-link">Login</Link>
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto pt-8 border-t border-slate-800 text-center text-slate-600 text-sm">
-          &copy; {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.
+        <div className="footer-bottom">
+          <p>© {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.</p>
         </div>
       </footer>
     </div>
