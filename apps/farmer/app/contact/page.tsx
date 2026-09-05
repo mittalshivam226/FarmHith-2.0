@@ -1,9 +1,9 @@
 'use client';
+
 import React, { useState } from 'react';
-import { Mail, MapPin, Phone, MessageSquare } from 'lucide-react';
+import Link from 'next/link';
+import { Mail, MapPin, Phone, MessageSquare, Send, CheckCircle2, Sparkles, Leaf } from 'lucide-react';
 import WebsiteNav from '../components/WebsiteNav';
-import { CursorGlow } from '../components/CursorGlow';
-import { FadeIn, SlideIn, ZoomIn, StaggerText } from '../components/Animations';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', contactInfo: '', message: '' });
@@ -11,6 +11,9 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name.trim() || !formData.contactInfo.trim() || !formData.message.trim()) {
+      return;
+    }
     setStatus('loading');
     try {
       const res = await fetch('/api/contact', {
@@ -26,119 +29,211 @@ export default function ContactPage() {
       setStatus('error');
     }
   };
+
   return (
-    <div className="landing-root bg-slate-950 text-slate-100 min-h-screen">
-      <CursorGlow />
+    <div className="landing-root">
+      <div className="bg-pattern" />
       <WebsiteNav />
 
-      <section className="relative pt-40 pb-20 px-6 text-center overflow-hidden border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
-        <div className="cyber-grid opacity-20" />
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <FadeIn>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-400 text-sm font-semibold tracking-wide uppercase shadow-glow-sm mb-8">
-              <MessageSquare size={14} />
-              <span>Get in Touch</span>
-            </div>
-          </FadeIn>
-          <StaggerText 
-            text="We're here to help you grow." 
-            className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight" 
-            delay={0.1}
-          />
-          <FadeIn delay={0.4}>
-            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-              Have a question about soil testing, our marketplace, or becoming a Soil-Mitra? Reach out to our dedicated support team.
-            </p>
-          </FadeIn>
+      {/* ═══════════════ HERO ════════════════════════════════ */}
+      <section className="relative pt-36 pb-20 px-6 text-center border-b border-slate-200 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="section-label mb-6">
+            <Sparkles size={14} />
+            <span>Get in Touch</span>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 leading-tight tracking-tight">
+            We&apos;re here to <br />
+            <span className="text-emerald">help you grow.</span>
+          </h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Have questions about lab testing, scheduling a video advisory, or selling stubble? Our team is always ready to assist.
+          </p>
         </div>
       </section>
 
-      <section className="py-24 px-6 bg-slate-900/50">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
+      {/* ═══════════════ CONTACT GRID ════════════════════════ */}
+      <section className="py-20 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           
-          {/* Contact Information */}
-          <div className="flex flex-col gap-6">
-            <SlideIn direction="left" delay={0.1}>
-              <h3 className="text-3xl font-black text-white mb-6">Contact Information</h3>
-            </SlideIn>
-            
-            <SlideIn direction="left" delay={0.2}>
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-8 flex flex-col sm:flex-row items-start gap-6 shadow-glow-sm hud-element hover:border-slate-700 transition-colors">
-                <div className="bg-primary-500/10 p-4 rounded-xl text-primary-400 border border-primary-500/20 shadow-glow-sm shrink-0">
-                  <MapPin size={28} />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-2">Head Office</h4>
-                  <p className="text-slate-400 leading-relaxed font-medium">
-                    S.R.M. Institute of Science and Technology,<br />
-                    Kattankulathur, Chennai - 603203<br />
-                    Tamil Nadu, India
-                  </p>
-                </div>
+          {/* Left Column: Direct Contact Information */}
+          <div className="space-y-6">
+            <div>
+              <div className="section-label mb-4">
+                <MessageSquare size={14} /> Direct Channels
               </div>
-            </SlideIn>
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Reach our agronomy support desk</h2>
+              <p className="text-slate-600 leading-relaxed mb-8">
+                Connect with our state coordinators or customer care executives through any of the channels below.
+              </p>
+            </div>
 
-            <SlideIn direction="left" delay={0.3}>
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-8 flex flex-col sm:flex-row items-start gap-6 shadow-glow-sm hud-element hover:border-slate-700 transition-colors">
-                <div className="bg-primary-500/10 p-4 rounded-xl text-primary-400 border border-primary-500/20 shadow-glow-sm shrink-0">
-                  <Mail size={28} />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-2">Email Us</h4>
-                  <p className="text-primary-400 font-bold text-lg hover:text-primary-300 transition-colors cursor-pointer">support@farmhith.com</p>
-                </div>
+            {/* Address Card */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex items-start gap-5">
+              <div className="w-12 h-12 rounded-xl bg-primary-50 border border-primary-200 flex items-center justify-center text-primary-700 shrink-0">
+                <MapPin size={24} />
               </div>
-            </SlideIn>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">Registered Headquarters</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
+                  FarmHith Technologies Pvt. Ltd.<br />
+                  S.R.M. Institute of Science and Technology,<br />
+                  Kattankulathur, Chennai - 603203, Tamil Nadu, India
+                </p>
+              </div>
+            </div>
 
-            <SlideIn direction="left" delay={0.4}>
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-8 flex flex-col sm:flex-row items-start gap-6 shadow-glow-sm hud-element hover:border-slate-700 transition-colors">
-                <div className="bg-primary-500/10 p-4 rounded-xl text-primary-400 border border-primary-500/20 shadow-glow-sm shrink-0">
-                  <Phone size={28} />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-2">Call Us (Toll Free)</h4>
-                  <p className="text-primary-400 font-black text-2xl tracking-wide">1800-123-4567</p>
-                  <p className="text-sm font-bold text-slate-500 mt-2 uppercase tracking-wider">Mon-Sat, 9:00 AM to 6:00 PM</p>
-                </div>
+            {/* Email Card */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex items-start gap-5">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0">
+                <Mail size={24} />
               </div>
-            </SlideIn>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">Email Support</h3>
+                <p className="text-slate-600 text-sm leading-relaxed mb-1">For general inquiries, partnerships, and lab onboarding:</p>
+                <a href="mailto:support@farmhith.com" className="text-base font-bold text-primary-700 hover:text-primary-800">
+                  support@farmhith.com
+                </a>
+              </div>
+            </div>
+
+            {/* Phone Card */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex items-start gap-5">
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
+                <Phone size={24} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">Farmer Helpline (Toll-Free)</h3>
+                <p className="text-2xl font-black text-primary-700 tracking-tight">1800-123-4567</p>
+                <p className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">
+                  Monday – Saturday, 9:00 AM to 6:00 PM IST
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Contact Form */}
-          <ZoomIn delay={0.5}>
-            <div className="bg-slate-950 border border-slate-800 rounded-3xl p-10 shadow-glow-md hud-element h-full flex flex-col">
-              <h3 className="text-3xl font-black text-white mb-8">Send us a message</h3>
-              {status === 'success' ? (
-                <div className="bg-success-500/10 border border-success-500/30 text-success-400 rounded-2xl p-8 text-center flex-1 flex flex-col justify-center shadow-glow-sm">
-                  <h4 className="text-2xl font-black mb-3">Message Sent Successfully!</h4>
-                  <p className="text-success-400/80 mb-6 font-medium">Thank you for reaching out. Our support team will contact you within 24 hours.</p>
-                  <button onClick={() => setStatus('idle')} className="text-primary-400 font-bold hover:text-primary-300 transition-colors uppercase tracking-wider">Send another message</button>
+          {/* Right Column: Inquiry Message Form */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-8 md:p-10 shadow-sm">
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Send us a message</h3>
+            <p className="text-sm text-slate-600 mb-8">
+              Fill out your details below and a representative will respond within 24 hours.
+            </p>
+
+            {status === 'success' ? (
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl p-8 text-center">
+                <CheckCircle2 size={48} className="text-emerald-600 mx-auto mb-4" />
+                <h4 className="text-xl font-bold mb-2">Message Sent Successfully!</h4>
+                <p className="text-emerald-800 text-sm mb-6 leading-relaxed">
+                  Thank you for reaching out to FarmHith. An agronomy representative will get back to you shortly.
+                </p>
+                <button
+                  onClick={() => setStatus('idle')}
+                  className="text-primary-700 font-bold hover:underline text-sm uppercase tracking-wider"
+                >
+                  Send another inquiry
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Your Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="e.g. Ramesh Kumar"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-sm focus:bg-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all"
+                  />
                 </div>
-              ) : (
-                <form className="flex flex-col gap-6 flex-1" onSubmit={handleSubmit}>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">Full Name</label>
-                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required className="w-full bg-slate-900 border border-slate-800 rounded-xl px-5 py-4 font-bold text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all placeholder:text-slate-600" placeholder="e.g. Ramesh Kumar" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">Phone Number / Email</label>
-                    <input type="text" value={formData.contactInfo} onChange={e => setFormData({...formData, contactInfo: e.target.value})} required className="w-full bg-slate-900 border border-slate-800 rounded-xl px-5 py-4 font-bold text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all placeholder:text-slate-600" placeholder="Enter contact details" />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">Message</label>
-                    <textarea rows={5} value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} required className="w-full bg-slate-900 border border-slate-800 rounded-xl px-5 py-4 font-bold text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all resize-none placeholder:text-slate-600 h-[calc(100%-2rem)]" placeholder="How can we help you?"></textarea>
-                  </div>
-                  {status === 'error' && <p className="text-red-400 font-bold text-sm bg-red-500/10 border border-red-500/20 p-3 rounded-lg text-center">Failed to send message. Please try again.</p>}
-                  <button disabled={status === 'loading'} className="bg-primary-500 text-slate-950 font-black justify-center py-4 rounded-xl text-lg hover:bg-primary-400 transition-all shadow-glow-md disabled:opacity-50 mt-2">
-                    {status === 'loading' ? 'Sending...' : 'Send Message'}
-                  </button>
-                </form>
-              )}
-            </div>
-          </ZoomIn>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    Phone Number or Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.contactInfo}
+                    onChange={(e) => setFormData({ ...formData, contactInfo: e.target.value })}
+                    placeholder="e.g. +91 98765 43210 or name@example.com"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-sm focus:bg-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                    How can we assist you? <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    placeholder="Tell us about your farm, soil test query, or residue listing..."
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-sm focus:bg-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all resize-none"
+                  />
+                </div>
+
+                {status === 'error' && (
+                  <p className="text-xs text-red-600 bg-red-50 border border-red-200 p-3 rounded-lg text-center font-medium">
+                    Failed to send message. Please check your connection or call our helpline directly.
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="btn-primary-full text-center flex items-center justify-center gap-2 py-3.5 shadow-sm hover:shadow-md"
+                >
+                  <Send size={18} />
+                  <span>{status === 'loading' ? 'Sending Message...' : 'Submit Inquiry'}</span>
+                </button>
+              </form>
+            )}
+          </div>
 
         </div>
       </section>
+
+      {/* ═══════════════ FOOTER ══════════════════════════════ */}
+      <footer className="footer">
+        <div className="footer-inner">
+          <div className="footer-brand">
+            <div className="logo">
+              <div className="logo-icon"><Leaf size={20} /></div>
+              <span className="logo-text">FarmHith</span>
+            </div>
+            <p className="footer-tagline">Empowering Indian farmers with scientific precision, expert advisory, and sustainable biomass revenue.</p>
+          </div>
+          <div className="footer-links">
+            <div>
+              <p className="footer-heading">Services</p>
+              <Link href="/register" className="footer-link">Soil Testing</Link>
+              <Link href="/register" className="footer-link">Soil-Mitra Advisory</Link>
+              <Link href="/register" className="footer-link">Residue Marketplace</Link>
+            </div>
+            <div>
+              <p className="footer-heading">Company</p>
+              <Link href="/about" className="footer-link">About Us</Link>
+              <Link href="/features" className="footer-link">Features</Link>
+              <Link href="/blog" className="footer-link">Blog</Link>
+              <Link href="/faq" className="footer-link">FAQs</Link>
+              <Link href="/contact" className="footer-link">Contact</Link>
+            </div>
+            <div>
+              <p className="footer-heading">Account</p>
+              <Link href="/register" className="footer-link">Register</Link>
+              <Link href="/login" className="footer-link">Login</Link>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>© {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
