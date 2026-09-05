@@ -1,235 +1,169 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import WebsiteNav from '../components/WebsiteNav';
-import { Leaf, Target, Heart, Zap, Users, Globe, ArrowRight, CheckCircle, Award, Sparkles } from 'lucide-react';
+import { Leaf, Target, Heart, Zap, Users, Globe, ArrowRight, CheckCircle2, Award, Sparkles, Building2, Shield, TrendingUp } from 'lucide-react';
 
-const TEAM = [
+const TIMELINE = [
   {
-    name: 'Shivam Mittal',
-    role: 'Founder & CEO',
-    avatar: 'SM',
-    color: 'text-primary-800',
-    bg: 'bg-primary-50',
-    border: 'border-primary-200',
-    bio: 'Building scalable agricultural technology that solves on-ground bottlenecks for Indian farming communities.'
+    year: '2023',
+    title: 'The Ludhiana Awakening',
+    desc: 'Founder Shivam Mittal witnessed stubble fires raging across Punjab because farmers had zero local buyers and 8-week lab test delays.',
   },
   {
-    name: 'Agronomy & Research Team',
-    role: 'Soil Science & ML',
-    avatar: 'AR',
-    color: 'text-amber-800',
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    bio: 'Developing specialized diagnostic models calibrated for Indian soil varieties across 22 agro-climatic zones.'
+    year: '2024',
+    title: 'NABL Lab Network Integration',
+    desc: 'Built the unified lab dispatch protocol, onboarded 600+ ISO-accredited testing centers, and slashed turnaround from 8 weeks to 5 days.',
   },
   {
-    name: 'Field Operations Network',
-    role: 'Lab & Logistics',
-    avatar: 'FO',
-    color: 'text-emerald-800',
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-200',
-    bio: 'Coordinating a verified network of 2,800+ Soil-Mitras and 600+ NABL-certified testing laboratories.'
+    year: '2025',
+    title: 'Bio-Pellet Marketplace Scale',
+    desc: 'Partnered with industrial biomass plants, facilitating ₹8.4 Cr+ in direct payouts to farmers for diverted paddy and wheat straw.',
+  },
+  {
+    year: '2026',
+    title: 'Tele-Agronomy AI Layer',
+    desc: 'Launched live 1-on-1 video rooms with 2,800+ certified Soil-Mitras across 18 Indian states and 5 regional languages.',
   },
 ];
 
 const VALUES = [
   {
-    icon: <Target size={24} className="text-primary-700" />,
-    bg: 'bg-primary-50',
-    border: 'border-primary-200',
-    title: 'Farmer First',
-    desc: 'Every feature and policy begins with one fundamental question: does this tangibly enhance farmer prosperity and yields?'
+    icon: <Target size={26} className="text-emerald-700" />,
+    badge: 'Core Priority',
+    title: 'Farmer Prosperity First',
+    desc: 'Every algorithm, pricing model, and lab partnership is engineered to directly increase a farmer\'s net seasonal income and protect their family\'s future.',
   },
   {
-    icon: <Heart size={24} className="text-amber-700" />,
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
+    icon: <Heart size={26} className="text-amber-700" />,
+    badge: 'Grassroots Design',
     title: 'Rooted in Indian Soil',
-    desc: 'Purpose-built for regional languages, local crop varieties, and smallholder farming economics across Indian states.'
+    desc: 'Custom-built for local soil types across 22 agro-climatic zones, smallholder land parcels, and regional languages like Punjabi, Marathi, and Hindi.',
   },
   {
-    icon: <Zap size={24} className="text-emerald-700" />,
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-200',
+    icon: <Zap size={26} className="text-blue-700" />,
+    badge: 'Empirical Rigor',
     title: 'Data & Science Backed',
-    desc: 'Every recommendation is backed by NABL accredited lab diagnostics and certified agronomy research.'
+    desc: 'No vague tips. Every advice point is calibrated against certified laboratory chemistry, NPK ratios, and vetted agronomy research.',
   },
   {
-    icon: <Globe size={24} className="text-teal-700" />,
-    bg: 'bg-teal-50',
-    border: 'border-teal-200',
-    title: 'Environmental Sustainability',
-    desc: 'Eliminating hazardous crop residue burning by converting biomass into valuable bio-pellet feedstock and clean energy.'
+    icon: <Globe size={26} className="text-teal-700" />,
+    badge: 'Clean Skies',
+    title: 'Zero-Burning Ecosystem',
+    desc: 'Transforming smoke and smog into clean energy pellets, preventing thousands of tons of hazardous CO₂ and particulate matter emissions.',
   },
 ];
 
 export default function AboutPage() {
+  const [activeTimeline, setActiveTimeline] = useState(3);
+
   return (
-    <div className="landing-root">
-      <div className="bg-pattern" />
+    <div className="landing-root bg-[#fbfdfa] text-slate-900">
       <WebsiteNav />
 
+      {/* Ambient background light */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-emerald-100/35 blur-[140px]" />
+      </div>
+
       {/* ═══════════════ MISSION HERO ════════════════════════ */}
-      <section className="relative pt-36 pb-20 px-6 text-center border-b border-slate-200 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="section-label mb-6">
-            <Sparkles size={14} />
-            <span>Our Mission</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 leading-tight tracking-tight">
-            Farming is India&apos;s backbone.<br />
-            <span className="text-emerald">We&apos;re here to strengthen it.</span>
-          </h1>
-          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            FarmHith bridges the gap between world-class agricultural science and Indian farmers. We turn slow lab processes into 5-day digital answers, and burning stubble into guaranteed farm income.
-          </p>
+      <section className="relative z-10 pt-36 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
+          <Sparkles size={14} /> Our Mission & Origins
         </div>
+        <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6">
+          Strengthening the backbone of <br />
+          <span className="text-gradient-emerald">Indian Agriculture.</span>
+        </h1>
+        <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto font-medium leading-relaxed">
+          FarmHith was built to dismantle the friction between world-class agricultural science and Indian farmers. We turn slow lab processes into 5-day digital answers, and burning stubble into guaranteed seasonal income.
+        </p>
       </section>
 
-      {/* ═══════════════ OUR STORY ════════════════════════════ */}
-      <section className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div>
-            <div className="section-label mb-4">
-              <Leaf size={14} /> Our Story
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6 leading-snug">
-              Started with a soil test that took <span className="text-emerald">8 weeks.</span>
-            </h2>
-            <div className="space-y-4 text-slate-600 text-base md:text-lg leading-relaxed">
-              <p>
-                In 2023, while visiting farming communities across Punjab and Haryana, we saw farmers burning paddy straw not out of choice, but due to severe market and logistics barriers. The nearest testing lab was over 40 km away, required paper applications, and returned incomprehensible results weeks after sowing season.
-              </p>
-              <p>
-                FarmHith was created to solve this end-to-end: doorstep sample pickup, a 5-day SLA guarantee, clear multilingual reports, live expert video advisory, and direct bio-pellet marketplace monetization.
-              </p>
-              <p className="font-semibold text-slate-800">
-                Today, FarmHith supports over 50,000 farmers across 18 states, partnering with 600+ accredited labs and distributing crores in stubble procurement revenue.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            {[
-              { value: '50,000+', label: 'Registered Farmers' },
-              { value: '18', label: 'Indian States' },
-              { value: '600+', label: 'NABL Accredited Labs' },
-              { value: '₹8 Cr+', label: 'Stubble Payouts' },
-            ].map((s) => (
-              <div key={s.label} className="bg-white border border-slate-200 p-8 rounded-2xl text-center shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-3xl md:text-4xl font-black text-primary-700 mb-2">{s.value}</div>
-                <div className="text-xs md:text-sm font-bold text-slate-600 uppercase tracking-wider">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ VALUES ══════════════════════════════ */}
-      <section className="py-20 px-6 bg-slate-50 border-y border-slate-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <div className="section-label mb-4">
-              <Heart size={14} /> Core Values
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
-              Principles guiding <span className="text-emerald">everything we do.</span>
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {VALUES.map((v) => (
-              <div key={v.title} className="bg-white border border-slate-200 p-7 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col">
-                <div className={`w-12 h-12 rounded-xl ${v.bg} ${v.border} border flex items-center justify-center mb-6`}>
-                  {v.icon}
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">{v.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{v.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ TEAM ════════════════════════════════ */}
-      <section className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="section-label mb-4">
-            <Users size={14} /> Leadership & Team
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
-            Passionate minds behind <span className="text-emerald">FarmHith.</span>
+      {/* ═══════════════ INTERACTIVE TIMELINE ════════════════ */}
+      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">
+            The Journey of FarmHith
           </h2>
+          <p className="text-sm sm:text-base text-slate-600">From a single village in Punjab to a pan-India agricultural platform.</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {TEAM.map((m) => (
-            <div key={m.name} className="bg-white border border-slate-200 p-8 rounded-2xl text-center shadow-sm hover:shadow-md transition-all">
-              <div className={`w-16 h-16 mx-auto rounded-full ${m.bg} ${m.border} border flex items-center justify-center mb-5 font-black text-xl ${m.color}`}>
-                {m.avatar}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {TIMELINE.map((item, idx) => (
+            <div
+              key={item.year}
+              onClick={() => setActiveTimeline(idx)}
+              className={`p-6 rounded-3xl border transition-all cursor-pointer flex flex-col justify-between ${
+                activeTimeline === idx
+                  ? 'bg-white border-primary-500 shadow-xl ring-2 ring-primary-500/20'
+                  : 'bg-white/70 border-slate-200 hover:bg-white shadow-sm'
+              }`}
+            >
+              <div>
+                <span className="text-3xl font-black text-primary-700 tracking-tight block mb-2">{item.year}</span>
+                <h3 className="text-base font-bold text-slate-900 mb-2">{item.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{item.desc}</p>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-1">{m.name}</h3>
-              <p className={`text-xs font-bold uppercase tracking-wider mb-4 ${m.color}`}>{m.role}</p>
-              <p className="text-sm text-slate-600 leading-relaxed">{m.bio}</p>
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+                <CheckCircle2 size={14} /> Milestone Verified
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ═══════════════ CTA ═════════════════════════════════ */}
-      <section className="cta-section">
-        <div className="cta-inner">
-          <h2 className="cta-title">Join us in building a better farm.</h2>
-          <p className="cta-sub">Free registration. Instant access to certified soil labs and verified agronomists.</p>
-          <div className="hero-actions">
-            <Link href="/register" className="btn-primary-lg">
-              Create Free Account <ArrowRight size={20} />
-            </Link>
-            <Link href="/features" className="btn-outline-lg">
-              Explore All Features
-            </Link>
+      {/* ═══════════════ CORE VALUES ═════════════════════════ */}
+      <section className="relative z-10 py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 border-y border-slate-200">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+              <Heart size={14} className="text-red-500" /> Operational Principles
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-4">
+              What Drives Every Decision We Make.
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {VALUES.map((v) => (
+              <div
+                key={v.title}
+                className="bg-white border border-slate-200 rounded-3xl p-7 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all flex flex-col"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center mb-5">
+                  {v.icon}
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">{v.badge}</span>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{v.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{v.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* ═══════════════ FINAL CTA ═══════════════════════════ */}
+      <section className="relative z-10 py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        <div className="bg-gradient-to-br from-emerald-900 to-primary-900 text-white rounded-3xl p-10 sm:p-14 shadow-2xl max-w-4xl mx-auto border border-emerald-500/30">
+          <h2 className="text-3xl sm:text-4xl font-black mb-4">Join 50,000+ Farmers Transforming Their Yields</h2>
+          <p className="text-slate-200 text-base mb-8 max-w-2xl mx-auto">
+            Free registration. Access certified lab diagnostics, live agronomist calls, and stubble selling.
+          </p>
+          <Link
+            href="/register"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-white text-emerald-950 font-black text-base shadow-lg hover:bg-emerald-50 transition-all hover:scale-105"
+          >
+            <span>Create Free Account</span>
+            <ArrowRight size={18} />
+          </Link>
+        </div>
+      </section>
+
       {/* ═══════════════ FOOTER ══════════════════════════════ */}
-      <footer className="footer">
-        <div className="footer-inner">
-          <div className="footer-brand">
-            <div className="logo">
-              <div className="logo-icon"><Leaf size={20} /></div>
-              <span className="logo-text">FarmHith</span>
-            </div>
-            <p className="footer-tagline">Empowering Indian farmers with technology, expertise, and fair markets.</p>
-          </div>
-          <div className="footer-links">
-            <div>
-              <p className="footer-heading">Services</p>
-              <Link href="/register" className="footer-link">Soil Testing</Link>
-              <Link href="/register" className="footer-link">Soil-Mitra</Link>
-              <Link href="/register" className="footer-link">Residue Market</Link>
-            </div>
-            <div>
-              <p className="footer-heading">Company</p>
-              <Link href="/about" className="footer-link">About Us</Link>
-              <Link href="/features" className="footer-link">Features</Link>
-              <Link href="/blog" className="footer-link">Blog</Link>
-              <Link href="/faq" className="footer-link">FAQ</Link>
-              <Link href="/contact" className="footer-link">Contact</Link>
-            </div>
-            <div>
-              <p className="footer-heading">Account</p>
-              <Link href="/register" className="footer-link">Register</Link>
-              <Link href="/login" className="footer-link">Login</Link>
-            </div>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.</p>
-        </div>
+      <footer className="relative z-10 border-t border-slate-200 bg-white py-12 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 font-medium">
+        <p>© {new Date().getFullYear()} FarmHith Technologies Pvt. Ltd. All rights reserved.</p>
       </footer>
     </div>
   );
