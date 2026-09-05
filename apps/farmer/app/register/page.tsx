@@ -1,8 +1,9 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Leaf, Eye, EyeOff, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
+import { Leaf, Eye, EyeOff, CheckCircle2, Loader2, ArrowRight, Shield, Sparkles, Star } from 'lucide-react';
 import { auth, db } from '@farmhith/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -24,7 +25,7 @@ const PRIMARY_CROPS = [
   { label: 'Mustard (सरसों)', value: 'mustard' },
   { label: 'Maize (मक्का)', value: 'maize' },
   { label: 'Horticulture & Vegetables', value: 'horticulture' },
-  { label: 'Other', value: 'other' },
+  { label: 'Other Crops', value: 'other' },
 ];
 
 export default function FarmerRegisterPage() {
@@ -46,7 +47,6 @@ export default function FarmerRegisterPage() {
     aadhaarNumber: '',
   });
 
-  // Redirect if already logged in with correct role
   useEffect(() => {
     if (!isLoading && firebaseUser && user?.role === 'FARMER') {
       router.push('/dashboard');
@@ -56,7 +56,7 @@ export default function FarmerRegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.fullName || !form.email || !form.password || !form.state) {
-      setError('Please fill in all required fields.');
+      setError('Please fill in all required fields marked with *.');
       return;
     }
     if (form.password.length < 6) {
@@ -112,33 +112,86 @@ export default function FarmerRegisterPage() {
 
   if (isLoading) return (
     <div className="min-h-screen bg-[#f8faf5] flex items-center justify-center">
-      <Loader2 size={28} className="animate-spin text-primary-600" />
+      <Loader2 size={32} className="animate-spin text-primary-700" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#f8faf5] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
-      <div className="bg-pattern" />
+    <div className="min-h-screen bg-[#fbfdfa] text-slate-900 flex">
+      {/* ═══════════════ LEFT COLUMN: BRAND SHOWCASE ═══════════════ */}
+      <div className="hidden lg:flex lg:w-5/12 relative bg-slate-900 overflow-hidden flex-col justify-between p-12 text-white">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1595804368593-cc43ba2986f3?q=80&w=1600&auto=format&fit=crop')] bg-cover bg-center opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-xl text-center relative z-10">
-        <Link href="/" className="inline-flex items-center justify-center gap-2 mb-4 group">
-          <div className="w-10 h-10 rounded-xl bg-primary-700 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-            <Leaf size={22} />
+        {/* Top Branding */}
+        <div className="relative z-10">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-primary-500 flex items-center justify-center shadow-lg">
+              <Leaf size={22} className="text-white" />
+            </div>
+            <span className="text-2xl font-black tracking-tight text-white">FarmHith</span>
+          </Link>
+        </div>
+
+        {/* Middle Value Proposition */}
+        <div className="relative z-10 space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+            <Sparkles size={14} /> Free Farmer Registration
           </div>
-          <span className="text-2xl font-black text-slate-900 tracking-tight">FarmHith</span>
-        </Link>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-          Create Your Farmer Account
-        </h1>
-        <p className="mt-1 text-sm font-medium text-slate-600">
-          किसान पंजीकरण — Join 50,000+ farmers across India
-        </p>
+          <h2 className="text-4xl font-black leading-tight text-white">
+            Join 50,000+ Indian farmers growing smarter.
+          </h2>
+          <div className="space-y-3 text-slate-300 text-sm font-medium">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+              <span>Doorstep NABL lab testing with 5-day digital turnaround</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+              <span>Instant agronomist video consultations in your language</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+              <span>Assured stubble floor prices & direct bank payouts</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Trust Badge */}
+        <div className="relative z-10 bg-white/10 backdrop-blur-xl border border-white/20 p-5 rounded-2xl">
+          <div className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">
+            Zero Platform Fees
+          </div>
+          <p className="text-xs text-slate-200">
+            Account registration is 100% free with lifetime dashboard access.
+          </p>
+        </div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl relative z-10">
-        <div className="bg-white py-8 px-6 shadow-sm border border-slate-200 rounded-2xl sm:px-10">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Full name + email */}
+      {/* ═══════════════ RIGHT COLUMN: REGISTRATION FORM ═══════════ */}
+      <div className="w-full lg:w-7/12 flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-12 relative overflow-y-auto">
+        <div className="max-w-xl w-full mx-auto space-y-6">
+          
+          <div>
+            <div className="lg:hidden mb-6">
+              <Link href="/" className="inline-flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-primary-700 text-white flex items-center justify-center">
+                  <Leaf size={20} />
+                </div>
+                <span className="text-xl font-black text-slate-900">FarmHith</span>
+              </Link>
+            </div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+              Create Your Farmer Account
+            </h1>
+            <p className="mt-1 text-sm font-medium text-slate-600">
+              किसान पंजीकरण — Register your farm to access all certified services.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            
+            {/* Full Name & Email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
@@ -146,11 +199,11 @@ export default function FarmerRegisterPage() {
                 </label>
                 <input
                   type="text"
+                  required
                   value={form.fullName}
                   onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                   placeholder="e.g. Ramesh Kumar"
-                  className="block w-full py-2.5 px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
-                  required
+                  className="w-full py-2.5 px-3.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 outline-none transition-all shadow-sm"
                 />
               </div>
               <div>
@@ -159,67 +212,69 @@ export default function FarmerRegisterPage() {
                 </label>
                 <input
                   type="email"
+                  required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="farmer@example.com"
-                  className="block w-full py-2.5 px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
-                  required
+                  className="w-full py-2.5 px-3.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 outline-none transition-all shadow-sm"
                 />
               </div>
             </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Password <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
+            {/* Password & Phone */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    placeholder="Min 6 characters"
+                    className="w-full py-2.5 pl-3.5 pr-10 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 outline-none transition-all shadow-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Mobile Number
+                </label>
                 <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="Minimum 6 characters"
-                  className="block w-full py-2.5 pl-3.5 pr-10 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
-                  required
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  placeholder="+91 98765 43210"
+                  className="w-full py-2.5 px-3.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 outline-none transition-all shadow-sm"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
               </div>
             </div>
 
-            {/* Phone */}
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Mobile Phone Number
-              </label>
-              <input
-                type="tel"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                placeholder="+91 98765 43210"
-                className="block w-full py-2.5 px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
-              />
-            </div>
-
-            {/* State + District */}
+            {/* State & District */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                   State <span className="text-red-500">*</span>
                 </label>
                 <select
+                  required
                   value={form.state}
                   onChange={(e) => setForm({ ...form, state: e.target.value })}
-                  className="block w-full py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
-                  required
+                  className="w-full py-2.5 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 outline-none transition-all shadow-sm"
                 >
                   <option value="">Select State…</option>
-                  {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                  {INDIAN_STATES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -231,12 +286,12 @@ export default function FarmerRegisterPage() {
                   value={form.district}
                   onChange={(e) => setForm({ ...form, district: e.target.value })}
                   placeholder="e.g. Ludhiana"
-                  className="block w-full py-2.5 px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
+                  className="w-full py-2.5 px-3.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 outline-none transition-all shadow-sm"
                 />
               </div>
             </div>
 
-            {/* Land + Crop */}
+            {/* Total Land Acres & Primary Crop */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
@@ -248,8 +303,8 @@ export default function FarmerRegisterPage() {
                   step="0.5"
                   value={form.totalLandAcres}
                   onChange={(e) => setForm({ ...form, totalLandAcres: e.target.value })}
-                  placeholder="e.g. 10.5"
-                  className="block w-full py-2.5 px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
+                  placeholder="e.g. 12.5"
+                  className="w-full py-2.5 px-3.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 outline-none transition-all shadow-sm"
                 />
               </div>
               <div>
@@ -259,31 +314,33 @@ export default function FarmerRegisterPage() {
                 <select
                   value={form.primaryCrop}
                   onChange={(e) => setForm({ ...form, primaryCrop: e.target.value })}
-                  className="block w-full py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
+                  className="w-full py-2.5 px-3 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 outline-none transition-all shadow-sm"
                 >
                   <option value="">Select Crop…</option>
-                  {PRIMARY_CROPS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                  {PRIMARY_CROPS.map((c) => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
                 </select>
               </div>
             </div>
 
-            {/* Aadhaar */}
+            {/* Aadhaar (Optional) */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Aadhaar Number <span className="text-slate-400 font-normal">(optional)</span>
+                Aadhaar Number <span className="text-slate-400 font-normal">(Optional for KYC)</span>
               </label>
               <input
                 type="text"
+                maxLength={14}
                 value={form.aadhaarNumber}
                 onChange={(e) => setForm({ ...form, aadhaarNumber: e.target.value })}
                 placeholder="0000 0000 0000"
-                maxLength={14}
-                className="block w-full py-2.5 px-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-all outline-none"
+                className="w-full py-2.5 px-3.5 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 outline-none transition-all shadow-sm"
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-medium">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-semibold">
                 {error}
               </div>
             )}
@@ -291,22 +348,23 @@ export default function FarmerRegisterPage() {
             <button
               type="submit"
               disabled={loading || !form.fullName || !form.email || !form.password || !form.state}
-              className="w-full flex items-center justify-center gap-2 bg-primary-700 text-white font-bold py-3 px-4 rounded-xl shadow-sm hover:bg-primary-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-800 via-primary-700 to-emerald-600 hover:from-emerald-900 hover:to-emerald-700 text-white font-extrabold text-sm shadow-[0_4px_14px_rgba(46,125,50,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {loading ? (
-                <><Loader2 size={18} className="animate-spin" /> Creating Your Account…</>
+                <><Loader2 size={18} className="animate-spin" /> Creating Account…</>
               ) : (
-                <><CheckCircle2 size={18} /> Complete Farmer Registration</>
+                <><CheckCircle2 size={18} /> Complete Free Farmer Registration</>
               )}
             </button>
-
-            <div className="mt-6 pt-4 border-t border-slate-100 text-center text-sm">
-              <span className="text-slate-600">Already have an account? </span>
-              <Link href="/login" className="font-bold text-primary-700 hover:text-primary-800">
-                Log in here &rarr;
-              </Link>
-            </div>
           </form>
+
+          <div className="pt-3 border-t border-slate-100 text-center text-sm font-medium">
+            <span className="text-slate-600">Already registered? </span>
+            <Link href="/login" className="font-bold text-primary-700 hover:text-primary-800">
+              Sign in to Dashboard &rarr;
+            </Link>
+          </div>
+
         </div>
       </div>
     </div>
